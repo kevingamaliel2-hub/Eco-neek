@@ -1,0 +1,289 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="auth-container">
+  <div class="container">
+    <div class="row g-0 auth-wrapper">
+      
+      <!-- Lado Izquierdo - Ilustración (SE MANTIENE IGUAL) -->
+      <div class="col-lg-6 auth-visual auth-visual-register">
+        <div class="visual-content">
+          <div class="visual-images-dual">
+            <img src="{% static 'assets/img/crearcuenta.jpg' %}" alt="Centro EcoLoop" class="visual-main-image">
+          </div>
+          <h2 class="visual-title">¡Únete a EcoLoop!</h2>
+          <p class="visual-subtitle">Comienza tu viaje hacia un estilo de vida más sostenible. Regístrate como usuario para reciclar o como centro para recibir materiales y hacer crecer tu red.</p>
+        </div>
+      </div>
+
+      <!-- Lado Derecho - Formulario (SOLO CAMBIAMOS EL ACTION) -->
+      <div class="col-lg-6 auth-form-section">
+        <div class="auth-form-content auth-form-register">
+          
+          <div class="auth-header">
+            <h1 class="auth-title">Crear cuenta</h1>
+            <p class="auth-subtitle">Completa tus datos para comenzar</p>
+          </div>
+
+          <!-- ✅ CORREGIDO: action apunta a nuestra vista de Supabase -->
+          <form method="post" action="{% url 'completar_registro' %}">
+            {% csrf_token %}
+            
+            <!-- Tus campos existentes (SE MANTIENEN IGUALES) -->
+            <div class="form-group">
+              <label class="form-label">
+                <i class="bi bi-person-fill me-2"></i>
+                Nombre de usuario
+              </label>
+              <input type="text" name="username" class="form-input" placeholder="juanperez" required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">
+                <i class="bi bi-envelope-fill me-2"></i>
+                Correo electrónico
+              </label>
+              <input type="email" name="email" class="form-input" placeholder="tu@email.com" required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">
+                <i class="bi bi-lock-fill me-2"></i>
+                Contraseña
+              </label>
+              <div class="password-input-wrapper">
+                <input type="password" name="password1" id="password1" class="form-input" placeholder="Mínimo 6 caracteres" required>
+                <button type="button" class="password-toggle" onclick="togglePassword('password1', 'toggleIcon1')">
+                  <i class="bi bi-eye" id="toggleIcon1"></i>
+                </button>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">
+                <i class="bi bi-lock-fill me-2"></i>
+                Confirmar contraseña
+              </label>
+              <div class="password-input-wrapper">
+                <input type="password" name="password2" id="password2" class="form-input" placeholder="Repite tu contraseña" required>
+                <button type="button" class="password-toggle" onclick="togglePassword('password2', 'toggleIcon2')">
+                  <i class="bi bi-eye" id="toggleIcon2"></i>
+                </button>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">
+                <i class="bi bi-telephone-fill me-2"></i>
+                Teléfono
+              </label>
+              <input type="tel" name="telefono" class="form-input" placeholder="+52 123 456 7890">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">
+                <i class="bi bi-people-fill me-2"></i>
+                Tipo de cuenta
+              </label>
+              <div class="account-type-selector">
+                <input type="radio" name="tipo" value="usuario" id="tipoUsuario" checked>
+                <label for="tipoUsuario" class="account-type-option">
+                  <div class="account-type-icon">
+                    <i class="bi bi-person"></i>
+                  </div>
+                  <div class="account-type-info">
+                    <strong>Usuario</strong>
+                    <span>Ciudadano reciclador</span>
+                  </div>
+                  <i class="bi bi-check-circle-fill account-type-check"></i>
+                </label>
+
+                <input type="radio" name="tipo" value="centro" id="tipoCentro">
+                <label for="tipoCentro" class="account-type-option">
+                  <div class="account-type-icon">
+                    <i class="bi bi-building"></i>
+                  </div>
+                  <div class="account-type-info">
+                    <strong>Centro</strong>
+                    <span>Punto verde / Recicladora</span>
+                  </div>
+                  <i class="bi bi-check-circle-fill account-type-check"></i>
+                </label>
+              </div>
+            </div>
+
+            <!-- Campos extra para centros -->
+            <div id="extraCentro" style="display: none;">
+              <div class="form-group">
+                <label class="form-label">
+                  <i class="bi bi-shop me-2"></i>
+                  Tipo de centro
+                </label>
+                <select name="tipo_centro" class="form-input">
+                  <option value="acopio">Centro de acopio</option>
+                  <option value="recicladora">Recicladora</option>
+                  <option value="chatarreria">Chatarrería</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">
+                  <i class="bi bi-shop me-2"></i>
+                  Nombre del negocio
+                </label>
+                <input type="text" name="business_name" class="form-input" placeholder="Ej: Recicladora México">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">
+                  <i class="bi bi-geo-alt-fill me-2"></i>
+                  Dirección
+                </label>
+                <input type="text" name="address" class="form-input" placeholder="Calle, número, colonia">
+              </div>
+
+              <div class="alert alert-info alert-custom">
+                <i class="bi bi-info-circle-fill me-2"></i>
+                Los centros quedan <strong>pendientes de aprobación</strong> por el equipo de EcoLoop.
+              </div>
+            </div>
+
+            <button class="btn btn-auth-primary" type="submit">
+              <span>Crear cuenta</span>
+            </button>
+          </form>
+
+          <div class="divider">
+            <span>O regístrate con</span>
+          </div>
+
+          <!-- ✅ CORREGIDO: Botón de Google sin allauth -->
+          <button onclick="registrarConGoogle()" class="btn btn-google">
+            <i class="bi bi-google"></i>
+            <span>Crear cuenta con Google</span>
+          </button>
+
+          <div class="auth-footer">
+            <p>¿Ya tienes cuenta? <a href="{% url 'login' %}" class="auth-link">Inicia sesión aquí</a></p>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Modal para elegir rol después de Google -->
+<div id="roleModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 10000; display: flex; align-items: center; justify-content: center;">
+  <div style="background: white; padding: 2rem; border-radius: 16px; max-width: 400px; width: 90%;">
+    <h3 style="margin-bottom: 1rem;">¿Cómo quieres usar EcoLoop?</h3>
+    
+    <div onclick="selectRole('usuario')" style="display: flex; gap: 1rem; padding: 1rem; border: 2px solid #e5e7eb; border-radius: 12px; margin-bottom: 1rem; cursor: pointer;">
+      <span style="font-size: 2rem;">👤</span>
+      <div>
+        <h4 style="margin: 0;">Usuario Reciclador</h4>
+        <p style="margin: 0;">Quiero reciclar y ganar puntos</p>
+      </div>
+    </div>
+
+    <div onclick="selectRole('centro')" style="display: flex; gap: 1rem; padding: 1rem; border: 2px solid #e5e7eb; border-radius: 12px; margin-bottom: 1rem; cursor: pointer;">
+      <span style="font-size: 2rem;">🏢</span>
+      <div>
+        <h4 style="margin: 0;">Centro de Acopio</h4>
+        <p style="margin: 0;">Recibo materiales reciclables</p>
+      </div>
+    </div>
+
+    <button onclick="document.getElementById('roleModal').style.display='none'" style="width: 100%; padding: 0.75rem; background: #6c757d; color: white; border: none; border-radius: 8px;">
+      Cancelar
+    </button>
+  </div>
+</div>
+
+<script>
+// Función para toggle password
+function togglePassword(fieldId, iconId) {
+  const passwordInput = document.getElementById(fieldId);
+  const toggleIcon = document.getElementById(iconId);
+  
+  if (passwordInput.type === 'password') {
+    passwordInput.type = 'text';
+    toggleIcon.classList.remove('bi-eye');
+    toggleIcon.classList.add('bi-eye-slash');
+  } else {
+    passwordInput.type = 'password';
+    toggleIcon.classList.remove('bi-eye-slash');
+    toggleIcon.classList.add('bi-eye');
+  }
+}
+
+// Mostrar/ocultar campos de centro
+document.addEventListener('DOMContentLoaded', function() {
+  const radioUsuario = document.getElementById('tipoUsuario');
+  const radioCentro = document.getElementById('tipoCentro');
+  const extraCentro = document.getElementById('extraCentro');
+
+  radioCentro.addEventListener('change', function() {
+    if (this.checked) extraCentro.style.display = 'block';
+  });
+
+  radioUsuario.addEventListener('change', function() {
+    if (this.checked) extraCentro.style.display = 'none';
+  });
+});
+
+// Google Sign-In
+let googleUserData = null;
+
+async function registrarConGoogle() {
+  try {
+    // Simular datos de Google (en producción usarías la API real)
+    googleUserData = {
+      email: prompt('Email de Google:', 'usuario@gmail.com'),
+      name: prompt('Nombre:', 'Usuario Demo')
+    };
+    
+    if (!googleUserData.email || !googleUserData.name) return;
+    
+    document.getElementById('roleModal').style.display = 'flex';
+    
+  } catch (error) {
+    alert('Error al iniciar Google Sign-In');
+  }
+}
+
+async function selectRole(role) {
+  if (!googleUserData) return;
+  
+  document.getElementById('roleModal').style.display = 'none';
+
+  try {
+    const response = await fetch('/google-register-callback/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': '{{ csrf_token }}'
+      },
+      body: JSON.stringify({
+        id_token: 'mock-token',
+        role: role,
+        email: googleUserData.email,
+        name: googleUserData.name
+      })
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      window.location.href = data.redirect;
+    } else {
+      alert('Error: ' + data.message);
+    }
+  } catch (error) {
+    alert('Error al procesar la solicitud');
+  }
+}
+</script>
+{% endblock %}

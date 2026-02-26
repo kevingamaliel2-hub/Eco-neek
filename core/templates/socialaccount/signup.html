@@ -1,0 +1,214 @@
+{% extends "base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block content %}
+<div class="auth-container">
+  <div class="container">
+    <div class="row g-0 auth-wrapper">
+      
+      <!-- Lado Izquierdo - Ilustración -->
+      <div class="col-lg-6 auth-visual auth-visual-register">
+        <div class="visual-content">
+          <div class="visual-images-dual">
+            <img src="{% static 'assets/img/crearcuenta.jpg' %}" alt="Registro Google" class="visual-main-image">
+          </div>
+          <h2 class="visual-title">¡Bienvenido a EcoNeek!</h2>
+          <p class="visual-subtitle">Ya casi tienes tu cuenta. Solo necesitamos que elijas un nombre de usuario para tu perfil.</p>
+        </div>
+      </div>
+
+      <!-- Lado Derecho - Formulario -->
+      <div class="col-lg-6 auth-form-section">
+        <div class="auth-form-content auth-form-register">
+          
+          <div class="auth-header">
+            <h1 class="auth-title">
+              <i class="bi bi-google me-3" style="color: #4285f4;"></i>
+              Detalles finales
+            </h1>
+            <p class="auth-subtitle">Personaliza tu perfil en EcoNeek</p>
+          </div>
+
+          <div class="alert alert-success alert-custom">
+            <i class="bi bi-check-circle-fill me-2"></i>
+            Tu cuenta de Google ha sido verificada. Solo falta elegir tu nombre de usuario:
+          </div>
+
+          <form class="signup" id="signup_form" method="post" action="{% url 'socialaccount_signup' %}">
+            {% csrf_token %}
+            
+            {% if form.non_field_errors %}
+              <div class="alert alert-danger alert-custom">
+                <i class="bi bi-x-circle-fill me-2"></i>
+                {% for error in form.non_field_errors %}
+                  {{ error }}
+                {% endfor %}
+              </div>
+            {% endif %}
+            
+            <div class="form-group">
+              <label class="form-label">
+                <i class="bi bi-person-fill me-2"></i>
+                Nombre de usuario <span class="text-danger">*</span>
+              </label>
+              <input type="text" name="username" class="form-input" placeholder="ej: juan_econeek" value="{{ form.username.value|default:'' }}" required>
+              {% if form.username.errors %}
+                <small class="text-danger">{{ form.username.errors.0 }}</small>
+              {% endif %}
+              <small class="form-hint">Este será tu nombre público en EcoNeek. Puedes cambiarlo después.</small>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">
+                <i class="bi bi-envelope-fill me-2"></i>
+                Correo electrónico
+              </label>
+              <div class="form-input" style="background: #f0f0f0;">
+                <i class="bi bi-check-circle-fill text-success me-2"></i>
+                {{ form.email.value|default:account.extra_data.email }}
+              </div>
+              <input type="hidden" name="email" value="{{ form.email.value|default:account.extra_data.email }}">
+              <small class="form-hint">Este correo está asociado a tu cuenta de Google</small>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">
+                <i class="bi bi-people-fill me-2"></i>
+                Tipo de cuenta
+              </label>
+              <div class="account-type-selector">
+                <input type="radio" name="tipo" value="usuario" id="tipoUsuario" checked>
+                <label for="tipoUsuario" class="account-type-option">
+                  <div class="account-type-icon">
+                    <i class="bi bi-person"></i>
+                  </div>
+                  <div class="account-type-info">
+                    <strong>Usuario</strong>
+                    <span>Ciudadano reciclador</span>
+                  </div>
+                  <i class="bi bi-check-circle-fill account-type-check"></i>
+                </label>
+
+                <input type="radio" name="tipo" value="centro" id="tipoCentro">
+                <label for="tipoCentro" class="account-type-option">
+                  <div class="account-type-icon">
+                    <i class="bi bi-building"></i>
+                  </div>
+                  <div class="account-type-info">
+                    <strong>Centro</strong>
+                    <span>Punto verde / Recicladora</span>
+                  </div>
+                  <i class="bi bi-check-circle-fill account-type-check"></i>
+                </label>
+              </div>
+            </div>
+
+            <!-- Campos extra para centros -->
+            <div id="extraCentro" class="extra-fields" style="display: none;">
+              <div class="form-group">
+                <label class="form-label">
+                  <i class="bi bi-shop me-2"></i>
+                  Tipo de centro
+                </label>
+                <select name="tipo_centro" class="form-input">
+                  <option value="acopio">Centro de acopio</option>
+                  <option value="recicladora">Recicladora</option>
+                  <option value="chatarreria">Chatarrería</option>
+                </select>
+              </div>
+
+              <div class="alert alert-info alert-custom">
+                <i class="bi bi-info-circle-fill me-2"></i>
+                Los centros quedan <strong>pendientes de aprobación</strong> por el equipo de EcoNeek.
+              </div>
+            </div>
+
+            {% if redirect_field_value %}
+              <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
+            {% endif %}
+
+            <button class="btn btn-auth-primary mt-4" type="submit">
+              <i class="bi bi-check-circle-fill me-2"></i>
+              Completar registro en EcoNeek
+            </button>
+          </form>
+
+          <div class="auth-footer mt-4">
+            <p class="small text-muted">
+              <i class="bi bi-shield-check me-1"></i>
+              Al hacer clic en "Completar registro", aceptas los 
+              <a href="#" class="auth-link">Términos y Condiciones</a> de EcoNeek.
+            </p>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Modal para elegir rol después de Google -->
+<div id="roleModal" class="modal" style="display: none;">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>¿Cómo quieres usar EcoLoop?</h3>
+      <p>Selecciona el tipo de cuenta que deseas crear</p>
+    </div>
+    <div class="modal-body">
+      <div class="role-option" onclick="selectRole('user')">
+        <div class="role-icon">👤</div>
+        <div class="role-info">
+          <h4>Usuario Reciclador</h4>
+          <p>Quiero reciclar y ganar puntos</p>
+        </div>
+      </div>
+      <div class="role-option" onclick="selectRole('center')">
+        <div class="role-icon">🏢</div>
+        <div class="role-info">
+          <h4>Centro de Acopio</h4>
+          <p>Recibo materiales reciclables</p>
+        </div>
+      </div>
+      <div class="role-option" onclick="selectRole('scrapyard')">
+        <div class="role-icon">🔧</div>
+        <div class="role-info">
+          <h4>Chatarrería</h4>
+          <p>Compro materiales y pago por ellos</p>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeRoleModal()">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<link rel="stylesheet" href="{% static 'core/css/role_modal.css' %}">
+<script src="{% static 'core/js/role_modal.js' %}"></script>
+
+<script>
+// Show/hide center fields
+document.addEventListener('DOMContentLoaded', function() {
+  const radioUsuario = document.getElementById('tipoUsuario');
+  const radioCentro = document.getElementById('tipoCentro');
+  const extraCentro = document.getElementById('extraCentro');
+
+  if (radioCentro && radioUsuario && extraCentro) {
+    radioCentro.addEventListener('change', function() {
+      if (this.checked) {
+        extraCentro.style.display = 'block';
+        extraCentro.style.animation = 'slideDown 0.3s ease';
+      }
+    });
+
+    radioUsuario.addEventListener('change', function() {
+      if (this.checked) {
+        extraCentro.style.display = 'none';
+      }
+    });
+  }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Eventos - Eco-Loop{% endblock %}
+
+{% block extra_head %}
+  <style>
+    .eventos-container { max-width: 1000px; margin: 0 auto; padding: 20px; }
+    .eventos-header { text-align: center; margin: 40px 0; }
+    .eventos-header h1 { font-size: 2.5rem; font-weight: bold; color: #18bd9b; }
+    
+    .eventos-list { display: flex; flex-direction: column; gap: 20px; }
+    
+    .evento-card {
+      border-radius: 12px;
+      background: white;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      overflow: hidden;
+      transition: transform 0.2s;
+    }
+    
+    .evento-card:hover { transform: translateY(-2px); }
+    
+    .evento-inner { display: flex; gap: 20px; padding: 20px; }
+    .evento-image {
+      width: 180px;
+      height: 180px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #dff6f3, #c1ebe5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 3rem;
+    }
+    
+    .evento-content { flex: 1; }
+    .evento-title { font-weight: bold; font-size: 1.3rem; color: #333; margin-bottom: 8px; }
+    .evento-desc { color: #666; margin-bottom: 12px; line-height: 1.5; }
+    .evento-meta { display: flex; gap: 20px; font-size: 0.9rem; color: #999; }
+    .evento-meta-item { display: flex; align-items: center; gap: 6px; }
+    
+    .empty-state { text-align: center; padding: 60px 20px; }
+  </style>
+{% endblock %}
+
+{% block content %}
+<div class="eventos-container">
+  <div class="eventos-header">
+    <h1>📅 Eventos Ecológicos</h1>
+    <p style="color: #666;">Participa en actividades y talleres de reciclaje</p>
+  </div>
+
+  {% if eventos %}
+    <div class="eventos-list">
+      {% for evento in eventos %}
+        <div class="evento-card">
+          <div class="evento-inner">
+            <div class="evento-image">
+              {% if evento.imagen_url %}
+                <img src="{{ evento.imagen_url }}" alt="{{ evento.titulo }}" style="width:100%; height:100%; object-fit:cover; border-radius:8px;">
+              {% else %}
+                📍
+              {% endif %}
+            </div>
+            <div class="evento-content">
+              <div class="evento-title">{{ evento.titulo }}</div>
+              {% if evento.descripcion %}
+                <div class="evento-desc">{{ evento.descripcion }}</div>
+              {% endif %}
+              <div class="evento-meta">
+                {% if evento.fecha_evento %}
+                  <div class="evento-meta-item">
+                    <i class="bi bi-calendar3"></i>
+                    {{ evento.fecha_evento|date:"d/m/Y H:i" }}
+                  </div>
+                {% endif %}
+                {% if evento.ubicacion %}
+                  <div class="evento-meta-item">
+                    <i class="bi bi-geo-alt"></i>
+                    {{ evento.ubicacion }}
+                  </div>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="empty-state">
+      <div style="font-size: 4rem; color: #ddd; margin-bottom: 20px;">📅</div>
+      <h2 style="color: #999;">Sin eventos disponibles</h2>
+      <p style="color: #999; margin-top: 10px;">Los eventos aparecerán aquí cuando estén disponibles.</p>
+    </div>
+  {% endif %}
+</div>
+
+{% endblock %}

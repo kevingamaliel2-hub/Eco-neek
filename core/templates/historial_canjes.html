@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Historial de Canjes{% endblock %}
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-12 col-lg-8">
+      <div class="d-flex align-items-center justify-content-between mb-4">
+        <h2 class="section-title mb-0">
+          <i class="bi bi-clock-history text-eco me-2"></i>Historial de Canjes
+        </h2>
+        <a href="{% url 'perfil' %}" class="btn-eco-outline py-2 px-3">
+          <i class="bi bi-arrow-left me-1"></i>Volver
+        </a>
+      </div>
+
+      {% if canjes %}
+        <div class="eco-card p-3 mb-4" style="background: linear-gradient(135deg, var(--eco-green), var(--eco-green-light)); color:#fff; border-radius:14px;">
+          <div class="text-center">
+            <span style="font-size:2rem">🏆</span>
+            <p class="mb-0 mt-1 fw-bold" style="font-size:1.1rem;">Total de puntos usados</p>
+            <p class="mb-0" style="font-size:2rem; font-weight:800;">{{ total_puntos_usados }} pts</p>
+          </div>
+        </div>
+
+        {% for canje in canjes %}
+        <div class="eco-card p-3 mb-3 d-flex align-items-center gap-3">
+          <div style="width:48px;height:48px;background:var(--eco-bg);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <i class="bi bi-gift-fill text-eco" style="font-size:1.4rem;"></i>
+          </div>
+          <div class="flex-grow-1">
+            <h6 class="mb-0 fw-bold">{{ canje.premio.title }}</h6>
+            <small class="text-muted">
+              <i class="bi bi-calendar3 me-1"></i>{{ canje.created_at|date:"d/m/Y H:i" }}
+              &nbsp;·&nbsp; Cantidad: {{ canje.quantity }}
+            </small>
+          </div>
+          <div class="text-end">
+            <span class="points-badge">{{ canje.premio.points_cost }} pts</span>
+            {% if canje.fulfilled %}
+              <br><small class="text-success mt-1 d-block"><i class="bi bi-check-circle-fill me-1"></i>Entregado</small>
+            {% else %}
+              <br><small class="text-warning mt-1 d-block"><i class="bi bi-hourglass-split me-1"></i>Pendiente</small>
+            {% endif %}
+          </div>
+        </div>
+        {% endfor %}
+
+      {% else %}
+        <div class="eco-card p-5 text-center">
+          <span style="font-size:3rem">🎁</span>
+          <h4 class="section-title mt-3">Sin canjes aún</h4>
+          <p class="text-muted">Acumula puntos reciclando y canjéalos por premios desde la app.</p>
+          <a href="{% url 'catalogo' %}" class="btn-eco px-4 py-2 d-inline-block mt-2">
+            Ver catálogo de premios
+          </a>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

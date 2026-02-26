@@ -1,0 +1,146 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}¿Cómo quieres unirte? – Eco-Neek{% endblock %}
+
+{% block extra_head %}
+<style>
+  /* Ocultar links de navegación en esta pantalla */
+  .navbar-collapse, .eco-navbar .navbar-collapse { display: none !important; }
+  
+  .registro-hero {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #f0f7f0 0%, #e8f5e8 100%);
+    display: flex;
+    align-items: center;
+    padding: 2rem 0;
+  }
+  .tipo-card {
+    background: #fff;
+    border-radius: 20px;
+    padding: 2.5rem 2rem;
+    text-align: center;
+    border: 2.5px solid transparent;
+    transition: all 0.25s ease;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.07);
+    cursor: pointer;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .tipo-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 35px rgba(0,0,0,0.13);
+  }
+  .tipo-card.verde:hover { border-color: var(--eco-green); }
+  .tipo-card.naranja:hover { border-color: var(--eco-orange, #f4a261); }
+  .tipo-card .tipo-icon {
+    width: 80px; height: 80px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 2.2rem;
+    margin-bottom: 1.2rem;
+  }
+  .tipo-card.verde .tipo-icon { background: #e8f5e9; }
+  .tipo-card.naranja .tipo-icon { background: #fff3e0; }
+  .tipo-card h3 { font-size: 1.25rem; font-weight: 700; color: #1a1a2e; margin-bottom: .5rem; }
+  .tipo-card p { font-size: .92rem; color: #666; line-height: 1.5; margin-bottom: 1.2rem; }
+  .tipo-card ul { text-align: left; width: 100%; padding: 0; list-style: none; margin-bottom: 1.5rem; flex: 1; }
+  .tipo-card ul li { font-size: .88rem; color: #555; margin-bottom: .4rem; }
+  .btn-tipo-verde {
+    background: var(--eco-green); color: #fff;
+    border: none; border-radius: 12px;
+    padding: .75rem 2rem; font-weight: 700; font-size: .95rem;
+    text-decoration: none; display: inline-block;
+    transition: opacity .2s;
+  }
+  .btn-tipo-verde:hover { opacity: .88; color: #fff; }
+  .btn-tipo-naranja {
+    background: #f4a261; color: #fff;
+    border: none; border-radius: 12px;
+    padding: .75rem 2rem; font-weight: 700; font-size: .95rem;
+    text-decoration: none; display: inline-block;
+    transition: opacity .2s;
+  }
+  .btn-tipo-naranja:hover { opacity: .88; color: #fff; }
+  .header-registro {
+    text-align: center;
+    margin-bottom: 2.5rem;
+  }
+  .header-registro h1 { font-size: 2rem; font-weight: 800; color: #1a1a2e; margin-bottom: .4rem; }
+  .header-registro p { color: #666; font-size: 1rem; }
+  .step-badge {
+    display: inline-block;
+    background: var(--eco-green);
+    color: #fff;
+    font-size: .75rem;
+    font-weight: 700;
+    padding: .2rem .8rem;
+    border-radius: 20px;
+    margin-bottom: 1rem;
+    letter-spacing: .05em;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="registro-hero">
+  <div class="container">
+    <div class="header-registro">
+      <span class="step-badge">PASO 1 DE 2</span>
+      <h1>¿Cómo quieres unirte?</h1>
+      <p>Elige tu tipo de cuenta para continuar</p>
+    </div>
+
+    <div class="row justify-content-center g-4">
+      <!-- Tarjeta Usuario -->
+      <div class="col-12 col-sm-10 col-md-5">
+        <a href="/completar-registro/usuario/" class="text-decoration-none">
+          <div class="tipo-card verde">
+            <div class="tipo-icon">♻️</div>
+            <h3>Usuario Reciclador</h3>
+            <p>Lleva tus materiales a los centros de acopio, acumula puntos y canjéalos por premios.</p>
+            <ul>
+              <li><i class="bi bi-check-circle-fill me-2" style="color:var(--eco-green)"></i>Gana puntos por reciclar</li>
+              <li><i class="bi bi-check-circle-fill me-2" style="color:var(--eco-green)"></i>Canjea premios exclusivos</li>
+              <li><i class="bi bi-check-circle-fill me-2" style="color:var(--eco-green)"></i>Encuentra centros cerca de ti</li>
+              <li><i class="bi bi-check-circle-fill me-2" style="color:var(--eco-green)"></i>Tu QR personal para registrar material</li>
+            </ul>
+            <span class="btn-tipo-verde">Soy reciclador <i class="bi bi-arrow-right ms-1"></i></span>
+          </div>
+        </a>
+      </div>
+
+      <!-- Tarjeta Centro -->
+      <div class="col-12 col-sm-10 col-md-5">
+        <a href="/completar-registro/centro/" class="text-decoration-none">
+          <div class="tipo-card naranja">
+            <div class="tipo-icon">🏢</div>
+            <h3>Centro de Reciclaje</h3>
+            <p>Regístrate como punto de acopio, recibe materiales y gestiona tus eventos.</p>
+            <ul>
+              <li><i class="bi bi-check-circle-fill me-2" style="color:#f4a261"></i>Aparece en el mapa</li>
+              <li><i class="bi bi-check-circle-fill me-2" style="color:#f4a261"></i>Gestiona eventos de reciclaje</li>
+              <li><i class="bi bi-check-circle-fill me-2" style="color:#f4a261"></i>Recibe materiales de usuarios</li>
+              <li><i class="bi bi-check-circle-fill me-2" style="color:#f4a261"></i>Revisión por administrador</li>
+            </ul>
+            <span class="btn-tipo-naranja">Soy un centro <i class="bi bi-arrow-right ms-1"></i></span>
+          </div>
+        </a>
+      </div>
+    </div>
+
+    <!-- Logout link abajo -->
+    <div class="text-center mt-4">
+      <form method="POST" action="/logout/" style="display:inline;">
+        {% csrf_token %}
+        <button type="submit" style="background:none;border:none;color:#999;font-size:.9rem;cursor:pointer;">
+          <i class="bi bi-box-arrow-right me-1"></i>Cancelar y salir
+        </button>
+      </form>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

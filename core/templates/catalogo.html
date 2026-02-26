@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Catálogo de Premios - Eco-Loop{% endblock %}
+
+{% block extra_head %}
+  <style>
+    .catalogo-container { max-width: 1200px; margin: 0 auto; }
+    .catalog-header { text-align: center; margin: 40px 0; }
+    .catalog-header h1 { font-size: 2.5rem; font-weight: bold; color: #18bd9b; margin-bottom: 10px; }
+    .catalog-header p { font-size: 1.1rem; color: #666; }
+    
+    .redemption-notice {
+      background: linear-gradient(135deg, #fff3cd, #ffe69c);
+      border: 2px solid #ffc107;
+      border-radius: 12px;
+      padding: 20px;
+      margin: 20px 0;
+      text-align: center;
+      font-weight: bold;
+      color: #856404;
+    }
+    .redemption-notice i { margin-right: 10px; font-size: 1.3rem; }
+    
+    .premios-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 24px; margin-bottom: 60px; }
+    
+    .premio-card {
+      border-radius: 12px;
+      background: white;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      overflow: hidden;
+      transition: transform 0.2s, box-shadow 0.2s;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .premio-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 4px 16px rgba(24,189,155,0.2);
+    }
+    
+    .premio-image {
+      width: 100%;
+      height: 160px;
+      background: linear-gradient(135deg, #dff6f3, #c1ebe5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+      color: #18bd9b;
+    }
+    
+    .premio-content { padding: 16px; flex: 1; display: flex; flex-direction: column; }
+    .premio-name { font-weight: bold; font-size: 1rem; margin-bottom: 8px; color: #333; }
+    .premio-desc { font-size: 0.85rem; color: #666; margin-bottom: 12px; line-height: 1.4; flex: 1; }
+    .premio-points { background: #dff6f3; padding: 8px 12px; border-radius: 8px; text-align: center; }
+    .premio-points-val { font-weight: bold; color: #18bd9b; font-size: 1.2rem; }
+    .premio-points-label { font-size: 0.8rem; color: #666; }
+    
+    .loading-state { text-align: center; padding: 60px 20px; }
+    .loading-spinner { font-size: 2rem; display: inline-block; animation: spin 1s linear infinite; margin-bottom: 20px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    
+    .empty-state { text-align: center; padding: 60px 20px; }
+    .empty-icon { font-size: 4rem; color: #ddd; margin-bottom: 20px; }
+    .empty-title { font-size: 1.5rem; color: #999; }
+    
+    .error-state { 
+      background: #f8d7da; 
+      border: 2px solid #f5c6cb; 
+      border-radius: 12px; 
+      padding: 20px; 
+      text-align: center; 
+      color: #721c24;
+      margin: 20px 0;
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+<div class="catalogo-container">
+  <div class="catalog-header">
+    <h1>🎁 Catálogo de Premios</h1>
+    <p>Canjea tus eco-puntos por recompensas increíbles</p>
+  </div>
+
+  <div class="redemption-notice">
+    📱 <strong>Importante:</strong> Los canjes se realizan exclusivamente desde la app móvil Eco-Loop. 
+    Descárgala para canjear tus puntos.
+  </div>
+
+  <!-- Estado de carga -->
+  <div id="loading-state" class="loading-state" style="display: none;">
+    <div class="loading-spinner">⏳</div>
+    <p>Cargando premios...</p>
+  </div>
+
+  <!-- Grid de premios -->
+  <div id="premios-grid" class="premios-grid"></div>
+
+  <!-- Estado de error -->
+  <div id="error-state" class="error-state" style="display: none;"></div>
+
+  <!-- Estado vacío -->
+  <div id="empty-state" class="empty-state" style="display: none;">
+    <div class="empty-icon">🎁</div>
+    <h2 class="empty-title">Catálogo vacío</h2>
+    <p style="color: #999; margin-top: 10px;">Los premios estarán disponibles próximamente. ¡Vuelve luego!</p>
+  </div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const gridContainer = document.getElementById('premios-grid');
+  const loadingState = document.getElementById('loading-state');
+  const errorState = document.getElementById('error-state');
+  const emptyState = document.getElementById('empty-state');
+
+  // Mostrar cargando
+  loadingState.style.display = 'block';
+
+  // Cargar premios desde API
+  fetch('/api/recompensas/')
+    .then(response => {
+      if (!response.ok) throw new Error('Network response was not ok');
+      return response.json();
+    })
+    .then(data => {
+      loadingState.style.display = 'none';
+      
+      const premios = data.premios || [];
+      
+      if (premios.length === 0) {
+        emptyState.style.display = 'block';
+        return;
+      }
+      
+      // Renderizar premios
+      premios.forEach(premio => {
+        const card = document.createElement('div');
+        card.className = 'premio-card';
+        
+        const imagenHtml = premio.imagen_url 
+          ? `<img src="${premio.imagen_url}" alt="${premio.nombre}" style="max-width:100%; max-height:160px; object-fit: cover;">`
+          : '🏆';
+        
+        card.innerHTML = `
+          <div class="premio-image">${imagenHtml}</div>
+          <div class="premio-content">
+            <div class="premio-name">${premio.nombre}</div>
+            ${premio.descripcion ? `<div class="premio-desc">${premio.descripcion}</div>` : ''}
+            <div class="premio-points">
+              <div class="premio-points-val">${premio.puntos_requeridos}</div>
+              <div class="premio-points-label">eco-puntos</div>
+            </div>
+          </div>
+        `;
+        
+        gridContainer.appendChild(card);
+      });
+    })
+    .catch(error => {
+      console.error('Error cargando premios:', error);
+      loadingState.style.display = 'none';
+      errorState.style.display = 'block';
+      errorState.textContent = `❌ Error cargando premios: ${error.message}`;
+    });
+});
+</script>
+
+</div>
+
+{% endblock %}

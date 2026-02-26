@@ -1,0 +1,486 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<!-- Hero del Centro -->
+<section class="centro-hero">
+  <div class="container">
+    <div class="centro-header-card">
+      
+      <div class="centro-info-section">
+        <div class="centro-image-wrapper">
+          {% if centro.imagen %}
+            <img src="{{ centro.imagen }}" alt="Centro" class="centro-image">
+          {% else %}
+            <img src="{% static 'assets/img/default-centro.png' %}" alt="Centro" class="centro-image">
+          {% endif %}
+          <div class="centro-type-badge centro-type-{{ centro.tipo_negocio }}">
+            <i class="bi bi-{% if centro.tipo_negocio == 'acopio' %}recycle{% elif centro.tipo_negocio == 'recicladora' %}arrow-repeat{% else %}tools{% endif %}"></i>
+            {{ centro.get_tipo_negocio_display }}
+          </div>
+        </div>
+        
+        <div class="centro-details">
+          <h2 class="centro-name">{{ centro.name }}</h2>
+          <p class="centro-description">
+            {{ centro.address|default:"Centro de reciclaje" }}
+          </p>
+          
+          <div class="centro-rating">
+            <div class="stars">
+              {% for i in "12345"|make_list %}
+                {% if forloop.counter <= centro.promedio_rating|floatformat:0 %}
+                  <i class="bi bi-star-fill"></i>
+                {% elif forloop.counter == centro.promedio_rating|floatformat:0|add:1 and centro.promedio_rating|floatformat:1|slice:"-1:" >= "5" %}
+                  <i class="bi bi-star-half"></i>
+                {% else %}
+                  <i class="bi bi-star"></i>
+                {% endif %}
+              {% endfor %}
+            </div>
+            <span class="rating-text">{{ centro.promedio_rating|default:"0" }}/5.0 ({{ centro.total_reviews }} reseñas)</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="centro-status-badge {% if centro.active %}status-approved{% else %}status-pending{% endif %}">
+        <i class="bi bi-{% if centro.active %}check-circle-fill{% else %}clock-fill{% endif %}"></i>
+        <span>{{ centro.active|yesno:"Aprobado,Pendiente de aprobación" }}</span>
+      </div>
+
+    </div>
+
+    <!-- Tarjetas de Estadísticas (solo si está aprobado) -->
+    {% if centro.active %}
+    <div class="centro-stats-row">
+      <div class="stat-card-centro">
+        <div class="stat-icon-centro stat-icon-green">
+          <i class="bi bi-recycle"></i>
+        </div>
+        <div class="stat-content-centro">
+          <span class="stat-value-centro">{{ centro.total_materiales|default:"0" }}</span>
+          <span class="stat-label-centro">Materiales registrados</span>
+        </div>
+      </div>
+
+      <div class="stat-card-centro">
+        <div class="stat-icon-centro stat-icon-yellow">
+          <i class="bi bi-star-fill"></i>
+        </div>
+        <div class="stat-content-centro">
+          <span class="stat-value-centro">{{ centro.promedio_rating|default:"0" }}</span>
+          <span class="stat-label-centro">Calificación promedio</span>
+        </div>
+      </div>
+
+      <div class="stat-card-centro">
+        <div class="stat-icon-centro stat-icon-blue">
+          <i class="bi bi-chat-dots-fill"></i>
+        </div>
+        <div class="stat-content-centro">
+          <span class="stat-value-centro">{{ centro.total_reviews }}</span>
+          <span class="stat-label-centro">Total de reseñas</span>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+  </div>
+</section>
+
+<!-- Contenido Principal -->
+<div class="container centro-content">
+
+  {% if not centro.active %}
+    <!-- Estado Pendiente -->
+    <div class="pending-alert">
+      <div class="pending-icon">
+        <i class="bi bi-hourglass-split"></i>
+      </div>
+      <div class="pending-content">
+        <h4>Tu centro está en revisión</h4>
+        <p>Un administrador revisará tu solicitud pronto. Te notificaremos cuando tu centro sea aprobado y puedas comenzar a registrar materiales.</p>
+      </div>
+    </div>
+  {% else %}
+
+  <!-- Acciones Rápidas -->
+  <div class="row g-4 mb-4">
+    <div class="col-md-6 col-lg-3">
+      <a href="{% url 'editar_perfil_centro' %}" class="action-card-centro">
+        <div class="action-icon-centro action-icon-blue">
+          <i class="bi bi-pencil-square"></i>
+        </div>
+        <div class="action-content-centro">
+          <h5>Editar Perfil</h5>
+          <p>Actualiza tu información</p>
+        </div>
+        <i class="bi bi-arrow-right action-arrow-centro"></i>
+      </a>
+    </div>
+
+    <div class="col-md-6 col-lg-3">
+      <a href="{% url 'logout' %}" class="action-card-centro action-card-logout">
+        <div class="action-icon-centro action-icon-red">
+          <i class="bi bi-box-arrow-right"></i>
+        </div>
+        <div class="action-content-centro">
+          <h5>Cerrar Sesión</h5>
+          <p>Salir de tu cuenta</p>
+        </div>
+        <i class="bi bi-arrow-right action-arrow-centro"></i>
+      </a>
+    </div>
+  </div>
+
+  <!-- Últimas Reseñas (solo si existen) -->
+  {% if ultimas_reviews %}
+  <div class="reviews-preview-section">
+    <div class="reviews-preview-header">
+      <h3>
+        <i class="bi bi-chat-left-quote-fill me-2"></i>
+        Últimas Reseñas
+      </h3>
+      <a href="#" class="btn-view-all-reviews">
+        Ver todas
+        <i class="bi bi-arrow-right ms-2"></i>
+      </a>
+    </div>
+
+    <div class="reviews-preview-grid">
+      {% for review in ultimas_reviews %}
+        <div class="review-preview-card">
+          <div class="review-preview-header">
+            <div class="review-user-avatar">
+              <i class="bi bi-person-circle"></i>
+            </div>
+            <div class="review-user-info">
+              <h6>{{ review.usuario_nombre }}</h6>
+              <div class="review-stars-small">
+                {% for i in "12345"|make_list %}
+                  <i class="bi bi-star{% if forloop.counter <= review.calificacion %}-fill{% endif %}"></i>
+                {% endfor %}
+              </div>
+            </div>
+            <span class="review-date">{{ review.fecha|date:"d/m/Y" }}</span>
+          </div>
+          {% if review.comentario %}
+            <p class="review-comment">{{ review.comentario }}</p>
+          {% endif %}
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  {% endif %}
+
+</div>
+
+<style>
+.centro-hero {
+  background: linear-gradient(135deg, #2a9d8f 0%, #1d7874 100%);
+  padding: 2rem 0;
+  color: white;
+}
+
+.centro-header-card {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+  margin-bottom: 2rem;
+}
+
+.centro-info-section {
+  display: flex;
+  gap: 2rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.centro-image-wrapper {
+  position: relative;
+  width: 150px;
+  height: 150px;
+}
+
+.centro-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 12px;
+}
+
+.centro-type-badge {
+  position: absolute;
+  bottom: -10px;
+  right: -10px;
+  background: #2a9d8f;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.centro-details {
+  flex: 1;
+}
+
+.centro-name {
+  font-size: 2rem;
+  color: #333;
+  margin-bottom: 0.5rem;
+}
+
+.centro-description {
+  color: #666;
+  margin-bottom: 1rem;
+}
+
+.centro-rating {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.stars {
+  color: #ffc107;
+  font-size: 1.2rem;
+}
+
+.rating-text {
+  color: #666;
+}
+
+.centro-status-badge {
+  margin-top: 1rem;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  display: inline-block;
+  font-weight: 600;
+}
+
+.status-approved {
+  background: #d4edda;
+  color: #155724;
+}
+
+.status-pending {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.centro-stats-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.stat-card-centro {
+  background: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.stat-icon-centro {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+}
+
+.stat-icon-green {
+  background: #d4edda;
+  color: #155724;
+}
+
+.stat-icon-yellow {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.stat-icon-blue {
+  background: #cce5ff;
+  color: #004085;
+}
+
+.stat-content-centro {
+  flex: 1;
+}
+
+.stat-value-centro {
+  display: block;
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #333;
+}
+
+.stat-label-centro {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.pending-alert {
+  background: #fff3cd;
+  border: 1px solid #ffeeba;
+  border-radius: 8px;
+  padding: 1.5rem;
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  margin: 2rem 0;
+}
+
+.pending-icon {
+  font-size: 2rem;
+  color: #856404;
+}
+
+.pending-content h4 {
+  color: #856404;
+  margin-bottom: 0.5rem;
+}
+
+.action-card-centro {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: white;
+  border-radius: 8px;
+  text-decoration: none;
+  color: #333;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  transition: transform 0.2s;
+}
+
+.action-card-centro:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.action-icon-centro {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+}
+
+.action-icon-green {
+  background: #d4edda;
+  color: #155724;
+}
+
+.action-icon-blue {
+  background: #cce5ff;
+  color: #004085;
+}
+
+.action-icon-red {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.action-content-centro {
+  flex: 1;
+}
+
+.action-content-centro h5 {
+  margin: 0 0 0.25rem 0;
+}
+
+.action-content-centro p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.action-arrow-centro {
+  color: #ccc;
+}
+
+.reviews-preview-section {
+  margin-top: 3rem;
+}
+
+.reviews-preview-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.reviews-preview-header h3 {
+  color: #333;
+}
+
+.btn-view-all-reviews {
+  color: #2a9d8f;
+  text-decoration: none;
+}
+
+.reviews-preview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1rem;
+}
+
+.review-preview-card {
+  background: white;
+  border-radius: 8px;
+  padding: 1rem;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.review-preview-header {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.review-user-avatar {
+  font-size: 2rem;
+  color: #666;
+}
+
+.review-user-info {
+  flex: 1;
+}
+
+.review-user-info h6 {
+  margin: 0 0 0.25rem 0;
+  color: #333;
+}
+
+.review-stars-small {
+  color: #ffc107;
+  font-size: 0.9rem;
+}
+
+.review-date {
+  color: #999;
+  font-size: 0.9rem;
+}
+
+.review-comment {
+  color: #666;
+  font-size: 0.95rem;
+  margin: 0;
+  line-height: 1.4;
+}
+</style>
+{% endblock %}

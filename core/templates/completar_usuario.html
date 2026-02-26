@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Completa tu perfil – Eco-Neek{% endblock %}
+
+{% block extra_head %}
+<style>
+  .navbar-collapse, .eco-navbar .navbar-collapse { display: none !important; }
+  .registro-hero {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #f0f7f0 0%, #e8f5e8 100%);
+    display: flex;
+    align-items: center;
+    padding: 2rem 0;
+  }
+  .form-card {
+    background: #fff;
+    border-radius: 20px;
+    padding: 2.5rem 2rem;
+    box-shadow: 0 4px 25px rgba(0,0,0,0.08);
+  }
+  .form-card .form-control {
+    border-radius: 10px;
+    border: 1.5px solid #e0e0e0;
+    padding: .65rem 1rem;
+    font-size: .95rem;
+    transition: border-color .2s;
+  }
+  .form-card .form-control:focus {
+    border-color: var(--eco-green);
+    box-shadow: 0 0 0 3px rgba(42,157,143,.15);
+  }
+  .form-card .input-group-text {
+    border-radius: 10px 0 0 10px;
+    border: 1.5px solid #e0e0e0;
+    border-right: 0;
+    background: #f8f9fa;
+    color: var(--eco-green);
+  }
+  .form-card .input-group .form-control { border-radius: 0 10px 10px 0; }
+  .avatar-preview {
+    width: 64px; height: 64px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid var(--eco-green);
+  }
+  .step-badge {
+    display: inline-block;
+    background: var(--eco-green);
+    color: #fff;
+    font-size: .75rem;
+    font-weight: 700;
+    padding: .2rem .8rem;
+    border-radius: 20px;
+    margin-bottom: .8rem;
+    letter-spacing: .05em;
+  }
+  .user-email-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    background: #f0f7f0;
+    border: 1px solid #c8e6c9;
+    border-radius: 20px;
+    padding: .3rem .8rem;
+    font-size: .85rem;
+    color: #2e7d32;
+    margin-bottom: 1.5rem;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="registro-hero">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-12 col-md-7 col-lg-5">
+        <div class="form-card">
+
+          <div class="text-center mb-4">
+            <span class="step-badge">PASO 2 DE 2</span>
+            <div style="font-size:2.8rem; margin-bottom:.5rem;">♻️</div>
+            <h2 style="font-size:1.5rem; font-weight:800; color:#1a1a2e; margin-bottom:.3rem;">Completa tu perfil</h2>
+            <p class="text-muted small mb-2">Solo unos datos y estarás listo para reciclar</p>
+            <div class="user-email-badge">
+              <i class="bi bi-google"></i>
+              {{ request.user.email }}
+            </div>
+          </div>
+
+          <form method="POST" action="/completar-registro/usuario/">
+            {% csrf_token %}
+
+            <div class="row g-3 mb-3">
+              <div class="col-6">
+                <label class="form-label fw-semibold small">Nombre <span class="text-danger">*</span></label>
+                <input type="text" name="nombre" class="form-control" required
+                       placeholder="Tu nombre" value="{{ request.user.first_name }}">
+              </div>
+              <div class="col-6">
+                <label class="form-label fw-semibold small">Apellido</label>
+                <input type="text" name="apellido" class="form-control"
+                       placeholder="Tu apellido" value="{{ request.user.last_name }}">
+              </div>
+            </div>
+
+            <div class="mb-4">
+              <label class="form-label fw-semibold small">Teléfono <span class="text-muted fw-normal">(opcional)</span></label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="bi bi-telephone-fill"></i></span>
+                <input type="tel" name="phone" class="form-control" placeholder="Ej: 999 123 4567">
+              </div>
+            </div>
+
+            <button type="submit" class="btn-eco w-100 py-3" style="font-size:1rem; border-radius:12px;">
+              <i class="bi bi-check-lg me-2"></i>Crear mi cuenta
+            </button>
+          </form>
+
+          <div class="text-center mt-3">
+            <a href="/completar-registro/" class="text-muted small">
+              <i class="bi bi-arrow-left me-1"></i>Cambiar tipo de cuenta
+            </a>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

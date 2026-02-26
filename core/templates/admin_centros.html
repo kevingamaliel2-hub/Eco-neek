@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+  <h2>Gestión de Centros (Supabase)</h2>
+  {% if centros %}
+  <table class="table table-striped mt-3">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Nombre</th>
+        <th>Correo</th>
+        <th>Dirección</th>
+        <th>Lat</th>
+        <th>Lng</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for c in centros %}
+      <tr>
+        <td>{{ c.id }}</td>
+        <td>{{ c.nombre_comercial or c.name }}</td>
+        <td>{{ c.correo_contacto or c.correo }}</td>
+        <td>{{ c.direccion_texto or c.address }}</td>
+        <td>{{ c.latitud or c.latitude }}</td>
+        <td>{{ c.longitud or c.longitude }}</td>
+        <td>
+          <form action="{% url 'admin_centros_accion' %}" method="post" style="display:inline">{% csrf_token %}
+            <input type="hidden" name="centro_id" value="{{ c.id }}">
+            <input type="hidden" name="accion" value="aprobar">
+            <button class="btn btn-success btn-sm">Aprobar</button>
+          </form>
+          <form action="{% url 'admin_centros_accion' %}" method="post" style="display:inline;margin-left:6px">{% csrf_token %}
+            <input type="hidden" name="centro_id" value="{{ c.id }}">
+            <input type="hidden" name="accion" value="rechazar">
+            <button class="btn btn-danger btn-sm">Rechazar</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p>No hay centros pendientes.</p>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,547 @@
+﻿
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar sesión - Eco-Neek</title>
+
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* ═══════════════════════════════════════
+           VARIABLES Y BASE
+        ═══════════════════════════════════════ */
+        :root {
+            --eco-green:      #2a9d8f;
+            --eco-green-dark: #21867a;
+            --eco-green-light:#3dbdad;
+            --eco-yellow:     #e9c46a;
+            --eco-orange:     #f4a261;
+            --eco-dark:       #1a1a2e;
+            --eco-gray:       #6c757d;
+            --eco-bg:         #f0faf8;
+            --navbar-h:       64px;
+            --radius:         12px;
+            --shadow:         0 4px 20px rgba(42,157,143,.15);
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: var(--eco-bg);
+            color: #222;
+            padding-top: var(--navbar-h);
+        }
+
+        /* ═══════════════════════════════════════
+           NAVBAR
+        ═══════════════════════════════════════ */
+        .eco-navbar {
+            background: linear-gradient(135deg, var(--eco-green) 0%, var(--eco-green-dark) 100%);
+            height: var(--navbar-h);
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 1030;
+            box-shadow: 0 2px 16px rgba(42,157,143,.3);
+            padding: 0 1rem;
+        }
+
+        .eco-navbar .container {
+            height: 100%;
+            display: flex;
+            align-items: center;
+        }
+
+        /* Brand */
+        .eco-navbar .navbar-brand {
+            font-family: 'Nunito', sans-serif;
+            font-weight: 800;
+            font-size: 1.4rem;
+            color: #fff !important;
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+            letter-spacing: -.3px;
+            text-decoration: none;
+        }
+
+        .eco-navbar .navbar-brand .brand-icon {
+            width: 34px; height: 34px;
+            background: rgba(255,255,255,.2);
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.1rem;
+        }
+
+        /* Nav links */
+        .eco-navbar .nav-link {
+            color: rgba(255,255,255,.88) !important;
+            font-weight: 600;
+            font-size: .9rem;
+            padding: .4rem .75rem !important;
+            border-radius: 8px;
+            transition: background .2s, color .2s;
+            text-decoration: none;
+        }
+
+        .eco-navbar .nav-link:hover,
+        .eco-navbar .nav-link.active {
+            background: rgba(255,255,255,.15);
+            color: #fff !important;
+        }
+
+        /* Botones en navbar */
+        .eco-navbar .btn-nav-primary {
+            background: rgba(255,255,255,.18);
+            color: #fff;
+            border: 1.5px solid rgba(255,255,255,.4);
+            border-radius: 8px;
+            padding: .35rem 1rem;
+            font-size: .88rem;
+            font-weight: 700;
+            transition: background .2s, border-color .2s;
+            text-decoration: none;
+        }
+        .eco-navbar .btn-nav-primary:hover {
+            background: rgba(255,255,255,.3);
+            color: #fff;
+        }
+
+        .eco-navbar .btn-nav-register {
+            background: var(--eco-yellow);
+            color: #1a1a2e;
+            border: none;
+            border-radius: 8px;
+            padding: .35rem 1rem;
+            font-size: .88rem;
+            font-weight: 700;
+            transition: background .2s, transform .15s;
+            text-decoration: none;
+        }
+        .eco-navbar .btn-nav-register:hover {
+            background: #f0c040;
+            color: #1a1a2e;
+            transform: translateY(-1px);
+        }
+
+        .eco-navbar .btn-nav-danger {
+            background: rgba(220,53,69,.25);
+            color: #fff;
+            border: 1.5px solid rgba(220,53,69,.5);
+            border-radius: 8px;
+            padding: .35rem 1rem;
+            font-size: .88rem;
+            font-weight: 700;
+            transition: background .2s;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .eco-navbar .btn-nav-danger:hover {
+            background: rgba(220,53,69,.5);
+            color: #fff;
+        }
+
+        /* Google button */
+        .btn-google {
+            background: #fff;
+            color: #444;
+            border: 1.5px solid rgba(255,255,255,.5);
+            border-radius: 8px;
+            padding: .35rem 1rem;
+            font-size: .88rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: .4rem;
+            transition: background .2s, transform .15s;
+            text-decoration: none;
+        }
+        .btn-google:hover {
+            background: #f1f3f4;
+            color: #333;
+            transform: translateY(-1px);
+        }
+        .btn-google .google-icon {
+            width: 16px; height: 16px;
+        }
+
+        /* Toggler móvil */
+        .eco-navbar .navbar-toggler {
+            border: 1.5px solid rgba(255,255,255,.4);
+            border-radius: 8px;
+            padding: .3rem .5rem;
+        }
+        .eco-navbar .navbar-toggler-icon {
+            filter: brightness(10);
+        }
+
+        /* Menú desplegado en móvil */
+        @media (max-width: 991px) {
+            .eco-navbar .navbar-collapse {
+                background: var(--eco-green-dark);
+                margin-top: .5rem;
+                border-radius: var(--radius);
+                padding: .75rem 1rem;
+                box-shadow: var(--shadow);
+            }
+            .eco-navbar .navbar-nav {
+                gap: .25rem;
+            }
+            .eco-navbar .ms-2, .eco-navbar .ms-3 {
+                margin-left: 0 !important;
+                margin-top: .25rem;
+            }
+            .eco-navbar .btn-nav-register,
+            .eco-navbar .btn-google,
+            .eco-navbar .btn-nav-danger,
+            .eco-navbar .btn-nav-primary {
+                width: 100%;
+                justify-content: center;
+                text-align: center;
+            }
+        }
+
+        /* ═══════════════════════════════════════
+           MENSAJES / ALERTS
+        ═══════════════════════════════════════ */
+        .messages-container {
+            position: fixed;
+            top: calc(var(--navbar-h) + 12px);
+            right: 1rem;
+            z-index: 1040;
+            width: min(380px, calc(100vw - 2rem));
+        }
+
+        .messages-container .alert {
+            border-radius: var(--radius);
+            box-shadow: 0 4px 16px rgba(0,0,0,.12);
+            border: none;
+            font-size: .9rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+            animation: slideIn .3s ease;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(30px); }
+            to   { opacity: 1; transform: translateX(0); }
+        }
+
+        /* ═══════════════════════════════════════
+           CONTENIDO GENERAL
+        ═══════════════════════════════════════ */
+        .page-content {
+            min-height: calc(100vh - var(--navbar-h) - 80px);
+        }
+
+        /* Cards eco */
+        .eco-card {
+            background: #fff;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            border: none;
+            overflow: hidden;
+            transition: transform .2s, box-shadow .2s;
+        }
+        .eco-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(42,157,143,.2);
+        }
+
+        /* Badges de puntos */
+        .points-badge {
+            background: linear-gradient(135deg, var(--eco-green), var(--eco-green-light));
+            color: #fff;
+            border-radius: 20px;
+            padding: .25rem .75rem;
+            font-size: .82rem;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: .3rem;
+        }
+
+        /* Botones principales */
+        .btn-eco {
+            background: linear-gradient(135deg, var(--eco-green), var(--eco-green-light));
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            padding: .6rem 1.5rem;
+            font-weight: 700;
+            transition: opacity .2s, transform .15s;
+        }
+        .btn-eco:hover {
+            opacity: .92;
+            color: #fff;
+            transform: translateY(-1px);
+        }
+
+        .btn-eco-outline {
+            background: transparent;
+            color: var(--eco-green);
+            border: 2px solid var(--eco-green);
+            border-radius: 10px;
+            padding: .55rem 1.5rem;
+            font-weight: 700;
+            transition: background .2s, color .2s;
+        }
+        .btn-eco-outline:hover {
+            background: var(--eco-green);
+            color: #fff;
+        }
+
+        /* ═══════════════════════════════════════
+           FOOTER
+        ═══════════════════════════════════════ */
+        .eco-footer {
+            background: var(--eco-dark);
+            color: rgba(255,255,255,.75);
+            padding: 2.5rem 0 1.5rem;
+            margin-top: 4rem;
+        }
+
+        .eco-footer .footer-brand {
+            font-family: 'Nunito', sans-serif;
+            font-weight: 800;
+            font-size: 1.3rem;
+            color: #fff;
+        }
+
+        .eco-footer .footer-text {
+            font-size: .875rem;
+            color: rgba(255,255,255,.6);
+        }
+
+        .eco-footer .footer-links a {
+            color: rgba(255,255,255,.7);
+            text-decoration: none;
+            font-size: .9rem;
+            font-weight: 600;
+            margin: 0 .6rem;
+            transition: color .2s;
+        }
+        .eco-footer .footer-links a:hover {
+            color: var(--eco-green-light);
+        }
+
+        .eco-footer .footer-social a {
+            color: rgba(255,255,255,.6);
+            font-size: 1.25rem;
+            margin: 0 .4rem;
+            transition: color .2s;
+        }
+        .eco-footer .footer-social a:hover {
+            color: var(--eco-green-light);
+        }
+
+        .eco-footer .footer-copy {
+            font-size: .8rem;
+            color: rgba(255,255,255,.4);
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255,255,255,.08);
+        }
+
+        /* ═══════════════════════════════════════
+           UTILIDADES EXTRA
+        ═══════════════════════════════════════ */
+        .section-title {
+            font-family: 'Nunito', sans-serif;
+            font-weight: 800;
+            color: var(--eco-dark);
+        }
+
+        .text-eco { color: var(--eco-green) !important; }
+        .bg-eco   { background: var(--eco-green) !important; }
+
+        /* Scrollbar personalizado */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #f0faf8; }
+        ::-webkit-scrollbar-thumb { background: var(--eco-green); border-radius: 3px; }
+    </style>
+
+    <!-- CSS propio adicional -->
+    <link rel="stylesheet" href="/static/assets/css/style.css">
+
+    
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════
+     NAVBAR
+═══════════════════════════════════════ -->
+<nav class="eco-navbar navbar navbar-expand-lg">
+  <div class="container">
+
+    <a class="navbar-brand" href="/">
+      <span class="brand-icon">🌿</span>
+      Eco-Neek
+    </a>
+
+    <!-- Toggler para móvil -->
+    <button class="navbar-toggler ms-auto" type="button"
+            data-bs-toggle="collapse" data-bs-target="#navMain"
+            aria-controls="navMain" aria-expanded="false" aria-label="Menú">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navMain">
+      <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-1">
+
+        
+          <!-- ── VISITANTE ── -->
+          <li class="nav-item"><a class="nav-link" href="/">Inicio</a></li>
+          <li class="nav-item"><a class="nav-link" href="/mapa/">Mapa</a></li>
+          <li class="nav-item"><a class="nav-link" href="/catalogo/">Premios</a></li>
+          <li class="nav-item"><a class="nav-link" href="/eventos/">Eventos</a></li>
+          <li class="nav-item">
+            <a class="btn-nav-register ms-2" href="/completar-registro/?action=register">
+              <i class="bi bi-person-plus-fill me-1"></i>Registrarse
+            </a>
+          </li>
+          <li class="nav-item">
+            <!-- Google Login — apunta a allauth -->
+            <a class="btn-google ms-2" href="/login-screen/">
+              <svg class="google-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
+                <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+              </svg>
+              Iniciar sesión
+            </a>
+          </li>
+
+        
+
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<!-- ═══════════════════════════════════════
+     MENSAJES FLOTANTES
+═══════════════════════════════════════ -->
+
+
+<!-- ═══════════════════════════════════════
+     CONTENIDO PRINCIPAL
+═══════════════════════════════════════ -->
+<main class="page-content">
+  
+<div class="container mt-5" style="max-width: 480px;">
+  <div class="text-center mb-4">
+    <img src="/static/logo.png" alt="Eco-Neek" style="width:120px;">
+    <h2 class="mt-3">Bienvenido</h2>
+    <p>Inicia sesión con tu cuenta de Google para continuar.</p>
+  </div>
+  <div class="row g-3">
+    <div class="col-12">
+      <form method="post" action="/login-screen/" class="card p-3 mb-3">
+        <input type="hidden" name="csrfmiddlewaretoken" value="CSUEDvVFxbDKZizJdYddjSj6ugnOkdR8CtHx8UirQCsxgq5532imxwycvEm9YLgj">
+        <h5 class="mb-3">Inicia sesión</h5>
+        
+        <div class="mb-3">
+          <label for="id_login" class="form-label">Correo electrónico</label>
+          <input id="id_login" name="login" type="email" class="form-control" placeholder="tucorreo@ejemplo.com" required>
+        </div>
+        <div class="mb-3">
+          <label for="id_password" class="form-label">Contraseña</label>
+          <input id="id_password" name="password" type="password" class="form-control" placeholder="Contraseña" required>
+        </div>
+        <div class="d-grid mb-2">
+          <button type="submit" class="btn btn-eco">Iniciar sesión</button>
+        </div>
+        <div class="text-center mb-2">o</div>
+        <div class="d-grid">
+          <a href="/accounts/google/login/" class="btn btn-google w-100">
+            <svg class="google-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="width:20px;height:20px;vertical-align:middle;margin-right:8px;">
+              <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+              <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+              <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
+              <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+            </svg>
+            Iniciar sesión con Google
+          </a>
+        </div>
+        <div class="text-center mt-3">
+          <a href="/completar-registro/?action=register">¿No tienes cuenta? Regístrate</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<!-- ═══════════════════════════════════════
+     FOOTER
+═══════════════════════════════════════ -->
+<footer class="eco-footer">
+  <div class="container">
+    <div class="row align-items-center">
+
+      <!-- Logo -->
+      <div class="col-md-4 text-center text-md-start mb-3 mb-md-0">
+        <div class="d-flex align-items-center justify-content-center justify-content-md-start gap-2">
+          <span style="font-size:1.8rem">🌿</span>
+          <span class="footer-brand">Eco-Neek</span>
+        </div>
+        <p class="footer-text mt-2 mb-0">Reciclaje inteligente para un futuro sostenible</p>
+      </div>
+
+      <!-- Links -->
+      <div class="col-md-4 text-center mb-3 mb-md-0">
+        <div class="footer-links">
+          <a href="/">Inicio</a>
+          <a href="/mapa/">Mapa</a>
+          <a href="/catalogo/">Premios</a>
+          <a href="/eventos/">Eventos</a>
+        </div>
+      </div>
+
+      <!-- Redes + copyright -->
+      <div class="col-md-4 text-center text-md-end">
+        <div class="footer-social mb-2">
+          <a href="#" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
+          <a href="#" aria-label="Instagram"><i class="bi bi-instagram"></i></a>
+          <a href="#" aria-label="Twitter"><i class="bi bi-twitter-x"></i></a>
+        </div>
+        <p class="footer-text mb-0">
+          © 2026 Eco-Neek<br>
+          <small>Todos los derechos reservados</small>
+        </p>
+      </div>
+
+    </div>
+    <p class="footer-copy text-center mb-0">
+      Hecho con 💚 para un planeta mejor
+    </p>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Auto-cerrar alertas después de 5 segundos -->
+<script>
+  setTimeout(() => {
+    document.querySelectorAll('.messages-container .alert').forEach(el => {
+      const bsAlert = bootstrap.Alert.getOrCreateInstance(el);
+      bsAlert.close();
+    });
+  }, 5000);
+</script>
+
+
+</body>
+</html>

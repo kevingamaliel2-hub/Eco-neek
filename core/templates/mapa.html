@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+{% block title %}Mapa - Eco-Neek{% endblock %}
+{% block extra_head %}
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    #map { height: 70vh; border-radius: 12px; box-shadow: 0 6px 24px rgba(0,0,0,.12); margin-bottom: 20px; }
+    .map-info { background: #f0f8f6; padding: 15px; border-radius: 8px; border-left: 4px solid #18bd9b; margin-bottom: 20px; }
+    .loading { text-align: center; padding: 20px; color: #999; }
+    /* Etiquetas permanentes sobre los marcadores */
+    .center-label {
+      background: rgba(255,255,255,0.95) !important;
+      padding: 2px 6px !important;
+      border-radius: 4px !important;
+      border: 1px solid #e0e0e0 !important;
+      font-weight: 600 !important;
+      color: #175a47 !important;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08) !important;
+      white-space: nowrap !important;
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2 class="section-title">🗺️ Mapa de Centros</h2>
+  <p class="text-muted">Aquí puedes ver los centros validados. Haz click en un marcador para ver detalles.</p>
+  
+  <div class="map-info">
+    <strong>💡 Tip:</strong> Los datos se cargan en tiempo real desde Supabase
+  </div>
+  
+  <div id="map"></div>
+  <div id="loading" class="loading">⏳ Cargando mapa...</div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    async function fetchCentros() {
+      try {
+        // Use the Supabase-backed endpoint (doesn't conflict with DRF router)
+        const res = await fetch('/api/supacentros/');
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        console.log('Centros cargados:', data.centros);
+        return data.centros || [];
+      } catch (e) {
+        console.error('Error cargando centros:', e);
+        return [];
+      }
+    }
+
+    function initMap() {
+      const map = L.map('map').setView([20.0, -100.0], 5);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; OpenStreetMap'
+      }).addTo(map);
+      return map;
+    }
+
+    (async () => {
+      try {
+        const loading = document.getElementById('loading');
+        // Verificación: Leaflet (L) debe estar disponible
+        if (typeof window.L === 'undefined') {
+          console.error('Leaflet no está disponible (L is undefined)');
+          loading.innerHTML = '❌ Error: librería de mapas (Leaflet) no cargada. Abre la consola del navegador.';
+          return;
+        }
+        const map = initMap();
+        const centros = await fetchCentros();
+        
+        if (!centros.length) {
+          loading.innerHTML = '📍 No hay centros disponibles actualmente';
+          loading.style.color = '#999';
+          return;
+        }
+        
+        loading.style.display = 'none';
+        
+        const bounds = [];
+        centros.forEach((c, idx) => {
+          try {
+            const lat = parseFloat(c.lat);
+            const lng = parseFloat(c.lng);
+            if (!isNaN(lat) && !isNaN(lng)) {
+              // Use default Leaflet marker (simpler and more reliable)
+              const marker = L.marker([lat, lng]).addTo(map);
+              const popup = `
+                ${c.foto ? `<div style="text-align:center;margin-bottom:6px;"><img src="${c.foto}" alt="${c.nombre||'imagen'}" style="max-width:160px; max-height:90px; border-radius:8px; object-fit:cover;"></div>` : ''}
+                <strong>${c.nombre || 'Centro'}</strong><br>
+                📍 ${c.direccion || 'Sin dirección'}<br>
+                📞 ${c.telefono || 'Sin teléfono'}<br>
+                📧 ${c.correo || 'Sin email'}<br>
+                ✅ Validado: ${c.validado ? 'Sí' : 'No'}
+              `;
+              marker.bindPopup(popup);
+              // Mostrar etiqueta permanente con el nombre del centro
+              marker.bindTooltip(c.nombre || 'Centro', { permanent: true, direction: 'top', className: 'center-label' });
+              bounds.push([lat, lng]);
+            }
+          } catch (e) {
+            console.warn('Error procesando centro:', c, e);
+          }
+        });
+        
+        if (bounds.length) {
+          map.fitBounds(bounds, {padding: [40, 40]});
+        }
+      } catch (e) {
+        console.error('Error en mapa:', e);
+        document.getElementById('loading').innerHTML = '❌ Error cargando mapa';
+      }
+    })();
+    console.log('Script mapa listo. Iniciando carga...');
+  </script>
+{% endblock %}

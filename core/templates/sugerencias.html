@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<!-- Hero Sugerencias -->
+<section class="suggestions-hero">
+  <div class="container">
+    <div class="suggestions-header">
+      <div class="suggestions-icon-hero">
+        <i class="bi bi-chat-dots-fill"></i>
+      </div>
+      <h1 class="suggestions-title">Enviar Sugerencia</h1>
+      <p class="suggestions-subtitle">Tu opinión nos ayuda a mejorar EcoNeek cada día</p>
+    </div>
+  </div>
+</section>
+
+<div class="container suggestions-container">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+
+      {% if messages %}
+        {% for message in messages %}
+          <div class="alert alert-{{ message.tags }} alert-custom-sugg">
+            <i class="bi bi-check-circle-fill me-2"></i>
+            {{ message }}
+          </div>
+        {% endfor %}
+      {% endif %}
+
+      <!-- Formulario -->
+      <div class="suggestions-form-card">
+        <form method="POST" action="{% url 'sugerencias' %}">
+          {% csrf_token %}
+
+          <div class="form-group-sugg">
+            <label class="form-label-sugg">
+              <i class="bi bi-tag-fill me-2"></i>
+              Tipo de sugerencia
+            </label>
+            <div class="type-selector">
+              <input type="radio" name="tipo" value="error" id="tipo1" checked>
+              <label for="tipo1" class="type-option">
+                <div class="type-icon type-icon-red">
+                  <i class="bi bi-bug-fill"></i>
+                </div>
+                <span>Reporte de error</span>
+              </label>
+
+              <input type="radio" name="tipo" value="mejora" id="tipo2">
+              <label for="tipo2" class="type-option">
+                <div class="type-icon type-icon-blue">
+                  <i class="bi bi-lightbulb-fill"></i>
+                </div>
+                <span>Propuesta de mejora</span>
+              </label>
+
+              <input type="radio" name="tipo" value="idea" id="tipo3">
+              <label for="tipo3" class="type-option">
+                <div class="type-icon type-icon-yellow">
+                  <i class="bi bi-stars"></i>
+                </div>
+                <span>Nueva idea</span>
+              </label>
+
+              <input type="radio" name="tipo" value="otro" id="tipo4">
+              <label for="tipo4" class="type-option">
+                <div class="type-icon type-icon-gray">
+                  <i class="bi bi-three-dots"></i>
+                </div>
+                <span>Otro</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="form-group-sugg">
+            <label class="form-label-sugg">
+              <i class="bi bi-chat-text-fill me-2"></i>
+              Describe tu sugerencia
+            </label>
+            <textarea name="mensaje" 
+                      class="form-textarea-sugg" 
+                      rows="6" 
+                      required 
+                      placeholder="Cuéntanos en detalle tu sugerencia, problema o idea..."></textarea>
+            <small class="form-hint-sugg">Sé lo más específico posible para que podamos ayudarte mejor</small>
+          </div>
+
+          <div class="form-actions-sugg">
+            <a href="{% url 'perfil_usuario' %}" class="btn btn-cancel-sugg">
+              <i class="bi bi-x-circle me-2"></i>
+              Cancelar
+            </a>
+            <button class="btn btn-submit-sugg" type="submit">
+              <i class="bi bi-send-fill me-2"></i>
+              Enviar sugerencia
+            </button>
+          </div>
+
+        </form>
+      </div>
+
+      <!-- Información adicional -->
+      <div class="suggestions-info-card">
+        <h5 class="info-card-title">
+          <i class="bi bi-info-circle-fill me-2"></i>
+          ¿Qué puedes reportar?
+        </h5>
+        <div class="info-grid">
+          <div class="info-item">
+            <i class="bi bi-bug"></i>
+            <span>Errores técnicos</span>
+          </div>
+          <div class="info-item">
+            <i class="bi bi-palette"></i>
+            <span>Mejoras de diseño</span>
+          </div>
+          <div class="info-item">
+            <i class="bi bi-plus-circle"></i>
+            <span>Nuevas funciones</span>
+          </div>
+          <div class="info-item">
+            <i class="bi bi-chat-square-text"></i>
+            <span>Retroalimentación</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}

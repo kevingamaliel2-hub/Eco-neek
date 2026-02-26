@@ -1,0 +1,176 @@
+[2026-02-26T04:02:36.257783] LOGIN ATTEMPT: kilebim352@bipochub.com
+  local_auth_username: kilebim352@bipochub.com
+  supabase_error: None
+  supabase_data_keys: ['access_token', 'token_type', 'expires_in', 'expires_at', 'refresh_token', 'user', 'weak_password']
+
+[2026-02-26T04:04:04.743228] LOGIN ATTEMPT: kilebim352@bipochub.com
+  local_auth_username: kilebim352@bipochub.com
+  supabase_error: None
+  supabase_data: 
+{
+  "access_token": "eyJhbGciOiJIUzI1NiIsImtpZCI6IlY0SVdmTnJQVkFEWmFMUHoiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL3ZnZ2VycnlsaGxzZWJwcmZyb251LnN1cGFiYXNlLmNvL2F1dGgvdjEiLCJzdWIiOiI3YjY1YzZiMS03YWVlLTQ0NjUtOGNlYi1jYTkzNDA5NDU4NTUiLCJhdWQiOiJhdXRoZW50aWNhdGVkIiwiZXhwIjoxNzcyMDgyMjQ0LCJpYXQiOjE3NzIwNzg2NDQsImVtYWlsIjoia2lsZWJpbTM1MkBiaXBvY2h1Yi5jb20iLCJwaG9uZSI6IiIsImFwcF9tZXRhZGF0YSI6eyJwcm92aWRlciI6ImVtYWlsIiwicHJvdmlkZXJzIjpbImVtYWlsIl19LCJ1c2VyX21ldGFkYXRhIjp7ImVtYWlsIjoia2lsZWJpbTM1MkBiaXBvY2h1Yi5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicGhvbmVfdmVyaWZpZWQiOmZhbHNlLCJzdWIiOiI3YjY1YzZiMS03YWVlLTQ0NjUtOGNlYi1jYTkzNDA5NDU4NTUifSwicm9sZSI6ImF1dGhlbnRpY2F0ZWQiLCJhYWwiOiJhYWwxIiwiYW1yIjpbeyJtZXRob2QiOiJwYXNzd29yZCIsInRpbWVzdGFtcCI6MTc3MjA3ODY0NH1dLCJzZXNzaW9uX2lkIjoiYzc0MzYyYjItYWRjOC00Mzg0LThjMTgtNDQwOWQ3MTIxYWI2IiwiaXNfYW5vbnltb3VzIjpmYWxzZX0.4IYuMMYWBqj_SQWUTN2xxTMPj_Ear7Ys_pNjIG-IcW8",
+  "token_type": "bearer",
+  "expires_in": 3600,
+  "expires_at": 1772082244,
+  "refresh_token": "aygdwsjycszm",
+  "user": {
+    "id": "7b65c6b1-7aee-4465-8ceb-ca9340945855",
+    "aud": "authenticated",
+    "role": "authenticated",
+    "email": "kilebim352@bipochub.com",
+    "email_confirmed_at": "2025-11-25T23:26:36.895576Z",
+    "phone": "",
+    "confirmation_sent_at": "2025-11-25T23:26:04.62587Z",
+    "confirmed_at": "2025-11-25T23:26:36.895576Z",
+    "last_sign_in_at": "2026-02-26T04:04:04.678763079Z",
+    "app_metadata": {
+      "provider": "email",
+      "providers": [
+        "email"
+      ]
+    },
+    "user_metadata": {
+      "email": "kilebim352@bipochub.com",
+      "email_verified": true,
+      "phone_verified": false,
+      "sub": "7b65c6b1-7aee-4465-8ceb-ca9340945855"
+    },
+    "identities": [
+      {
+        "identity_id": "66d0d77f-4935-4c4f-9ca7-54919056faf0",
+        "id": "7b65c6b1-7aee-4465-8ceb-ca9340945855",
+        "user_id": "7b65c6b1-7aee-4465-8ceb-ca9340945855",
+        "identity_data": {
+          "email": "kilebim352@bipochub.com",
+          "email_verified": true,
+          "phone_verified": false,
+          "sub": "7b65c6b1-7aee-4465-8ceb-ca9340945855"
+        },
+        "provider": "email",
+        "last_sign_in_at": "2025-11-25T23:26:04.611551Z",
+        "created_at": "2025-11-25T23:26:04.612227Z",
+        "updated_at": "2025-11-25T23:26:04.612227Z",
+        "email": "kilebim352@bipochub.com"
+      }
+    ],
+    "created_at": "2025-11-25T23:26:04.590625Z",
+    "updated_at": "2026-02-26T04:04:04.705861Z",
+    "is_anonymous": false
+  },
+  "weak_password": null
+}
+
+[2026-02-26T04:04:06.495737] LOGIN ATTEMPT: kilebim352@bipochub.com
+  local_auth_username: kilebim352@bipochub.com
+  supabase_error: None
+  supabase_data: 
+{
+  "access_token": "eyJhbGciOiJIUzI1NiIsImtpZCI6IlY0SVdmTnJQVkFEWmFMUHoiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL3ZnZ2VycnlsaGxzZWJwcmZyb251LnN1cGFiYXNlLmNvL2F1dGgvdjEiLCJzdWIiOiI3YjY1YzZiMS03YWVlLTQ0NjUtOGNlYi1jYTkzNDA5NDU4NTUiLCJhdWQiOiJhdXRoZW50aWNhdGVkIiwiZXhwIjoxNzcyMDgyMjQ2LCJpYXQiOjE3NzIwNzg2NDYsImVtYWlsIjoia2lsZWJpbTM1MkBiaXBvY2h1Yi5jb20iLCJwaG9uZSI6IiIsImFwcF9tZXRhZGF0YSI6eyJwcm92aWRlciI6ImVtYWlsIiwicHJvdmlkZXJzIjpbImVtYWlsIl19LCJ1c2VyX21ldGFkYXRhIjp7ImVtYWlsIjoia2lsZWJpbTM1MkBiaXBvY2h1Yi5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicGhvbmVfdmVyaWZpZWQiOmZhbHNlLCJzdWIiOiI3YjY1YzZiMS03YWVlLTQ0NjUtOGNlYi1jYTkzNDA5NDU4NTUifSwicm9sZSI6ImF1dGhlbnRpY2F0ZWQiLCJhYWwiOiJhYWwxIiwiYW1yIjpbeyJtZXRob2QiOiJwYXNzd29yZCIsInRpbWVzdGFtcCI6MTc3MjA3ODY0Nn1dLCJzZXNzaW9uX2lkIjoiN2UzNTY4ZjAtOThkYi00MjUwLWFmNWItOWViZjkxNDlmYWYzIiwiaXNfYW5vbnltb3VzIjpmYWxzZX0.rvEJBCzpeUMuZnjQ-G8YuBkMenicKYss0xysskYJ6IU",
+  "token_type": "bearer",
+  "expires_in": 3600,
+  "expires_at": 1772082246,
+  "refresh_token": "ncjrxhxuzoz4",
+  "user": {
+    "id": "7b65c6b1-7aee-4465-8ceb-ca9340945855",
+    "aud": "authenticated",
+    "role": "authenticated",
+    "email": "kilebim352@bipochub.com",
+    "email_confirmed_at": "2025-11-25T23:26:36.895576Z",
+    "phone": "",
+    "confirmation_sent_at": "2025-11-25T23:26:04.62587Z",
+    "confirmed_at": "2025-11-25T23:26:36.895576Z",
+    "last_sign_in_at": "2026-02-26T04:04:06.464762433Z",
+    "app_metadata": {
+      "provider": "email",
+      "providers": [
+        "email"
+      ]
+    },
+    "user_metadata": {
+      "email": "kilebim352@bipochub.com",
+      "email_verified": true,
+      "phone_verified": false,
+      "sub": "7b65c6b1-7aee-4465-8ceb-ca9340945855"
+    },
+    "identities": [
+      {
+        "identity_id": "66d0d77f-4935-4c4f-9ca7-54919056faf0",
+        "id": "7b65c6b1-7aee-4465-8ceb-ca9340945855",
+        "user_id": "7b65c6b1-7aee-4465-8ceb-ca9340945855",
+        "identity_data": {
+          "email": "kilebim352@bipochub.com",
+          "email_verified": true,
+          "phone_verified": false,
+          "sub": "7b65c6b1-7aee-4465-8ceb-ca9340945855"
+        },
+        "provider": "email",
+        "last_sign_in_at": "2025-11-25T23:26:04.611551Z",
+        "created_at": "2025-11-25T23:26:04.612227Z",
+        "updated_at": "2025-11-25T23:26:04.612227Z",
+        "email": "kilebim352@bipochub.com"
+      }
+    ],
+    "created_at": "2025-11-25T23:26:04.590625Z",
+    "updated_at": "2026-02-26T04:04:06.466999Z",
+    "is_anonymous": false
+  },
+  "weak_password": null
+}
+
+[2026-02-26T04:07:36.907890] LOGIN ATTEMPT: kilebim352@bipochub.com
+  local_auth_username: kilebim352@bipochub.com
+  supabase_error: None
+  supabase_data: 
+{
+  "access_token": "eyJhbGciOiJIUzI1NiIsImtpZCI6IlY0SVdmTnJQVkFEWmFMUHoiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL3ZnZ2VycnlsaGxzZWJwcmZyb251LnN1cGFiYXNlLmNvL2F1dGgvdjEiLCJzdWIiOiI3YjY1YzZiMS03YWVlLTQ0NjUtOGNlYi1jYTkzNDA5NDU4NTUiLCJhdWQiOiJhdXRoZW50aWNhdGVkIiwiZXhwIjoxNzcyMDgyNDU2LCJpYXQiOjE3NzIwNzg4NTYsImVtYWlsIjoia2lsZWJpbTM1MkBiaXBvY2h1Yi5jb20iLCJwaG9uZSI6IiIsImFwcF9tZXRhZGF0YSI6eyJwcm92aWRlciI6ImVtYWlsIiwicHJvdmlkZXJzIjpbImVtYWlsIl19LCJ1c2VyX21ldGFkYXRhIjp7ImVtYWlsIjoia2lsZWJpbTM1MkBiaXBvY2h1Yi5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicGhvbmVfdmVyaWZpZWQiOmZhbHNlLCJzdWIiOiI3YjY1YzZiMS03YWVlLTQ0NjUtOGNlYi1jYTkzNDA5NDU4NTUifSwicm9sZSI6ImF1dGhlbnRpY2F0ZWQiLCJhYWwiOiJhYWwxIiwiYW1yIjpbeyJtZXRob2QiOiJwYXNzd29yZCIsInRpbWVzdGFtcCI6MTc3MjA3ODg1Nn1dLCJzZXNzaW9uX2lkIjoiNjU0NTJlZmYtMWI1YS00NDdiLTgxNzQtMWU4MjJhZTllMzU4IiwiaXNfYW5vbnltb3VzIjpmYWxzZX0.ixjsxU5MVQjhvZZaKqneuIMIUztbp4ec59R4Y8D4qX4",
+  "token_type": "bearer",
+  "expires_in": 3600,
+  "expires_at": 1772082456,
+  "refresh_token": "pgfa7mjdpxcz",
+  "user": {
+    "id": "7b65c6b1-7aee-4465-8ceb-ca9340945855",
+    "aud": "authenticated",
+    "role": "authenticated",
+    "email": "kilebim352@bipochub.com",
+    "email_confirmed_at": "2025-11-25T23:26:36.895576Z",
+    "phone": "",
+    "confirmation_sent_at": "2025-11-25T23:26:04.62587Z",
+    "confirmed_at": "2025-11-25T23:26:36.895576Z",
+    "last_sign_in_at": "2026-02-26T04:07:36.873405989Z",
+    "app_metadata": {
+      "provider": "email",
+      "providers": [
+        "email"
+      ]
+    },
+    "user_metadata": {
+      "email": "kilebim352@bipochub.com",
+      "email_verified": true,
+      "phone_verified": false,
+      "sub": "7b65c6b1-7aee-4465-8ceb-ca9340945855"
+    },
+    "identities": [
+      {
+        "identity_id": "66d0d77f-4935-4c4f-9ca7-54919056faf0",
+        "id": "7b65c6b1-7aee-4465-8ceb-ca9340945855",
+        "user_id": "7b65c6b1-7aee-4465-8ceb-ca9340945855",
+        "identity_data": {
+          "email": "kilebim352@bipochub.com",
+          "email_verified": true,
+          "phone_verified": false,
+          "sub": "7b65c6b1-7aee-4465-8ceb-ca9340945855"
+        },
+        "provider": "email",
+        "last_sign_in_at": "2025-11-25T23:26:04.611551Z",
+        "created_at": "2025-11-25T23:26:04.612227Z",
+        "updated_at": "2025-11-25T23:26:04.612227Z",
+        "email": "kilebim352@bipochub.com"
+      }
+    ],
+    "created_at": "2025-11-25T23:26:04.590625Z",
+    "updated_at": "2026-02-26T04:07:36.883715Z",
+    "is_anonymous": false
+  },
+  "weak_password": null
+}
+

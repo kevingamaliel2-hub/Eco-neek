@@ -1,0 +1,196 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="auth-container">
+  <div class="container">
+    <div class="row g-0 auth-wrapper">
+      <!-- Lado Izquierdo - Ilustración -->
+      <div class="col-lg-6 auth-visual">
+        <div class="visual-content">
+          <div class="visual-image-container">
+            <img src="{% static 'assets/img/registro.jpg' %}" alt="EcoLoop" class="visual-main-image">
+          </div>
+          <h2 class="visual-title">¡Un paso más!</h2>
+          <!-- Cambia el título y subtítulo según la acción -->
+          <div class="auth-header">
+            <h1 class="auth-title">
+              {% if es_login %}
+                Iniciar Sesión
+              {% else %}
+                Crear Cuenta
+              {% endif %}
+            </h1>
+            <p class="auth-subtitle">
+              {% if es_login %}
+                Ingresa tus datos para acceder
+              {% else %}
+                Completa tus datos para registrarte
+              {% endif %}
+            </p>
+          </div>
+          <!-- Muestra el email correspondiente -->
+          <p class="visual-subtitle small">
+            {% if es_login %}
+              Correo: <strong>{{ pending.email }}</strong>
+            {% else %}
+              Correo: <strong>{{ pending.email }}</strong> (puedes cambiarlo)
+            {% endif %}
+          </p>
+        </div>
+      </div>
+
+      <!-- Lado Derecho - Formulario -->
+      <div class="col-lg-6 auth-form-section">
+        <div class="auth-form-content">
+          <!-- El encabezado y subtítulo ya están en el lado izquierdo -->
+
+          {% if messages %}
+            {% for message in messages %}
+              <div class="alert alert-{{ message.tags }} alert-custom">
+                <i class="bi bi-info-circle-fill me-2"></i>
+                {{ message }}
+              </div>
+            {% endfor %}
+          {% endif %}
+
+          <form method="POST" action="{% url 'completar_registro' %}">
+            {% csrf_token %}
+            
+            <div class="form-group">
+              <label class="form-label">
+                <i class="bi bi-people-fill me-2"></i>
+                Tipo de cuenta
+              </label>
+              <div class="account-type-selector">
+                <input type="radio" name="role" value="user" id="tipoUsuario" checked>
+                <label for="tipoUsuario" class="account-type-option">
+                  <div class="account-type-icon">
+                    <i class="bi bi-person"></i>
+                  </div>
+                  <div class="account-type-info">
+                    <strong>Usuario</strong>
+                    <span>Ciudadano reciclador</span>
+                  </div>
+                  <i class="bi bi-check-circle-fill account-type-check"></i>
+                </label>
+
+                <input type="radio" name="role" value="center" id="tipoCentro">
+                <label for="tipoCentro" class="account-type-option">
+                  <div class="account-type-icon">
+                    <i class="bi bi-building"></i>
+                  </div>
+                  <div class="account-type-info">
+                    <strong>Centro de Acopio</strong>
+                    <span>Punto verde / Recicladora</span>
+                  </div>
+                  <i class="bi bi-check-circle-fill account-type-check"></i>
+                </label>
+
+                <input type="radio" name="role" value="scrapyard" id="tipoChatarra">
+                <label for="tipoChatarra" class="account-type-option">
+                  <div class="account-type-icon">
+                    <i class="bi bi-tools"></i>
+                  </div>
+                  <div class="account-type-info">
+                    <strong>Chatarrería</strong>
+                    <span>Compra de materiales</span>
+                  </div>
+                  <i class="bi bi-check-circle-fill account-type-check"></i>
+                </label>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">
+                <i class="bi bi-phone-fill me-2"></i>
+                Teléfono
+              </label>
+              <input type="tel" name="telefono" class="form-input" placeholder="+52 123 456 7890" required>
+            </div>
+
+            <!-- Campos específicos para centros -->
+            <div id="camposCentro" style="display: none;">
+              <div class="form-group">
+                <label class="form-label">
+                  <i class="bi bi-shop me-2"></i>
+                  Nombre del negocio
+                </label>
+                <input type="text" name="business_name" class="form-input" placeholder="Ej: Recicladora México">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">
+                  <i class="bi bi-geo-alt-fill me-2"></i>
+                  Dirección
+                </label>
+                <input type="text" name="address" class="form-input" placeholder="Calle, número, colonia">
+              </div>
+
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label class="form-label">Código Postal</label>
+                    <input type="text" name="postal_code" class="form-input" placeholder="00000">
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label class="form-label">Municipio</label>
+                    <input type="text" name="municipality" class="form-input" placeholder="Tu municipio">
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">
+                  <i class="bi bi-card-text me-2"></i>
+                  Descripción
+                </label>
+                <textarea name="description" class="form-input" rows="3" placeholder="Describe tu centro..."></textarea>
+              </div>
+
+              <div class="alert alert-info alert-custom">
+                <i class="bi bi-info-circle-fill me-2"></i>
+                Los centros quedan <strong>pendientes de aprobación</strong> por el equipo de EcoLoop.
+              </div>
+            </div>
+
+            <button class="btn btn-auth-primary" type="submit">
+              <span>Completar registro</span>
+            </button>
+          </form>
+
+          <div class="auth-footer">
+          <p>¿Ya tienes cuenta? <a href="/accounts/google/login/" class="auth-link">Inicia sesión aquí</a></p>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const tipoUsuario = document.getElementById('tipoUsuario');
+  const tipoCentro = document.getElementById('tipoCentro');
+  const tipoChatarra = document.getElementById('tipoChatarra');
+  const camposCentro = document.getElementById('camposCentro');
+
+  function toggleCenterFields() {
+    if (tipoCentro.checked || tipoChatarra.checked) {
+      camposCentro.style.display = 'block';
+      camposCentro.style.animation = 'slideDown 0.3s ease';
+    } else {
+      camposCentro.style.display = 'none';
+    }
+  }
+
+  tipoUsuario.addEventListener('change', toggleCenterFields);
+  tipoCentro.addEventListener('change', toggleCenterFields);
+  tipoChatarra.addEventListener('change', toggleCenterFields);
+});
+</script>
+{% endblock %}

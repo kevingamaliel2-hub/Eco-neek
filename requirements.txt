@@ -1,0 +1,10 @@
+Django>=4.2
+djangorestframework
+django-allauth
+psycopg2-binary
+python-dotenv
+dj-database-url
+requests
+PyJWT
+cryptography
+djangorestframework-simplejwt

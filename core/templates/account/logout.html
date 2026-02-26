@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="auth-container">
+  <div class="container">
+    <div class="row g-0 auth-wrapper">
+      
+      <!-- Lado Izquierdo - Ilustración -->
+      <div class="col-lg-6 auth-visual">
+        <div class="visual-content">
+          <div class="visual-image-container">
+            <img src="{% static 'assets/img/loguin.png' %}" alt="EcoNeek" class="visual-main-image">
+          </div>
+          <h2 class="visual-title">¡Hasta pronto!</h2>
+          <p class="visual-subtitle">Gracias por ser parte de EcoNeek. Esperamos verte de nuevo pronto para seguir construyendo un futuro más sostenible.</p>
+        </div>
+      </div>
+
+      <!-- Lado Derecho - Formulario -->
+      <div class="col-lg-6 auth-form-section">
+        <div class="auth-form-content">
+          
+          <div class="auth-header">
+            <h1 class="auth-title">Cerrar sesión</h1>
+            <p class="auth-subtitle">¿Estás seguro que deseas salir?</p>
+          </div>
+
+
+          {# Se ocultan los mensajes automáticos para evitar mostrar mensajes poco profesionales en logout #}
+
+          <div class="alert alert-warning alert-custom">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+            Estás a punto de cerrar tu sesión en EcoNeek.
+          </div>
+
+          <form method="post" action="{% url 'account_logout' %}">
+            {% csrf_token %}
+            
+            {% if redirect_field_value %}
+              <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}"/>
+            {% endif %}
+            
+            <div class="d-grid gap-3">
+              <button class="btn btn-auth-primary" type="submit">
+                <i class="bi bi-box-arrow-right me-2"></i>
+                Sí, cerrar sesión
+              </button>
+              
+              <a href="/" class="btn btn-google">
+                <i class="bi bi-arrow-left me-2"></i>
+                No, volver al inicio
+              </a>
+            </div>
+          </form>
+
+          <div class="auth-footer mt-4">
+            <p class="small text-muted">
+              <i class="bi bi-recycle me-1"></i>
+              Recuerda: cada pequeño acto de reciclaje cuenta para un planeta más limpio.
+            </p>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}

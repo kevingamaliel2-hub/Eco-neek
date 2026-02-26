@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Completa tu perfil – Eco-Neek{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-12 col-md-7 col-lg-5">
+
+      <div class="eco-card p-4 p-md-5">
+        <div class="text-center mb-4">
+          <span style="font-size:2.5rem">♻️</span>
+          <h2 class="section-title mt-2 mb-1">Completa tu perfil</h2>
+          <p class="text-muted small">Solo unos datos y estarás listo para reciclar</p>
+        </div>
+
+        <form method="POST" action="/completar-registro/usuario/">
+          {% csrf_token %}
+
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Nombre <span class="text-danger">*</span></label>
+            <input type="text" name="nombre" class="form-control" required
+                   placeholder="Tu nombre"
+                   value="{{ request.user.first_name }}">
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Apellido</label>
+            <input type="text" name="apellido" class="form-control"
+                   placeholder="Tu apellido"
+                   value="{{ request.user.last_name }}">
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Correo electrónico</label>
+            <input type="email" class="form-control" value="{{ request.user.email }}"
+                   disabled style="background:#f8f9fa; color:#6c757d;">
+            <small class="text-muted">Viene de tu cuenta de Google</small>
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label fw-semibold">Teléfono <span class="text-muted fw-normal">(opcional)</span></label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="bi bi-telephone-fill"></i></span>
+              <input type="tel" name="phone" class="form-control"
+                     placeholder="Ej: 999 123 4567">
+            </div>
+          </div>
+
+          <button type="submit" class="btn-eco w-100 py-3" style="font-size:1rem; border-radius:10px;">
+            <i class="bi bi-check-lg me-2"></i>Crear mi cuenta
+          </button>
+        </form>
+
+        <div class="text-center mt-3">
+          <a href="/completar-registro/" class="text-muted small">
+            <i class="bi bi-arrow-left me-1"></i>Cambiar tipo de cuenta
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}

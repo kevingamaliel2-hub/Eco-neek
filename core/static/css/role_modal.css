@@ -1,0 +1,75 @@
+/* Modal de selección de rol para Google Signup */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+}
+.modal-content {
+  background: white;
+  border-radius: 16px;
+  max-width: 500px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+}
+.modal-header {
+  padding: 24px 24px 16px;
+  border-bottom: 1px solid #e5e7eb;
+}
+.modal-header h3 {
+  margin: 0 0 8px 0;
+  font-size: 1.5rem;
+  color: #111827;
+}
+.modal-header p {
+  margin: 0;
+  color: #6b7280;
+  font-size: 0.95rem;
+}
+.modal-body {
+  padding: 24px;
+}
+.role-option {
+  display: flex;
+  gap: 16px;
+  padding: 16px;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.role-option:hover {
+  border-color: #2a9d8f;
+  background: #f8faf8;
+  transform: translateY(-2px);
+}
+.role-icon {
+  font-size: 2rem;
+  min-width: 48px;
+  text-align: center;
+}
+.role-info h4 {
+  margin: 0 0 4px 0;
+  color: #111827;
+  font-size: 1.1rem;
+}
+.role-info p {
+  margin: 0;
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+.modal-footer {
+  padding: 16px 24px 24px;
+  border-top: 1px solid #e5e7eb;
+  display: flex;
+  justify-content: flex-end;
+}

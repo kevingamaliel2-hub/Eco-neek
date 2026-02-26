@@ -1,0 +1,293 @@
+{% extends "base.html" %}
+{% load static %}  <!-- ← Agrega esta línea -->
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+  <div class="container">
+    <div class="row align-items-center">
+      <div class="col-lg-6 hero-content">
+        <h1 class="hero-title">Transforma el mundo, un residuo a la vez</h1>
+        <p class="hero-description">
+          EcoLoop conecta a ciudadanos con centros de reciclaje mediante tecnología inteligente. 
+          Ya seas un reciclador o un punto verde, aquí encuentras tu espacio.
+        </p>
+        <div class="hero-buttons">
+          <a class="btn btn-hero-primary" href="/login-screen/">
+            Registrarme
+            <i class="bi bi-recycle ms-2"></i>
+          </a>
+          <a class="btn btn-hero-secondary" href="/completar-registro/centro/">
+            Registrar mi centro
+            <i class="bi bi-shop ms-2"></i>
+          </a>
+        </div>
+        <div class="hero-stats">
+          <div class="stat-item">
+            <span class="stat-number"></span>
+            <span class="stat-label"></span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-number"></span>
+            <span class="stat-label"></span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-number"></span>
+            <span class="stat-label"></span>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6 hero-image">
+        <div class="phone-mockup">
+          <img src="{% static 'assets/img/sonriendo.png' %}" alt="EcoLoop App" class="img-fluid">
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="hero-wave"></div>
+</section>
+
+<!-- Características Principales -->
+<section class="features-section">
+  <div class="container">
+    <div class="section-header text-center">
+      <h2 class="section-title">Todo lo que necesitas para reciclar mejor</h2>
+      <p class="section-subtitle">Tecnología al servicio del medio ambiente</p>
+    </div>
+    <div class="row g-4 mt-4">
+      <div class="col-md-6 col-lg-3">
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="bi bi-geo-alt-fill"></i>
+          </div>
+          <h3 class="feature-title">Geolocalización</h3>
+          <p class="feature-text">Encuentra puntos verdes cercanos con horarios y tipos de residuos aceptados</p>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-3">
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="bi bi-recycle"></i>
+          </div>
+          <h3 class="feature-title">Recicla</h3>
+          <p class="feature-text">Separa tus residuos y llévalos al centro correspondiente</p>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-3">
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="bi bi-trophy-fill"></i>
+          </div>
+          <h3 class="feature-title">Recompensas</h3>
+          <p class="feature-text">Gana puntos por reciclar y canjéalos por premios ecológicos</p>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-3">
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="bi bi-graph-up"></i>
+          </div>
+          <h3 class="feature-title">Tu impacto</h3>
+          <p class="feature-text">Visualiza tus estadísticas y el impacto ambiental de tus acciones</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- App Móvil Interactiva -->
+<section class="app-interactive-section">
+  <div class="container">
+    <div class="section-header text-center mb-5">
+      <h2 class="section-title">El siguiente nivel de reciclaje está en nuestra app</h2>
+      <p class="section-subtitle">Descárgala y comienza a <strong>GANAR ECOPUNTOS</strong> con nuestras actividades</p>
+    </div>
+    <div class="row align-items-center">
+      <div class="col-lg-6 order-lg-2">
+        <div class="app-phone-display">
+          <input type="radio" name="app-screen" id="screen-participa" checked hidden>
+          <input type="radio" name="app-screen" id="screen-aprende" hidden>
+          <input type="radio" name="app-screen" id="screen-ubica" hidden>
+          <input type="radio" name="app-screen" id="screen-conoce" hidden>
+          <div class="app-screens-container">
+            <img src="{% static 'assets/img/appeventos.png' %}" alt="Participa" class="app-screen-img" data-screen="participa">
+            <img src="{% static 'assets/img/appaprende.png' %}" alt="Aprende" class="app-screen-img" data-screen="aprende">
+            <img src="{% static 'assets/img/appubica.png' %}" alt="Ubica" class="app-screen-img" data-screen="ubica">
+            <img src="{% static 'assets/img/appgana.png' %}" alt="Conoce" class="app-screen-img" data-screen="conoce">
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6 order-lg-1">
+        <div class="app-tabs">
+          <label for="screen-participa" class="app-tab">
+            <div class="tab-content-wrapper">
+              <span class="tab-title">Participa</span>
+              <p class="tab-description">Participa en nuestros RETOS y aprende hasta convertirte en un dios reciclador</p>
+            </div>
+          </label>
+          <label for="screen-aprende" class="app-tab">
+            <div class="tab-content-wrapper">
+              <span class="tab-title">Aprende</span>
+              <p class="tab-description">Descubre cómo separar correctamente tus residuos con guías interactivas</p>
+            </div>
+          </label>
+          <label for="screen-ubica" class="app-tab">
+            <div class="tab-content-wrapper">
+              <span class="tab-title">Ubica</span>
+              <p class="tab-description">Encuentra puntos verdes cercanos con mapa GPS en tiempo real</p>
+            </div>
+          </label>
+          <label for="screen-conoce" class="app-tab">
+            <div class="tab-content-wrapper">
+              <span class="tab-title">Canjea</span>
+              <p class="tab-description">Canjea tus ecopuntos por premios dentro de la app</p>
+            </div>
+          </label>
+        </div>
+        <div class="app-cta-box">
+          <p class="cta-subtitle">Esto y más te hará ganar ecopuntos para cambiarlas por beneficios en nuestra tienda.</p>
+          <a href="#download" class="btn btn-download-main">
+            ¡Comencemos!
+            <i class="bi bi-arrow-right ms-2"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Misión y Visión -->
+<section class="mission-vision-section">
+  <div class="container">
+    <div class="row g-4">
+      <div class="col-md-6">
+        <div class="mission-card">
+          <div class="mv-icon">
+            <i class="bi bi-bullseye"></i>
+          </div>
+          <h3 class="mv-title">Nuestra Misión</h3>
+          <p class="mv-text">
+            Fomentar hábitos ecológicos mediante tecnología, motivación y educación ambiental, 
+            creando un impacto positivo en las comunidades.
+          </p>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="vision-card">
+          <div class="mv-icon">
+            <i class="bi bi-eye"></i>
+          </div>
+          <h3 class="mv-title">Nuestra Visión</h3>
+          <p class="mv-text">
+            Ser una herramienta confiable y accesible que impulse el reciclaje en todo el país, 
+            conectando personas, centros de acopio y oportunidades para cuidar el planeta.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Cómo Funciona -->
+<section class="how-it-works-section">
+  <div class="container">
+    <div class="section-header text-center">
+      <h2 class="section-title">¡Comencemos a reciclar!</h2>
+      <p class="section-subtitle">Sigue estos sencillos pasos y marca la diferencia</p>
+    </div>
+    <div class="row g-4 mt-5">
+      <div class="col-md-6 col-lg-3">
+        <div class="step-card">
+          <div class="step-number">1</div>
+          <div class="step-icon">
+            <i class="bi bi-person-plus-fill"></i>
+          </div>
+          <h3 class="step-title">Regístrate</h3>
+          <p class="step-text">Crea tu cuenta gratis y configura tu perfil ambiental</p>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-3">
+        <div class="step-card">
+          <div class="step-number">2</div>
+          <div class="step-icon">
+            <i class="bi bi-pin-map-fill"></i>
+          </div>
+          <h3 class="step-title">Ubica centros</h3>
+          <p class="step-text">Encuentra el punto verde más cercano en nuestro mapa</p>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-3">
+        <div class="step-card">
+          <div class="step-number">3</div>
+          <div class="step-icon">
+            <i class="bi bi-recycle"></i>
+          </div>
+          <h3 class="step-title">Recicla</h3>
+          <p class="step-text">Separa tus residuos y llévalos al centro correspondiente</p>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-3">
+        <div class="step-card">
+          <div class="step-number">4</div>
+          <div class="step-icon">
+            <i class="bi bi-gift-fill"></i>
+          </div>
+          <h3 class="step-title">Gana puntos</h3>
+          <p class="step-text">Acumula ecolanitas y canjéalas por recompensas</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Sección para Centros de Reciclaje -->
+<section class="green-points-section">
+  <div class="container">
+    <div class="row align-items-center">
+      <div class="col-lg-6">
+        <img src="{% static 'assets/img/puntoverde1.jpg' %}" alt="Centro de Reciclaje" class="img-fluid rounded-img">
+      </div>
+      <div class="col-lg-6">
+        <h2 class="section-title">¿Quieres unirte como punto verde?</h2>
+        <p class="greenpoint-description">
+          Si tienes un centro de reciclaje, negocio, escuela o proyecto ecológico, 
+          puedes formar parte del mapa EcoLoop para recibir más visitantes y apoyar a tu comunidad.
+        </p>
+        <ul class="greenpoint-benefits">
+          <li><i class="bi bi-check-circle-fill"></i> Aumenta la visibilidad de tu centro</li>
+          <li><i class="bi bi-check-circle-fill"></i> Recibe más material reciclable</li>
+          <li><i class="bi bi-check-circle-fill"></i> Forma parte de la red ecológica</li>
+          <li><i class="bi bi-check-circle-fill"></i> Gestiona tus registros fácilmente</li>
+        </ul>
+        <a href="/completar-registro/centro/" class="btn btn-greenpoint">
+          Registrar mi punto verde
+          <i class="bi bi-arrow-right ms-2"></i>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Descarga la App -->
+<section class="download-section" id="download">
+  <div class="container text-center">
+    <h2 class="section-title text-white">Disponible en tu tienda favorita</h2>
+    <p class="download-subtitle">Lleva EcoLoop en tu bolsillo y recicla desde cualquier lugar</p>
+    <div class="download-buttons">
+      <a href="https://play.google.com/store/apps" target="_blank" rel="noopener noreferrer" class="btn-store">
+        <i class="bi bi-google-play"></i>
+        <div>
+          <small>Disponible en</small>
+          <strong>Google Play</strong>
+        </div>
+      </a>
+      <a href="https://apps.apple.com/app" target="_blank" rel="noopener noreferrer" class="btn-store">
+        <i class="bi bi-apple"></i>
+        <div>
+          <small>Descarga en</small>
+          <strong>App Store</strong>
+        </div>
+      </a>
+    </div>
+  </div>
+</section>
+{% endblock %}

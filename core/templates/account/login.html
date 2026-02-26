@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="auth-container">
+  <div class="container">
+    <div class="row g-0 auth-wrapper">
+      
+      <!-- Lado Izquierdo - Ilustración -->
+      <div class="col-lg-6 auth-visual">
+        <div class="visual-content">
+          <div class="visual-image-container">
+            <img src="{% static 'assets/img/loguin.png' %}" alt="EcoLoop" class="visual-main-image">
+          </div>
+          <h2 class="visual-title">¡Bienvenido de vuelta!</h2>
+          <p class="visual-subtitle">Continúa tu viaje hacia un planeta más verde.</p>
+        </div>
+      </div>
+
+      <!-- Lado Derecho - Formulario -->
+      <div class="col-lg-6 auth-form-section">
+        <div class="auth-form-content">
+          
+          <div class="auth-header">
+            <h1 class="auth-title">Iniciar sesión</h1>
+            <p class="auth-subtitle">Ingresa tus credenciales para continuar</p>
+          </div>
+
+          <form method="post" action="{% url 'perfil_usuario' %}">
+            {% csrf_token %}
+            
+            <div class="form-group">
+              <label class="form-label">
+                <i class="bi bi-envelope-fill me-2"></i>
+                Correo electrónico
+              </label>
+              <input type="email" name="email" class="form-input" placeholder="tu@email.com" required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">
+                <i class="bi bi-lock-fill me-2"></i>
+                Contraseña
+              </label>
+              <div class="password-input-wrapper">
+                <input type="password" name="password" id="password" class="form-input" placeholder="••••••••" required>
+                <button type="button" class="password-toggle" onclick="togglePassword()">
+                  <i class="bi bi-eye" id="toggleIcon"></i>
+                </button>
+              </div>
+            </div>
+
+            <button class="btn btn-auth-primary" type="submit">
+              <span>Iniciar sesión</span>
+            </button>
+          </form>
+
+          <div class="divider">
+            <span>O continúa con</span>
+          </div>
+
+          <a href="{% url 'google_register_callback' %}" class="btn btn-google">
+            <i class="bi bi-google"></i>
+            <span>Iniciar sesión con Google</span>
+          </a>
+
+          <div class="auth-footer">
+            <p>¿No tienes cuenta? <a href="{% url 'completar_registro' %}" class="auth-link">Regístrate aquí</a></p>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+function togglePassword() {
+  const passwordInput = document.getElementById('password');
+  const toggleIcon = document.getElementById('toggleIcon');
+  
+  if (passwordInput.type === 'password') {
+    passwordInput.type = 'text';
+    toggleIcon.classList.remove('bi-eye');
+    toggleIcon.classList.add('bi-eye-slash');
+  } else {
+    passwordInput.type = 'password';
+    toggleIcon.classList.remove('bi-eye-slash');
+    toggleIcon.classList.add('bi-eye');
+  }
+}
+
+async function loginConGoogle() {
+  // Implementar Google Sign-In
+  window.location.href = '/google-register-callback/';
+}
+</script>
+{% endblock %}

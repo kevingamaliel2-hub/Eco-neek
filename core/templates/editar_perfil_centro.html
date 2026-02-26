@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Editar Centro{% endblock %}
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-12 col-md-8 col-lg-6">
+      <div class="eco-card p-4 p-md-5">
+        <div class="text-center mb-4">
+          <span style="font-size:2.5rem">🏢</span>
+          <h2 class="section-title mt-2 mb-1">Editar Centro</h2>
+          <p class="text-muted small">Actualiza los datos de tu centro de reciclaje</p>
+        </div>
+        <form method="POST">
+          {% csrf_token %}
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Nombre del centro <span class="text-danger">*</span></label>
+            <input type="text" name="nombre_centro" class="form-control" required
+                   value="{{ centro.name }}">
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Dirección</label>
+            <input type="text" name="direccion" class="form-control"
+                   value="{{ centro.address|default:'' }}" placeholder="Calle, número, colonia, ciudad">
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Teléfono</label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="bi bi-telephone-fill"></i></span>
+              <input type="tel" name="telefono" class="form-control"
+                     value="{{ centro.contact_phone|default:'' }}">
+            </div>
+          </div>
+          <div class="row mb-4">
+            <div class="col-6">
+              <label class="form-label fw-semibold">Latitud <span class="text-muted fw-normal">(opcional)</span></label>
+              <input type="text" name="latitude" class="form-control"
+                     value="{{ centro.latitude|default:'' }}" placeholder="Ej: 20.9674">
+            </div>
+            <div class="col-6">
+              <label class="form-label fw-semibold">Longitud <span class="text-muted fw-normal">(opcional)</span></label>
+              <input type="text" name="longitude" class="form-control"
+                     value="{{ centro.longitude|default:'' }}" placeholder="Ej: -89.5926">
+            </div>
+          </div>
+
+          {% if not centro.active %}
+          <div class="alert d-flex gap-2 mb-4"
+               style="background:#fff8e1;border-left:4px solid var(--eco-yellow);border-radius:10px;padding:.8rem 1rem;">
+            <i class="bi bi-hourglass-split" style="color:var(--eco-yellow);font-size:1.1rem;flex-shrink:0;margin-top:2px;"></i>
+            <div class="small text-muted">
+              <strong>Centro pendiente de activación.</strong> Un administrador revisará tu solicitud.
+            </div>
+          </div>
+          {% endif %}
+
+          <button type="submit" class="btn-eco w-100 py-3" style="font-size:1rem; border-radius:10px;">
+            <i class="bi bi-check-lg me-2"></i>Guardar cambios
+          </button>
+        </form>
+        <div class="text-center mt-3">
+          <a href="{% url 'perfil_centro' %}" class="text-muted small">
+            <i class="bi bi-arrow-left me-1"></i>Volver al perfil del centro
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

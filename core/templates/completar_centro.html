@@ -1,0 +1,156 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Registrar Centro – Eco-Neek{% endblock %}
+
+{% block extra_head %}
+<style>
+  .navbar-collapse, .eco-navbar .navbar-collapse { display: none !important; }
+  .registro-hero {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #fff8f0 0%, #fff3e0 100%);
+    display: flex;
+    align-items: center;
+    padding: 2rem 0;
+  }
+  .form-card {
+    background: #fff;
+    border-radius: 20px;
+    padding: 2.5rem 2rem;
+    box-shadow: 0 4px 25px rgba(0,0,0,0.08);
+  }
+  .form-card .form-control {
+    border-radius: 10px;
+    border: 1.5px solid #e0e0e0;
+    padding: .65rem 1rem;
+    font-size: .95rem;
+    transition: border-color .2s;
+  }
+  .form-card .form-control:focus {
+    border-color: #f4a261;
+    box-shadow: 0 0 0 3px rgba(244,162,97,.15);
+  }
+  .form-card .input-group-text {
+    border-radius: 10px 0 0 10px;
+    border: 1.5px solid #e0e0e0;
+    border-right: 0;
+    background: #f8f9fa;
+    color: #f4a261;
+  }
+  .form-card .input-group .form-control { border-radius: 0 10px 10px 0; }
+  .step-badge {
+    display: inline-block;
+    background: #f4a261;
+    color: #fff;
+    font-size: .75rem;
+    font-weight: 700;
+    padding: .2rem .8rem;
+    border-radius: 20px;
+    margin-bottom: .8rem;
+    letter-spacing: .05em;
+  }
+  .user-email-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    background: #fff8f0;
+    border: 1px solid #ffe0b2;
+    border-radius: 20px;
+    padding: .3rem .8rem;
+    font-size: .85rem;
+    color: #e65100;
+    margin-bottom: 1.5rem;
+  }
+  .aviso-revision {
+    background: #fff8e1;
+    border-left: 4px solid #f4a261;
+    border-radius: 10px;
+    padding: .8rem 1rem;
+    margin-bottom: 1.2rem;
+    display: flex;
+    gap: .6rem;
+    align-items: flex-start;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="registro-hero">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-12 col-md-8 col-lg-6">
+        <div class="form-card">
+
+          <div class="text-center mb-4">
+            <span class="step-badge">PASO 2 DE 2</span>
+            <div style="font-size:2.8rem; margin-bottom:.5rem;">🏢</div>
+            <h2 style="font-size:1.5rem; font-weight:800; color:#1a1a2e; margin-bottom:.3rem;">Registra tu Centro</h2>
+            <p class="text-muted small mb-2">Tu solicitud será revisada antes de activarse</p>
+            <div class="user-email-badge">
+              <i class="bi bi-google"></i>
+              {{ request.user.email }}
+            </div>
+          </div>
+
+          {% if messages %}
+            {% for message in messages %}
+              <div class="alert alert-danger small rounded-3">{{ message }}</div>
+            {% endfor %}
+          {% endif %}
+
+          <form method="POST" action="/completar-registro/centro/">
+            {% csrf_token %}
+
+            <div class="mb-3">
+              <label class="form-label fw-semibold small">Nombre del centro <span class="text-danger">*</span></label>
+              <input type="text" name="nombre_centro" class="form-control" required
+                     placeholder="Ej: Centro de Acopio Norte">
+            </div>
+
+            <div class="row g-3 mb-3">
+              <div class="col-md-6">
+                <label class="form-label fw-semibold small">Nombre del contacto <span class="text-danger">*</span></label>
+                <input type="text" name="nombre_contacto" class="form-control" required
+                       placeholder="Tu nombre" value="{{ request.user.get_full_name }}">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-semibold small">Teléfono</label>
+                <div class="input-group">
+                  <span class="input-group-text"><i class="bi bi-telephone-fill"></i></span>
+                  <input type="tel" name="telefono" class="form-control" placeholder="Tel. del centro">
+                </div>
+              </div>
+            </div>
+
+            <div class="mb-4">
+              <label class="form-label fw-semibold small">Dirección</label>
+              <input type="text" name="direccion" class="form-control"
+                     placeholder="Calle, número, colonia, ciudad">
+            </div>
+
+            <div class="aviso-revision">
+              <i class="bi bi-info-circle-fill" style="color:#f4a261; flex-shrink:0; margin-top:2px;"></i>
+              <div class="small text-muted">
+                <strong>Revisión requerida:</strong> Un administrador revisará tu solicitud y te avisará por correo cuando tu centro esté activo.
+              </div>
+            </div>
+
+            <button type="submit" class="w-100 py-3"
+                    style="background:#f4a261; color:#fff; border:none; border-radius:12px; font-weight:700; font-size:1rem; cursor:pointer; transition:opacity .2s;"
+                    onmouseover="this.style.opacity='.88'" onmouseout="this.style.opacity='1'">
+              <i class="bi bi-send-fill me-2"></i>Enviar solicitud
+            </button>
+          </form>
+
+          <div class="text-center mt-3">
+            <a href="/completar-registro/" class="text-muted small">
+              <i class="bi bi-arrow-left me-1"></i>Cambiar tipo de cuenta
+            </a>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

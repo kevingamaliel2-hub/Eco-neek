@@ -1,0 +1,253 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<!-- Hero del Perfil -->
+<section class="profile-hero-full">
+  <div class="container">
+    <div class="profile-header-card">
+        <div class="profile-avatar-wrapper">
+          {% if avatar_url %}
+            <!-- usar imagen proporcionada por socialaccount -->
+            <img src="{{ avatar_url }}" alt="Avatar" class="profile-avatar-img">
+          {% elif perfil_firebase and perfil_firebase.imagen_url %}
+            <img src="{{ perfil_firebase.imagen_url }}" alt="Avatar" class="profile-avatar-img">
+          {% elif usuario.avatar %}
+            <img src="/media/{{ usuario.avatar }}" alt="Avatar" class="profile-avatar-img">
+          {% else %}
+            <img src="{% static 'logo.png' %}" alt="Avatar" class="profile-avatar-img">
+          {% endif %}
+        </div>
+        <div class="profile-info">
+          <h2 class="profile-name">
+            {{ usuario.first_name|default:usuario.username }}
+            <i class="bi bi-patch-check-fill text-success ms-2"></i>
+          </h2>
+          <p class="profile-member-since">
+            <i class="bi bi-calendar-check me-2"></i>
+            Miembro desde {{ usuario.date_joined|date:"d/m/Y" }}
+          </p>
+        </div>
+        <div class="profile-points d-flex align-items-center ms-4">
+          <div class="points-icon me-2">
+            <img src="{% static 'assets/img/monedaecoloopreal.png' %}" alt="Ecopunto" style="width:44px;height:44px;">
+          </div>
+          <div>
+            <div style="font-size:0.9rem;color:#e9f7f5;font-weight:700;">Tus Ecopuntos</div>
+            <div class="points-badge" style="font-size:0.95rem;padding:.4rem .8rem;margin-top:.25rem;">{{ usuario.points|default:0 }} pts</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="profile-actions">
+        <a href="{% url 'editar_perfil' %}" class="btn btn-profile-edit">
+          <i class="bi bi-pencil-fill me-2"></i>
+          Editar perfil
+        </a>
+        <a href="{% url 'logout' %}" class="btn btn-profile-logout">
+          <i class="bi bi-box-arrow-right me-2"></i>
+          Cerrar sesión
+        </a>
+      </div>
+    </div>
+
+    <!-- Punto: moved into header for compact layout -->
+  </div>
+</section>
+
+<!-- Contenido Principal -->
+<div class="container profile-content-container">
+  <div class="row g-4">
+    <!-- Columna Izquierda -->
+    <div class="col-lg-4">
+      <!-- Tarjeta de Información -->
+      <div class="profile-card">
+        <div class="profile-card-header">
+          <i class="bi bi-person-circle me-2"></i>
+          <h5>Información Personal</h5>
+        </div>
+        <div class="profile-card-body">
+          <div class="info-item">
+            <span class="info-label">
+              <i class="bi bi-envelope-fill"></i>
+              Correo electrónico
+            </span>
+            <span class="info-value">{{ usuario.email }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">
+              <i class="bi bi-telephone-fill"></i>
+              Teléfono
+            </span>
+            <span class="info-value">{{ usuario.phone|default:"No registrado" }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">
+              <i class="bi bi-trophy-fill"></i>
+              Total canjes
+            </span>
+            <span class="info-value">{{ total_canjes }}</span>
+          </div>
+        </div>
+      </div>
+      <!-- Tarjeta de QR - con botón de sincronizar -->
+      <div class="profile-card">
+        <div class="profile-card-header">
+          <i class="bi bi-qr-code me-2"></i>
+          <h5>Tu Código QR</h5>
+        </div>
+        <div class="profile-card-body text-center">
+          {% if qr_url %}
+            <div class="qr-code-container">
+              <img src="{{ qr_url }}" alt="QR" class="qr-code-img">
+            </div>
+            <p class="qr-description">Muestra este código en los centros de reciclaje</p>
+            <div class="d-flex gap-2 justify-content-center">
+              <a href="{{ qr_url }}" target="_blank" class="btn btn-qr-view">
+                <i class="bi bi-arrows-fullscreen"></i>
+                Ver grande
+              </a>
+              <a href="{% url 'sincronizar_qr' %}" class="btn btn-qr-generate">
+                <i class="bi bi-arrow-repeat"></i>
+                Sincronizar
+              </a>
+            </div>
+          {% else %}
+            <div class="qr-empty-state">
+              <i class="bi bi-qr-code-scan"></i>
+              <p>No hay QR sincronizado</p>
+              <a href="{% url 'sincronizar_qr' %}" class="btn btn-qr-generate">
+                <i class="bi bi-arrow-repeat me-2"></i>
+                Sincronizar desde app
+              </a>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    <!-- Columna Derecha -->
+    <div class="col-lg-8">
+      <!-- Historial de Canjes -->
+      <div class="profile-card">
+        <div class="profile-card-header">
+          <i class="bi bi-clock-history me-2"></i>
+          <h5>Historial de Canjes</h5>
+        </div>
+        <div class="profile-card-body">
+          {% if ultimos_canjes %}
+            <div class="history-list">
+              {% for canje in ultimos_canjes %}
+                <div class="history-item">
+                  <div class="history-icon">
+                    <i class="bi bi-gift"></i>
+                  </div>
+                  <div class="history-content">
+                    <h6 class="history-title">{{ canje.premio.title }}</h6>
+                    <p class="history-details">
+                      <span class="history-quantity">Puntos: {{ canje.premio.points_cost }}</span>
+                      <span class="history-date">
+                        <i class="bi bi-calendar3"></i>
+                        {{ canje.created_at|date:"d/m/Y H:i" }}
+                      </span>
+                    </p>
+                  </div>
+                  <div class="history-points">
+                    <span class="points-badge">{{ canje.premio.points_cost }}</span>
+                    <span class="points-label">puntos</span>
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+            {% if total_canjes > 3 %}
+              <a href="{% url 'historial_canjes' %}" class="btn-view-all">
+                Ver todo el historial
+                <i class="bi bi-arrow-right ms-2"></i>
+              </a>
+            {% endif %}
+          {% else %}
+            <div class="empty-history">
+              <i class="bi bi-inbox"></i>
+              <p>No has canjeado premios aún</p>
+              <span class="empty-hint">Los canjes se realizan desde la app móvil</span>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+      <!-- Acciones Rápidas -->
+      <div class="row g-4 mt-4 justify-content-center">
+        <div class="col-md-6 col-lg-4 d-flex align-items-stretch">
+          <div class="action-card-full w-100">
+            <div class="action-icon-full action-icon-green">
+              <i class="bi bi-geo-alt-fill"></i>
+            </div>
+            <div class="action-content-full">
+              <h5>Puntos Verdes</h5>
+              <p>Encuentra centros de reciclaje cercanos</p>
+            </div>
+            <a href="{% url 'mapa' %}" class="btn-action-full">
+              Ver mapa
+              <i class="bi bi-arrow-right ms-2"></i>
+            </a>
+          </div>
+        </div>
+        <div class="col-md-6 col-lg-4 d-flex align-items-stretch">
+          <div class="action-card-full w-100">
+            <div class="action-icon-full action-icon-yellow">
+              <i class="bi bi-gift-fill"></i>
+            </div>
+            <div class="action-content-full">
+              <h5>Premios</h5>
+              <p>Catálogo de recompensas ecológicas</p>
+            </div>
+            <a href="{% url 'catalogo' %}" class="btn-action-full">
+              Ver premios
+              <i class="bi bi-arrow-right ms-2"></i>
+            </a>
+          </div>
+        </div>
+        <div class="col-md-6 col-lg-4 d-flex align-items-stretch">
+          <div class="action-card-full w-100">
+            <div class="action-icon-full action-icon-blue">
+              <i class="bi bi-calendar-event"></i>
+            </div>
+            <div class="action-content-full">
+              <h5>Eventos</h5>
+              <p>Actividades y talleres ambientales</p>
+            </div>
+            <a href="{% url 'eventos' %}" class="btn-action-full">
+              Ver eventos
+              <i class="bi bi-arrow-right ms-2"></i>
+            </a>
+          </div>
+        </div>
+        <div class="col-md-6 col-lg-4 d-flex align-items-stretch">
+          <div class="action-card-full w-100">
+            <div class="action-icon-full action-icon-purple">
+              <i class="bi bi-chat-dots-fill"></i>
+            </div>
+            <div class="action-content-full">
+              <h5>Soporte</h5>
+              <p>Envía tus sugerencias o reporta problemas</p>
+            </div>
+            <a href="{% url 'sugerencias' %}" class="btn-action-full">
+              Contactar
+              <i class="bi bi-arrow-right ms-2"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+      <!-- Motivación -->
+      <div class="motivation-banner mt-5">
+        <div class="motivation-icon">
+          <i class="bi bi-recycle"></i>
+        </div>
+        <div class="motivation-content">
+          <h3 class="motivation-title">¡Sigue reciclando!</h3>
+          <p class="motivation-text">Cada acción cuenta para un planeta más limpio. Gracias por ser parte del cambio.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
