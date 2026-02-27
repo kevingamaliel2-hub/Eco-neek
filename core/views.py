@@ -326,6 +326,12 @@ def api_centros(request):
         # Devolvemos todos y la plantilla/JS decide cómo mostrarlos.
         resp = supa.client.table('centros_acopio').select('*').execute()
         centros = resp.data if resp and getattr(resp, 'data', None) else []
+        
+        # Asegurar que centros sea una lista y contenga dicts, no strings
+        if not isinstance(centros, list):
+            centros = []
+        centros = [c for c in centros if isinstance(c, dict)]
+        
         # Filtrar centros que tengan coordenadas
         resultados = []
         for c in centros:
@@ -364,6 +370,11 @@ def api_recompensas(request):
             .execute()
         )
         premios = resp.data if resp and getattr(resp, 'data', None) else []
+        
+        # Asegurar que premios sea una lista y contenga dicts, no strings
+        if not isinstance(premios, list):
+            premios = []
+        premios = [p for p in premios if isinstance(p, dict)]
     except Exception as e:
         print('Error obteniendo recompensas de Supabase:', e)
         premios = []
