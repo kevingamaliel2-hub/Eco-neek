@@ -12,6 +12,28 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-default-key-change-in-prod
 DEBUG = os.getenv('DEBUG', 'True') == 'True'
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
 
+# Allow overriding with explicit NGROK_HOST environment variable (useful when URL changes)
+ngrok_host = os.getenv('NGROK_HOST')
+if ngrok_host:
+    if ngrok_host not in ALLOWED_HOSTS:
+        ALLOWED_HOSTS.append(ngrok_host)
+
+# In development, try to auto-detect a running ngrok tunnel via its local API.
+# This way you don't need to edit settings each time the URL changes.
+if DEBUG:
+    try:
+        import requests
+        resp = requests.get('http://127.0.0.1:4040/api/tunnels', timeout=0.5)
+        data = resp.json()
+        for t in data.get('tunnels', []):
+            public = t.get('public_url', '')
+            if public:
+                host = public.replace('http://', '').replace('https://', '')
+                if host not in ALLOWED_HOSTS:
+                    ALLOWED_HOSTS.append(host)
+    except Exception:
+        pass
+
 # Trust headers when behind a proxy (ngrok, load balancer, etc.)
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 USE_X_FORWARDED_HOST = True
