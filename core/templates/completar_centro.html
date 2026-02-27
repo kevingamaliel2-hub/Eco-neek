@@ -104,28 +104,33 @@
             <div class="mb-3">
               <label class="form-label fw-semibold small">Nombre del centro <span class="text-danger">*</span></label>
               <input type="text" name="nombre_centro" class="form-control" required
-                     placeholder="Ej: Centro de Acopio Norte">
+                     placeholder="Ej: Centro de Acopio Norte" value="{{ nombre_centro }}">
             </div>
 
-            <div class="row g-3 mb-3">
-              <div class="col-md-6">
-                <label class="form-label fw-semibold small">Nombre del contacto <span class="text-danger">*</span></label>
-                <input type="text" name="nombre_contacto" class="form-control" required
-                       placeholder="Tu nombre" value="{{ request.user.get_full_name }}">
+            <div class="mb-3">
+              <label class="form-label fw-semibold small">Teléfono <span class="text-danger">*</span></label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="bi bi-telephone-fill"></i></span>
+                <input type="tel" name="telefono" class="form-control" placeholder="Número de contacto" value="{{ telefono }}" required>
               </div>
-              <div class="col-md-6">
-                <label class="form-label fw-semibold small">Teléfono</label>
-                <div class="input-group">
-                  <span class="input-group-text"><i class="bi bi-telephone-fill"></i></span>
-                  <input type="tel" name="telefono" class="form-control" placeholder="Tel. del centro">
-                </div>
-              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label fw-semibold small">Dirección <span class="text-danger">*</span></label>
+              <input type="text" name="direccion" class="form-control" required
+                     placeholder="Calle, número, colonia, ciudad" value="{{ direccion }}">
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label fw-semibold small">Municipio/Ciudad <span class="text-danger">*</span></label>
+              <input type="text" name="municipio" class="form-control" required
+                     placeholder="Municipio" value="{{ municipio }}">
             </div>
 
             <div class="mb-4">
-              <label class="form-label fw-semibold small">Dirección</label>
-              <input type="text" name="direccion" class="form-control"
-                     placeholder="Calle, número, colonia, ciudad">
+              <label class="form-label fw-semibold small">Horarios de atención</label>
+              <input type="text" name="horarios" class="form-control"
+                     placeholder="Ej: Lunes a Viernes 8am-5pm" value="{{ horarios }}">
             </div>
 
             <div class="aviso-revision">

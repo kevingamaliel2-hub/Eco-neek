@@ -94,13 +94,13 @@
             <div class="row g-3 mb-3">
               <div class="col-6">
                 <label class="form-label fw-semibold small">Nombre <span class="text-danger">*</span></label>
-                <input type="text" name="nombre" class="form-control" required
-                       placeholder="Tu nombre" value="{{ request.user.first_name }}">
+                <input type="text" name="first_name" class="form-control" required
+                       placeholder="Tu nombre" value="{{ nombre }}">
               </div>
               <div class="col-6">
                 <label class="form-label fw-semibold small">Apellido</label>
-                <input type="text" name="apellido" class="form-control"
-                       placeholder="Tu apellido" value="{{ request.user.last_name }}">
+                <input type="text" name="last_name" class="form-control"
+                       placeholder="Tu apellido" value="{{ apellido }}">
               </div>
             </div>
 
@@ -108,7 +108,7 @@
               <label class="form-label fw-semibold small">Teléfono <span class="text-muted fw-normal">(opcional)</span></label>
               <div class="input-group">
                 <span class="input-group-text"><i class="bi bi-telephone-fill"></i></span>
-                <input type="tel" name="phone" class="form-control" placeholder="Ej: 999 123 4567">
+                <input type="tel" name="telefono" class="form-control" placeholder="Ej: 999 123 4567">
               </div>
             </div>
 

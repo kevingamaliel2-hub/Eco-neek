@@ -21,9 +21,11 @@ urlpatterns = [
     path('completar-registro/usuario/', views.completar_usuario, name='completar_usuario'),
     path('completar-registro/centro/', views.completar_centro, name='completar_centro'),
     path('logout/', views.logout_view, name='logout'),
-    # Admin: gestionar centros (usa Supabase)
-    path('admin/centros/', views.admin_centros, name='admin_centros'),
-    path('admin/centros/accion/', views.admin_centros_accion, name='admin_centros_accion'),
+    # Panel de gestión de centros fuera del admin de Django (usa Supabase)
+    # La ruta previa "admin/centros/" chocaba con el prefijo de admin de Django,
+    # por lo que se movió a una URL independiente.
+    path('panel/centros/', views.admin_centros, name='admin_centros'),
+    path('panel/centros/accion/', views.admin_centros_accion, name='admin_centros_accion'),
     # Centros API
     # Router already exposes /api/centros/ (Django REST framework). Expose Supabase-backed
     # centros under a separate path to avoid routing conflicts.
@@ -35,4 +37,5 @@ urlpatterns = [
     path('debug/centros/', views_debug.debug_centros, name='debug_centros'),
     # pantalla de login con botón Google e info de APIs
     path('login-screen/', views.login_screen, name='login_screen'),
+    path('register-screen/', views.register_screen, name='register_screen'),
 ]

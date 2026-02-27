@@ -19,11 +19,11 @@
       {% for c in centros %}
       <tr>
         <td>{{ c.id }}</td>
-        <td>{{ c.nombre_comercial or c.name }}</td>
-        <td>{{ c.correo_contacto or c.correo }}</td>
-        <td>{{ c.direccion_texto or c.address }}</td>
-        <td>{{ c.latitud or c.latitude }}</td>
-        <td>{{ c.longitud or c.longitude }}</td>
+        <td>{{ c.nombre_comercial|default:c.name }}</td>
+        <td>{{ c.correo_contacto|default:c.correo }}</td>
+        <td>{{ c.direccion_texto|default:c.address }}</td>
+        <td>{{ c.latitud|default:c.latitude }}</td>
+        <td>{{ c.longitud|default:c.longitude }}</td>
         <td>
           <form action="{% url 'admin_centros_accion' %}" method="post" style="display:inline">{% csrf_token %}
             <input type="hidden" name="centro_id" value="{{ c.id }}">

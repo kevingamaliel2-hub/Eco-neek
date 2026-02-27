@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Registro - Eco-Neek{% endblock %}
+
+{% block content %}
+<div class="container mt-5" style="max-width: 480px;">
+  <div class="text-center mb-4">
+    <img src="{% static 'logo.png' %}" alt="Eco-Neek" style="width:120px;">
+    <h2 class="mt-3">¡Crea tu cuenta!</h2>
+    <p>Ingresa tus datos para comenzar a usar Eco-Neek.</p>
+  </div>
+  <div class="row g-3">
+    <div class="col-12">
+      <form method="post" action="/register-screen/" class="card p-3 mb-3" id="registerForm">
+        {% csrf_token %}
+        <input type="hidden" id="id_tipo" name="tipo" value="{{ tipo }}">
+        <h5 class="mb-3">Regístrate</h5>
+        {% if error %}
+          <div class="alert alert-danger">{{ error }}</div>
+        {% endif %}
+
+        <!-- Campos para USUARIO (nombre, apellido) -->
+        <div id="usuario-fields" class="d-none">
+          <div class="mb-3">
+            <label for="id_nombre" class="form-label">Nombre</label>
+            <input id="id_nombre" name="nombre" type="text" class="form-control" placeholder="Tu nombre">
+          </div>
+          <div class="mb-3">
+            <label for="id_apellido" class="form-label">Apellido</label>
+            <input id="id_apellido" name="apellido" type="text" class="form-control" placeholder="Tu apellido">
+          </div>
+        </div>
+
+        <!-- Campos para CENTRO (nombre) -->
+        <div id="centro-fields" class="d-none">
+          <div class="mb-3">
+            <label for="id_centro_nombre" class="form-label">Nombre del Centro</label>
+            <input id="id_centro_nombre" name="nombre_centro" type="text" class="form-control" placeholder="Nombre del centro / recicladora">
+          </div>
+        </div>
+
+        <!-- Campos comunes -->
+        <div class="mb-3">
+          <label for="id_email" class="form-label">Correo electrónico</label>
+          <input id="id_email" name="email" type="email" class="form-control" placeholder="tucorreo@ejemplo.com" required>
+        </div>
+        <div class="mb-3">
+          <label for="id_password1" class="form-label">Contraseña</label>
+          <input id="id_password1" name="password" type="password" class="form-control" placeholder="Mínimo 6 caracteres" required>
+          <small class="text-muted">Mínimo 6 caracteres</small>
+        </div>
+        <div class="mb-3">
+          <label for="id_password2" class="form-label">Confirmar contraseña</label>
+          <input id="id_password2" name="password2" type="password" class="form-control" placeholder="Repite la contraseña" required>
+        </div>
+
+        <!-- Campos solo para CENTRO -->
+        <div id="centro-details" class="d-none">
+          <div class="mb-3">
+            <label for="id_telefo" class="form-label">Teléfono</label>
+            <input id="id_telefono" name="telefono" type="tel" class="form-control" placeholder="Número de contacto">
+          </div>
+          <div class="mb-3">
+            <label for="id_direccion" class="form-label">Dirección</label>
+            <input id="id_direccion" name="direccion" type="text" class="form-control" placeholder="Dirección del centro">
+          </div>
+          <div class="mb-3">
+            <label for="id_municipio" class="form-label">Municipio/Ciudad</label>
+            <input id="id_municipio" name="municipio" type="text" class="form-control" placeholder="Municipio">
+          </div>
+          <div class="mb-3">
+            <label for="id_horarios" class="form-label">Horarios de atención</label>
+            <input id="id_horarios" name="horarios" type="text" class="form-control" placeholder="Ej: Lunes a Viernes 8am-5pm">
+          </div>
+        </div>
+
+        <!-- Términos -->
+        <div class="form-check mb-3">
+          <input type="checkbox" class="form-check-input" id="id_terms" name="terms" required>
+          <label class="form-check-label" for="id_terms">
+            Acepto los <a href="#">términos y condiciones</a>
+          </label>
+        </div>
+
+        <div class="d-grid mb-2">
+          <button type="submit" class="btn btn-eco">Crear cuenta</button>
+        </div>
+        <div class="text-center mt-3">
+          <a href="/login-screen/">¿Ya tienes cuenta? Inicia sesión</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const tipoInput = document.getElementById('id_tipo');
+    const usuarioFields = document.getElementById('usuario-fields');
+    const centroFields = document.getElementById('centro-fields');
+    const centroDetails = document.getElementById('centro-details');
+    
+    function updateFormFields() {
+      const tipo = tipoInput.value || new URL(window.location).searchParams.get('tipo') || 'usuario';
+      
+      if (tipo === 'centro') {
+        usuarioFields.classList.add('d-none');
+        centroFields.classList.remove('d-none');
+        centroDetails.classList.remove('d-none');
+      } else {
+        usuarioFields.classList.remove('d-none');
+        centroFields.classList.add('d-none');
+        centroDetails.classList.add('d-none');
+      }
+    }
+    
+    updateFormFields();
+  });
+</script>
+{% endblock %}

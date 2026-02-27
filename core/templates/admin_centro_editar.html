@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+  <h2>Editar Centro #{{ centro.id }}</h2>
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="mb-3">
+      <label class="form-label">Nombre comercial</label>
+      <input type="text" name="nombre_comercial" class="form-control" value="{{ centro.nombre_comercial }}">
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Descripción</label>
+      <textarea name="descripcion" class="form-control">{{ centro.descripcion }}</textarea>
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Dirección</label>
+      <input type="text" name="direccion_texto" class="form-control" value="{{ centro.direccion_texto }}">
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Teléfono</label>
+      <input type="text" name="telefono_contacto" class="form-control" value="{{ centro.telefono_contacto }}">
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Correo</label>
+      <input type="email" name="correo_contacto" class="form-control" value="{{ centro.correo_contacto }}">
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Latitud</label>
+      <input type="text" name="latitud" class="form-control" value="{{ centro.latitud }}">
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Longitud</label>
+      <input type="text" name="longitud" class="form-control" value="{{ centro.longitud }}">
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Foto de portada</label>
+      {% if centro.url_foto_portada %}
+      <div class="mb-2"><img src="{{ centro.url_foto_portada }}" alt="foto" style="max-width:200px"></div>
+      {% endif %}
+      <input type="file" name="foto" class="form-control">
+    </div>
+    <div class="d-grid">
+      <button class="btn btn-primary" type="submit">Guardar cambios</button>
+    </div>
+  </form>
+</div>
+{% endblock %}

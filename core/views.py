@@ -14,78 +14,175 @@ def home(request):
 
 
 def login_screen(request):
-    """Pantalla estática que muestra el botón de iniciar sesión con Google y las APIs disponibles."""
+    """Formulario de inicio de sesión por correo/contraseña con soporte Google.
+
+    Se limita el número de intentos fallidos en sesión para mitigar ataques de
+    fuerza bruta, y los administradores son redirigidos automáticamente al
+    panel de centros.
+    """
     from django.contrib.auth import authenticate, login, get_user_model
 
     error = None
-    # Si es POST, intentar autenticar localmente y mantener errores en la misma pantalla
+    # límite de intentos: almacenamos contador en sesión
+    attempts = request.session.get('login_attempts', 0)
     if request.method == 'POST':
-        login_val = request.POST.get('login', '').strip()
-        password = request.POST.get('password', '')
+        if attempts >= 5:
+            error = 'Has superado el número máximo de intentos. Espera unos minutos.'
+        else:
+            login_val = request.POST.get('login', '').strip()
+            password = request.POST.get('password', '')
 
-        username_for_auth = login_val
-        # si el usuario introdujo un correo, buscar el username asociado
-        if '@' in login_val:
-            try:
-                User = get_user_model()
-                u = User.objects.filter(email__iexact=login_val).first()
-                if u:
-                    username_for_auth = u.get_username()
-            except Exception:
-                username_for_auth = login_val
-
-            user = authenticate(request, username=username_for_auth, password=password)
-            if user is not None:
-                login(request, user)
-                return redirect('/')
-            else:
-                # Intentar autenticar contra Supabase (app users)
+            username_for_auth = login_val
+            # si el usuario introdujo un correo, buscar el username asociado
+            if '@' in login_val:
                 try:
-                    supa = SupabaseClient()
-                    resp = supa.sign_in(login_val, password)
-                    # debug: registrar intento de login y respuesta de Supabase
-                    try:
-                        with open('login_debug.log', 'a', encoding='utf-8') as f:
-                            import datetime, json
-                            f.write(f"[{datetime.datetime.utcnow().isoformat()}] LOGIN ATTEMPT: {login_val}\n")
-                            f.write(f"  local_auth_username: {username_for_auth}\n")
-                            f.write(f"  supabase_error: {getattr(resp, 'error', None)}\n")
-                            try:
-                                # dump entire resp.data for inspection
-                                f.write("  supabase_data: \n")
-                                f.write(json.dumps(resp.data, ensure_ascii=False, indent=2))
-                                f.write("\n")
-                            except Exception:
-                                f.write(f"  supabase_data (repr): {repr(resp.data)}\n")
-                            f.write("\n")
-                    except Exception:
-                        pass
-                    if resp and getattr(resp, 'data', None) and not getattr(resp, 'error', None):
-                        # Resp.data typically contains access_token and user
-                        udata = resp.data.get('user') if isinstance(resp.data, dict) else None
-                        email = None
-                        if isinstance(udata, dict):
-                            email = udata.get('email')
-                        # fallback: use login_val if looks like email
-                        if not email and '@' in login_val:
-                            email = login_val
+                    User = get_user_model()
+                    u = User.objects.filter(email__iexact=login_val).first()
+                    if u:
+                        username_for_auth = u.get_username()
+                except Exception:
+                    username_for_auth = login_val
 
-                        if email:
-                            UserModel = get_user_model()
-                            user_obj, created = UserModel.objects.get_or_create(username=email, defaults={'email': email})
-                            if created:
-                                user_obj.set_unusable_password()
-                                user_obj.save()
-                            # ensure Django knows which backend we're using when logging in
-                            login(request, user_obj, backend='django.contrib.auth.backends.ModelBackend')
-                            return redirect('/')
-                        else:
-                            error = 'El usuario y/o la contraseña son incorrectos.'
-                except Exception as e:
-                    print('Error autenticando en Supabase:', e)
-                    error = 'Error al autenticar. Intente de nuevo.'
+                user = authenticate(request, username=username_for_auth, password=password)
+                if user is not None:
+                    login(request, user)
+                    request.session['login_attempts'] = 0
+                    # si es staff, al panel
+                    if user.is_staff:
+                        return redirect('admin_centros')
+                    return redirect('/')
+                else:
+                    # Intentar autenticar contra Supabase (app users)
+                    try:
+                        supa = SupabaseClient()
+                        resp = supa.sign_in(login_val, password)
+                        # debug: registrar intento de login y respuesta de Supabase
+                        try:
+                            with open('login_debug.log', 'a', encoding='utf-8') as f:
+                                import datetime, json
+                                f.write(f"[{datetime.datetime.utcnow().isoformat()}] LOGIN ATTEMPT: {login_val}\n")
+                                f.write(f"  local_auth_username: {username_for_auth}\n")
+                                f.write(f"  supabase_error: {getattr(resp, 'error', None)}\n")
+                                try:
+                                    # dump entire resp.data for inspection
+                                    f.write("  supabase_data: \n")
+                                    f.write(json.dumps(resp.data, ensure_ascii=False, indent=2))
+                                    f.write("\n")
+                                except Exception:
+                                    f.write(f"  supabase_data (repr): {repr(resp.data)}\n")
+                                f.write("\n")
+                        except Exception:
+                            pass
+                        if resp and getattr(resp, 'data', None) and not getattr(resp, 'error', None):
+                            # Resp.data typically contains access_token and user
+                            udata = resp.data.get('user') if isinstance(resp.data, dict) else None
+                            email = None
+                            if isinstance(udata, dict):
+                                email = udata.get('email')
+                            # fallback: use login_val if looks like email
+                            if not email and '@' in login_val:
+                                email = login_val
+
+                            if email:
+                                UserModel = get_user_model()
+                                user_obj, created = UserModel.objects.get_or_create(username=email, defaults={'email': email})
+                                if created:
+                                    user_obj.set_unusable_password()
+                                    user_obj.save()
+                                # ensure Django knows which backend we're using when logging in
+                                login(request, user_obj, backend='django.contrib.auth.backends.ModelBackend')
+                                request.session['login_attempts'] = 0
+                                if user_obj.is_staff:
+                                    return redirect('admin_centros')
+                                return redirect('/')
+                            else:
+                                error = 'El usuario y/o la contraseña son incorrectos.'
+                    except Exception as e:
+                        print('Error autenticando en Supabase:', e)
+                        error = 'Error al autenticar. Intente de nuevo.'
+            # incrementar contador cuando falla la autenticación local/Supabase
+            if not error:
+                attempts += 1
+                request.session['login_attempts'] = attempts
 
     return render(request, 'login_screen.html', {'error': error})
+
+
+def register_screen(request):
+    """Formulario unificado de registro para usuario y centro.
+    
+    Adapta los campos mostrados según el tipo (usuario o centro) vía query param ?tipo=centro
+    Al crear la cuenta, autentica al usuario y lo envía a completar su perfil.
+    """
+    from django.contrib.auth import login, get_user_model
+    from core.models import Centro
+    error = None
+    success = False
+
+    tipo = request.GET.get('tipo', 'usuario')  # Default 'usuario' si no especifica
+    
+    if request.method == 'POST':
+        email = request.POST.get('email', '').strip()
+        password = request.POST.get('password', '')
+        password2 = request.POST.get('password2', '')
+        terms = request.POST.get('terms')
+        
+        # Validaciones comunes
+        if not email or not password:
+            error = 'Se requieren correo y contraseña.'
+        elif len(password) < 6:
+            error = 'La contraseña debe tener al menos 6 caracteres.'
+        elif password != password2:
+            error = 'Las contraseñas no coinciden.'
+        elif not terms:
+            error = 'Debes aceptar los términos y condiciones.'
+        else:
+            User = get_user_model()
+            if User.objects.filter(email__iexact=email).exists():
+                error = 'Ya existe una cuenta con ese correo.'
+            else:
+                try:
+                    # Crear usuario Django local
+                    user = User.objects.create_user(username=email, email=email, password=password)
+                    login(request, user)
+                    success = True
+                    
+                    if tipo == 'centro':
+                        # Procesar datos del centro
+                        nombre_centro = request.POST.get('nombre_centro', '').strip()
+                        telefono = request.POST.get('telefono', '').strip()
+                        direccion = request.POST.get('direccion', '').strip()
+                        municipio = request.POST.get('municipio', '').strip()
+                        horarios = request.POST.get('horarios', '').strip()
+                        
+                        # Guardar info en la sesión para usarla después
+                        request.session['centro_nombre'] = nombre_centro
+                        request.session['centro_telefono'] = telefono
+                        request.session['centro_direccion'] = direccion
+                        request.session['centro_municipio'] = municipio
+                        request.session['centro_horarios'] = horarios
+                        
+                        return redirect('completar_centro')
+                    else:
+                        # Procesar datos del usuario
+                        nombre = request.POST.get('nombre', '').strip()
+                        apellido = request.POST.get('apellido', '').strip()
+                        
+                        request.session['usuario_nombre'] = nombre
+                        request.session['usuario_apellido'] = apellido
+                        
+                        return redirect('completar_registro')
+                        
+                except Exception as e:
+                    print(f"Error al crear usuario: {e}")
+                    error = f'Ocurrió un error al crear la cuenta: {str(e)}'
+
+    return render(request, 'register_screen.html', {
+        'error': error,
+        'tipo': tipo,
+        'success': success
+    })
+
 
 
 def mapa(request):
@@ -296,6 +393,27 @@ def admin_centros(request):
         resp = None
 
     centros = resp.data if resp and getattr(resp, 'data', None) else []
+
+    # Normalizar claves para facilitar el template:
+    # el panel usa campos "legacy" (name, address, etc) además de la versión
+    # en español; al garantizar que siempre existan las claves, evitamos que
+    # el template intente resolver variables inexistentes y genere errores.
+    for c in centros:
+        # c es un dict devuelto por Supabase
+        if 'name' not in c:
+            c['name'] = c.get('nombre_comercial')
+        if 'address' not in c:
+            c['address'] = c.get('direccion_texto')
+        if 'contact_email' not in c:
+            c['contact_email'] = c.get('correo_contacto')
+        if 'latitude' not in c:
+            c['latitude'] = c.get('latitud')
+        if 'longitude' not in c:
+            c['longitude'] = c.get('longitud')
+        # también aprovechamos para igualar correo si falta
+        if 'correo' not in c:
+            c['correo'] = c.get('correo_contacto')
+
     return render(request, 'admin_centros.html', {'centros': centros})
 
 
@@ -692,12 +810,16 @@ def completar_usuario(request):
     except PerfilFirebase.DoesNotExist:
         pass
     
+    # Obtener datos de la sesión (guardados en register_screen)
+    nombre = request.session.pop('usuario_nombre', '')
+    apellido = request.session.pop('usuario_apellido', '')
+    
     if request.method == 'POST':
-        first_name = request.POST.get('first_name', '').strip()
-        last_name = request.POST.get('last_name', '').strip()
+        first_name = request.POST.get('first_name', nombre).strip()
+        last_name = request.POST.get('last_name', apellido).strip()
         telefono = request.POST.get('telefono', '').strip()
         
-        # Crear perfil en Firebase (simulado)
+        # Crear perfil en Firebase
         perfil = PerfilFirebase.objects.create(
             id=uuid.uuid4(),
             nombre=first_name,
@@ -712,7 +834,10 @@ def completar_usuario(request):
         messages.success(request, f'¡Bienvenido, {first_name}! Tu cuenta está lista.')
         return redirect('home')
     
-    return render(request, 'completar_usuario.html')
+    return render(request, 'completar_usuario.html', {
+        'nombre': nombre,
+        'apellido': apellido
+    })
 
 
 def completar_centro(request):
@@ -727,44 +852,64 @@ def completar_centro(request):
     except PerfilFirebase.DoesNotExist:
         pass
     
+    # Obtener datos guardados en sesión (desde register_screen)
+    nombre_centro = request.session.pop('centro_nombre', '')
+    telefono = request.session.pop('centro_telefono', '')
+    direccion = request.session.pop('centro_direccion', '')
+    municipio = request.session.pop('centro_municipio', '')
+    horarios = request.session.pop('centro_horarios', '')
+    
     if request.method == 'POST':
-        first_name = request.POST.get('first_name', '').strip()
-        last_name = request.POST.get('last_name', '').strip()
-        nombre_centro = request.POST.get('nombre_centro', '').strip()
-        direccion = request.POST.get('direccion', '').strip()
-        telefono = request.POST.get('telefono', '').strip()
+        # Usar datos de sesión o POST (permitir edición)
+        nombre_centro = request.POST.get('nombre_centro', nombre_centro).strip()
+        telefono = request.POST.get('telefono', telefono).strip()
+        direccion = request.POST.get('direccion', direccion).strip()
+        municipio = request.POST.get('municipio', municipio).strip()
+        horarios = request.POST.get('horarios', horarios).strip()
         
         if not nombre_centro:
             messages.error(request, 'El nombre del centro es obligatorio.')
-            return render(request, 'completar_centro.html')
+            return render(request, 'completar_centro.html', {
+                'nombre_centro': nombre_centro,
+                'telefono': telefono,
+                'direccion': direccion,
+                'municipio': municipio,
+                'horarios': horarios
+            })
         
-        # Crear perfil de centro en Firebase
+        # Crear perfil de centro en Supabase (vía PerfilFirebase)
         perfil = PerfilFirebase.objects.create(
             id=uuid.uuid4(),
-            nombre=first_name,
-            apellido=last_name,
-            telefono=telefono,
+            nombre=nombre_centro,
             correo=request.user.email,
             tipo_usuario='centro',
             eco_puntos_saldo=0,
             estado_cuenta=True
         )
         
-        # Crear centro
+        # Crear centro en Supabase
         centro = Centro.objects.create(
             nombre_comercial=nombre_centro,
+            descripcion='',  # Se completa después si es necesario
             direccion_texto=direccion,
             telefono_contacto=telefono,
             correo_contacto=request.user.email,
             estado_operativo=False,
-            validado=False,
+            validado=False,  # Fuerza revisión del admin
             id_usuario=perfil
         )
         
         messages.success(request, 'Solicitud enviada. Un administrador la revisará pronto.')
         return render(request, 'centro_pendiente.html', {'centro': centro})
     
-    return render(request, 'completar_centro.html')
+    return render(request, 'completar_centro.html', {
+        'nombre_centro': nombre_centro,
+        'telefono': telefono,
+        'direccion': direccion,
+        'municipio': municipio,
+        'horarios': horarios
+    })
+
 
 
 def logout_view(request):
