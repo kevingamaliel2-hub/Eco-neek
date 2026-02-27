@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+from . import views_debug
 
 urlpatterns = [
     path('', views.home, name='home'),
@@ -29,6 +30,9 @@ urlpatterns = [
     path('api/supacentros/', views.api_centros, name='api_centros_supabase'),
     path('api/recompensas/', views.api_recompensas, name='api_recompensas'),
     path('api/supacentros_debug/', views.api_supacentros_debug, name='api_supacentros_debug'),
+    # Endpoints de diagnóstico temporales
+    path('debug/perfil/', views_debug.debug_perfil, name='debug_perfil'),
+    path('debug/centros/', views_debug.debug_centros, name='debug_centros'),
     # pantalla de login con botón Google e info de APIs
     path('login-screen/', views.login_screen, name='login_screen'),
 ]
