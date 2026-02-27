@@ -117,7 +117,7 @@ AUTHENTICATION_BACKENDS = [
 
 # ...todo lo anterior igual...
 
-SITE_ID = 2
+SITE_ID = 1
 
 # Provider specific settings
 SOCIALACCOUNT_PROVIDERS = {
@@ -129,7 +129,7 @@ SOCIALACCOUNT_PROVIDERS = {
         'AUTH_PARAMS': {
             'access_type': 'online',
         },
-        'OAUTH_PKCE_ENABLED': True,
+        'OAUTH_PKCE_ENABLED': False,
     }
 }
 
@@ -163,6 +163,7 @@ REST_FRAMEWORK = {
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:8000",
     "http://127.0.0.1:8000",
+    "http://192.168.0.220:8000",
     "http://localhost:3000",
 ]
 CORS_ALLOW_CREDENTIALS = True
