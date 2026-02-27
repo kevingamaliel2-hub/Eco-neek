@@ -146,7 +146,9 @@ def perfil(request):
     perfil_firebase = None
     try:
         resp = supa.client.table('perfiles').select('*').eq('correo', usuario.email).execute()
-        perfil_firebase = resp.data[0] if resp and resp.data else None
+        perfil_firebase = None
+        if resp and isinstance(resp.data, list) and len(resp.data) > 0:
+            perfil_firebase = resp.data[0] if isinstance(resp.data[0], dict) else None
         # debug: show raw Supabase profile row
         print('DEBUG perfil_firebase:', perfil_firebase)
     except Exception as e:
@@ -182,7 +184,7 @@ def perfil(request):
                 .limit(3)
                 .execute()
             )
-            raw = canjes_resp.data or []
+            raw = canjes_resp.data if isinstance(canjes_resp.data, list) else []
             total_resp = (
                 supa.client.table('canjes')
                 .select('id', count='estimated')
@@ -232,7 +234,9 @@ def api_perfil(request):
     supa = SupabaseClient()
     try:
         resp = supa.client.table('perfiles').select('*').eq('correo', usuario.email).execute()
-        perfil = resp.data[0] if resp.data else None
+        perfil = None
+        if isinstance(resp.data, list) and len(resp.data) > 0:
+            perfil = resp.data[0] if isinstance(resp.data[0], dict) else None
         return JsonResponse({'perfil': perfil}, safe=False)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
@@ -248,7 +252,9 @@ def api_editar_perfil(request):
     supa = SupabaseClient()
     try:
         resp = supa.client.table('perfiles').select('*').eq('correo', usuario.email).execute()
-        perfil = resp.data[0] if resp.data else None
+        perfil = None
+        if isinstance(resp.data, list) and len(resp.data) > 0:
+            perfil = resp.data[0] if isinstance(resp.data[0], dict) else None
         if not perfil:
             return JsonResponse({'error': 'Perfil no encontrado en Supabase'}, status=404)
 
@@ -508,7 +514,7 @@ def historial_canjes(request):
                 .order('fecha_canje', desc=True)
                 .execute()
             )
-            raw = resp.data or []
+            raw = resp.data if isinstance(resp.data, list) else []
             total_puntos_usados = sum(c.get('monto_puntos_restados', 0) for c in raw)
             for c in raw:
                 premio = {
@@ -593,7 +599,7 @@ def sugerencias(request):
                 .order('created_at', desc=True)
                 .execute()
             )
-            mis_sugerencias = resp.data or []
+            mis_sugerencias = resp.data if isinstance(resp.data, list) else []
         except Exception as e:
             print('Error obteniendo sugerencias:', e)
     
