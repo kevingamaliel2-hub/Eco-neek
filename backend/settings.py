@@ -160,12 +160,13 @@ REST_FRAMEWORK = {
 }
 
 # CORS
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:8000",
-    "http://127.0.0.1:8000",
-    "http://192.168.0.220:8000",
-    "http://localhost:3000",
-]
+#CORS_ALLOWED_ORIGINS = [
+   # "http://localhost:8000",
+   # "http://127.0.0.1:8000",
+   # "http://192.168.0.220:8000",
+   # "http://localhost:3000",
+#]
+CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
 
 # Al final del archivo, después de todas las configuraciones
