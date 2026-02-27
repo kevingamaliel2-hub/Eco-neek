@@ -40,7 +40,7 @@
     async function fetchCentros() {
       try {
         // Use the Supabase-backed endpoint (doesn't conflict with DRF router)
-        const res = await fetch('/api/supacentros/');
+        const res = await fetch('/api/supacentros/', { credentials: 'include' });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
         console.log('Centros cargados:', data.centros);

@@ -22,6 +22,7 @@ async function selectRole(role) {
   try {
     const response = await fetch('/google-register-callback/', {
       method: 'POST',
+      credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
         'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value

@@ -117,8 +117,8 @@ document.addEventListener('DOMContentLoaded', function() {
   // Mostrar cargando
   loadingState.style.display = 'block';
 
-  // Cargar premios desde API
-  fetch('/api/recompensas/')
+  // Cargar premios desde API (envía cookies para sesiones)
+  fetch('/api/recompensas/', { credentials: 'include' })
     .then(response => {
       if (!response.ok) throw new Error('Network response was not ok');
       return response.json();
