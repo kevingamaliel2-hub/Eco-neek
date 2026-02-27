@@ -127,7 +127,7 @@ def eventos(request):
             .order('fecha_evento', desc=True)
             .execute()
         )
-        eventos = resp.data if resp and getattr(resp, 'data', None) else []
+        eventos = resp.data if isinstance(resp.data, list) else []
     except Exception as e:
         print('Error consultando eventos en Supabase:', e)
         eventos = []

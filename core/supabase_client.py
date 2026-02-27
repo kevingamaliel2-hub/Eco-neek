@@ -126,7 +126,9 @@ class SupabaseClient:
         resp = self._request('POST', url, json_body=user_data)
         if resp.error:
             print(f"Supabase error: {resp.error}")
-        return resp.data[0] if resp.data else None
+        if isinstance(resp.data, list) and len(resp.data) > 0:
+            return resp.data[0] if isinstance(resp.data[0], dict) else None
+        return None
 
     def obtener_perfil(self, user_id):
         url = self._table_url('perfiles')
@@ -134,20 +136,26 @@ class SupabaseClient:
         self._select(params, '*')
         self._apply_eq(params, 'id', user_id)
         resp = self._request('GET', url, params=params)
-        return resp.data[0] if resp.data else None
+        if isinstance(resp.data, list) and len(resp.data) > 0:
+            return resp.data[0] if isinstance(resp.data[0], dict) else None
+        return None
 
     def actualizar_perfil(self, user_id, data):
         url = self._table_url('perfiles')
         params = {}
         self._apply_eq(params, 'id', user_id)
         resp = self._request('PATCH', url, params=params, json_body=data)
-        return resp.data[0] if resp.data else None
+        if isinstance(resp.data, list) and len(resp.data) > 0:
+            return resp.data[0] if isinstance(resp.data[0], dict) else None
+        return None
 
     # Center functions
     def crear_centro(self, centro_data):
         url = self._table_url('centros_acopio')
         resp = self._request('POST', url, json_body=centro_data)
-        return resp.data[0] if resp.data else None
+        if isinstance(resp.data, list) and len(resp.data) > 0:
+            return resp.data[0] if isinstance(resp.data[0], dict) else None
+        return None
 
     def obtener_centro_por_usuario(self, user_id):
         url = self._table_url('centros_acopio')
@@ -155,14 +163,18 @@ class SupabaseClient:
         self._select(params, '*')
         self._apply_eq(params, 'id_usuario', user_id)
         resp = self._request('GET', url, params=params)
-        return resp.data[0] if resp.data else None
+        if isinstance(resp.data, list) and len(resp.data) > 0:
+            return resp.data[0] if isinstance(resp.data[0], dict) else None
+        return None
 
     def actualizar_centro(self, centro_id, data):
         url = self._table_url('centros_acopio')
         params = {}
         self._apply_eq(params, 'id', centro_id)
         resp = self._request('PATCH', url, params=params, json_body=data)
-        return resp.data[0] if resp.data else None
+        if isinstance(resp.data, list) and len(resp.data) > 0:
+            return resp.data[0] if isinstance(resp.data[0], dict) else None
+        return None
 
     # Material functions
     def obtener_materiales(self):
@@ -171,7 +183,7 @@ class SupabaseClient:
         self._select(params, '*')
         self._apply_order(params, 'nombre_material', desc=False)
         resp = self._request('GET', url, params=params)
-        return resp.data or []
+        return resp.data if isinstance(resp.data, list) else []
 
     # Review functions
     def obtener_resenas_centro(self, centro_id):
@@ -182,7 +194,7 @@ class SupabaseClient:
         self._apply_order(params, 'fecha', desc=True)
         self._apply_limit(params, 20)
         resp = self._request('GET', url, params=params)
-        return resp.data or []
+        return resp.data if isinstance(resp.data, list) else []
 
     def calcular_promedio_resenas(self, centro_id):
         url = self._table_url('resenas')
@@ -190,8 +202,8 @@ class SupabaseClient:
         self._select(params, 'calificacion')
         self._apply_eq(params, 'id_centro', centro_id)
         resp = self._request('GET', url, params=params)
-        if resp.data:
-            calificaciones = [r['calificacion'] for r in resp.data]
+        if isinstance(resp.data, list) and len(resp.data) > 0:
+            calificaciones = [r['calificacion'] for r in resp.data if isinstance(r, dict) and 'calificacion' in r]
             promedio = sum(calificaciones) / len(calificaciones) if calificaciones else 0
             total = len(calificaciones)
             return round(promedio, 1), total
@@ -206,7 +218,7 @@ class SupabaseClient:
         if solo_disponibles:
             self._apply_eq(params, 'disponible', True)
         resp = self._request('GET', url, params=params)
-        return resp.data or []
+        return resp.data if isinstance(resp.data, list) else []
 
     # Auth helpers (use Supabase Auth REST endpoints)
     def sign_in(self, email: str, password: str):
@@ -238,10 +250,12 @@ class SupabaseClient:
         self._apply_eq(params, 'id_usuario', usuario_id)
         self._apply_order(params, 'fecha_canje', desc=True)
         resp = self._request('GET', url, params=params)
-        return resp.data or []
+        return resp.data if isinstance(resp.data, list) else []
 
     def insertar_sugerencia(self, usuario_id, tipo, mensaje):
         url = self._table_url('sugerencias')
         data = {'id_usuario': usuario_id, 'tipo': tipo, 'mensaje': mensaje}
         resp = self._request('POST', url, json_body=data)
-        return resp.data[0] if resp.data else None
+        if isinstance(resp.data, list) and len(resp.data) > 0:
+            return resp.data[0] if isinstance(resp.data[0], dict) else None
+        return None
