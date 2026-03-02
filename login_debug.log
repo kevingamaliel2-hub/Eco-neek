@@ -174,3 +174,293 @@
   "weak_password": null
 }
 
+[2026-02-28T18:45:53.990143] LOGIN ATTEMPT: kilebim1352@bipochub.com
+  local_auth_username: kilebim1352@bipochub.com
+  supabase_error: {"code":400,"error_code":"invalid_credentials","msg":"Invalid login credentials"}
+  supabase_data: 
+{
+  "code": 400,
+  "error_code": "invalid_credentials",
+  "msg": "Invalid login credentials"
+}
+
+[2026-02-28T18:45:53.991225] LOGIN ATTEMPT: kilebim1352@bipochub.com
+  local_auth_username: kilebim1352@bipochub.com
+  supabase_error: {"code":400,"error_code":"invalid_credentials","msg":"Invalid login credentials"}
+  supabase_data: 
+{
+  "code": 400,
+  "error_code": "invalid_credentials",
+  "msg": "Invalid login credentials"
+}
+
+[2026-02-28T18:45:54.006191] LOGIN ATTEMPT: kilebim1352@bipochub.com
+  local_auth_username: kilebim1352@bipochub.com
+  supabase_error: {"code":400,"error_code":"invalid_credentials","msg":"Invalid login credentials"}
+  supabase_data: 
+{
+  "code": 400,
+  "error_code": "invalid_credentials",
+  "msg": "Invalid login credentials"
+}
+
+[2026-02-28T18:45:54.246454] LOGIN ATTEMPT: kilebim1352@bipochub.com
+  local_auth_username: kilebim1352@bipochub.com
+  supabase_error: {"code":400,"error_code":"invalid_credentials","msg":"Invalid login credentials"}
+  supabase_data: 
+{
+  "code": 400,
+  "error_code": "invalid_credentials",
+  "msg": "Invalid login credentials"
+}
+
+[2026-02-28T18:45:54.315548] LOGIN ATTEMPT: kilebim1352@bipochub.com
+  local_auth_username: kilebim1352@bipochub.com
+  supabase_error: {"code":400,"error_code":"invalid_credentials","msg":"Invalid login credentials"}
+  supabase_data: 
+{
+  "code": 400,
+  "error_code": "invalid_credentials",
+  "msg": "Invalid login credentials"
+}
+
+[2026-02-28T18:45:54.391479] LOGIN ATTEMPT: kilebim1352@bipochub.com
+  local_auth_username: kilebim1352@bipochub.com
+  supabase_error: {"code":400,"error_code":"invalid_credentials","msg":"Invalid login credentials"}
+  supabase_data: 
+{
+  "code": 400,
+  "error_code": "invalid_credentials",
+  "msg": "Invalid login credentials"
+}
+
+[2026-02-28T18:45:54.481766] LOGIN ATTEMPT: kilebim1352@bipochub.com
+  local_auth_username: kilebim1352@bipochub.com
+  supabase_error: {"code":400,"error_code":"invalid_credentials","msg":"Invalid login credentials"}
+  supabase_data: 
+{
+  "code": 400,
+  "error_code": "invalid_credentials",
+  "msg": "Invalid login credentials"
+}
+
+[2026-02-28T18:45:54.540879] LOGIN ATTEMPT: kilebim1352@bipochub.com
+  local_auth_username: kilebim1352@bipochub.com
+  supabase_error: {"code":400,"error_code":"invalid_credentials","msg":"Invalid login credentials"}
+  supabase_data: 
+{
+  "code": 400,
+  "error_code": "invalid_credentials",
+  "msg": "Invalid login credentials"
+}
+
+[2026-02-28T18:45:54.707902] LOGIN ATTEMPT: kilebim1352@bipochub.com
+  local_auth_username: kilebim1352@bipochub.com
+  supabase_error: {"code":400,"error_code":"invalid_credentials","msg":"Invalid login credentials"}
+  supabase_data: 
+{
+  "code": 400,
+  "error_code": "invalid_credentials",
+  "msg": "Invalid login credentials"
+}
+
+[2026-02-28T18:45:54.785668] LOGIN ATTEMPT: kilebim1352@bipochub.com
+  local_auth_username: kilebim1352@bipochub.com
+  supabase_error: {"code":400,"error_code":"invalid_credentials","msg":"Invalid login credentials"}
+  supabase_data: 
+{
+  "code": 400,
+  "error_code": "invalid_credentials",
+  "msg": "Invalid login credentials"
+}
+
+[2026-02-28T18:45:54.797880] LOGIN ATTEMPT: kilebim1352@bipochub.com
+  local_auth_username: kilebim1352@bipochub.com
+  supabase_error: {"code":400,"error_code":"invalid_credentials","msg":"Invalid login credentials"}
+  supabase_data: 
+{
+  "code": 400,
+  "error_code": "invalid_credentials",
+  "msg": "Invalid login credentials"
+}
+
+[2026-02-28T18:45:54.891832] LOGIN ATTEMPT: kilebim1352@bipochub.com
+  local_auth_username: kilebim1352@bipochub.com
+  supabase_error: {"code":400,"error_code":"invalid_credentials","msg":"Invalid login credentials"}
+  supabase_data: 
+{
+  "code": 400,
+  "error_code": "invalid_credentials",
+  "msg": "Invalid login credentials"
+}
+
+[2026-02-28T18:46:31.111199] LOGIN ATTEMPT: kilebim1352@bipochub.com
+  local_auth_username: kilebim1352@bipochub.com
+  supabase_error: {"code":400,"error_code":"invalid_credentials","msg":"Invalid login credentials"}
+  supabase_data: 
+{
+  "code": 400,
+  "error_code": "invalid_credentials",
+  "msg": "Invalid login credentials"
+}
+
+[2026-02-28T18:46:43.206023] LOGIN ATTEMPT: kilebim1352@bipochub.com
+  local_auth_username: kilebim1352@bipochub.com
+  supabase_error: {"code":400,"error_code":"invalid_credentials","msg":"Invalid login credentials"}
+  supabase_data: 
+{
+  "code": 400,
+  "error_code": "invalid_credentials",
+  "msg": "Invalid login credentials"
+}
+
+[2026-02-28T18:46:43.802022] LOGIN ATTEMPT: kilebim1352@bipochub.com
+  local_auth_username: kilebim1352@bipochub.com
+  supabase_error: {"code":400,"error_code":"invalid_credentials","msg":"Invalid login credentials"}
+  supabase_data: 
+{
+  "code": 400,
+  "error_code": "invalid_credentials",
+  "msg": "Invalid login credentials"
+}
+
+[2026-02-28T18:46:44.891382] LOGIN ATTEMPT: kilebim1352@bipochub.com
+  local_auth_username: kilebim1352@bipochub.com
+  supabase_error: {"code":400,"error_code":"invalid_credentials","msg":"Invalid login credentials"}
+  supabase_data: 
+{
+  "code": 400,
+  "error_code": "invalid_credentials",
+  "msg": "Invalid login credentials"
+}
+
+[2026-02-28T18:46:45.043549] LOGIN ATTEMPT: kilebim1352@bipochub.com
+  local_auth_username: kilebim1352@bipochub.com
+  supabase_error: {"code":400,"error_code":"invalid_credentials","msg":"Invalid login credentials"}
+  supabase_data: 
+{
+  "code": 400,
+  "error_code": "invalid_credentials",
+  "msg": "Invalid login credentials"
+}
+
+[2026-02-28T18:46:45.066015] LOGIN ATTEMPT: kilebim1352@bipochub.com
+  local_auth_username: kilebim1352@bipochub.com
+  supabase_error: {"code":400,"error_code":"invalid_credentials","msg":"Invalid login credentials"}
+  supabase_data: 
+{
+  "code": 400,
+  "error_code": "invalid_credentials",
+  "msg": "Invalid login credentials"
+}
+
+[2026-02-28T18:46:45.224472] LOGIN ATTEMPT: kilebim1352@bipochub.com
+  local_auth_username: kilebim1352@bipochub.com
+  supabase_error: {"code":400,"error_code":"invalid_credentials","msg":"Invalid login credentials"}
+  supabase_data: 
+{
+  "code": 400,
+  "error_code": "invalid_credentials",
+  "msg": "Invalid login credentials"
+}
+
+[2026-02-28T18:46:45.353962] LOGIN ATTEMPT: kilebim1352@bipochub.com
+  local_auth_username: kilebim1352@bipochub.com
+  supabase_error: {"code":400,"error_code":"invalid_credentials","msg":"Invalid login credentials"}
+  supabase_data: 
+{
+  "code": 400,
+  "error_code": "invalid_credentials",
+  "msg": "Invalid login credentials"
+}
+
+[2026-02-28T18:46:45.433491] LOGIN ATTEMPT: kilebim1352@bipochub.com
+  local_auth_username: kilebim1352@bipochub.com
+  supabase_error: {"code":400,"error_code":"invalid_credentials","msg":"Invalid login credentials"}
+  supabase_data: 
+{
+  "code": 400,
+  "error_code": "invalid_credentials",
+  "msg": "Invalid login credentials"
+}
+
+[2026-02-28T18:46:45.489929] LOGIN ATTEMPT: kilebim1352@bipochub.com
+  local_auth_username: kilebim1352@bipochub.com
+  supabase_error: {"code":400,"error_code":"invalid_credentials","msg":"Invalid login credentials"}
+  supabase_data: 
+{
+  "code": 400,
+  "error_code": "invalid_credentials",
+  "msg": "Invalid login credentials"
+}
+
+[2026-02-28T18:46:45.518992] LOGIN ATTEMPT: kilebim1352@bipochub.com
+  local_auth_username: kilebim1352@bipochub.com
+  supabase_error: {"code":400,"error_code":"invalid_credentials","msg":"Invalid login credentials"}
+  supabase_data: 
+{
+  "code": 400,
+  "error_code": "invalid_credentials",
+  "msg": "Invalid login credentials"
+}
+
+[2026-02-28T18:46:45.559335] LOGIN ATTEMPT: kilebim1352@bipochub.com
+  local_auth_username: kilebim1352@bipochub.com
+  supabase_error: {"code":400,"error_code":"invalid_credentials","msg":"Invalid login credentials"}
+  supabase_data: 
+{
+  "code": 400,
+  "error_code": "invalid_credentials",
+  "msg": "Invalid login credentials"
+}
+
+[2026-02-28T18:46:45.559677] LOGIN ATTEMPT: kilebim1352@bipochub.com
+  local_auth_username: kilebim1352@bipochub.com
+  supabase_error: {"code":400,"error_code":"invalid_credentials","msg":"Invalid login credentials"}
+  supabase_data: 
+{
+  "code": 400,
+  "error_code": "invalid_credentials",
+  "msg": "Invalid login credentials"
+}
+
+[2026-02-28T18:46:45.593749] LOGIN ATTEMPT: kilebim1352@bipochub.com
+  local_auth_username: kilebim1352@bipochub.com
+  supabase_error: {"code":400,"error_code":"invalid_credentials","msg":"Invalid login credentials"}
+  supabase_data: 
+{
+  "code": 400,
+  "error_code": "invalid_credentials",
+  "msg": "Invalid login credentials"
+}
+
+[2026-02-28T18:46:45.612635] LOGIN ATTEMPT: kilebim1352@bipochub.com
+  local_auth_username: kilebim1352@bipochub.com
+  supabase_error: {"code":400,"error_code":"invalid_credentials","msg":"Invalid login credentials"}
+  supabase_data: 
+{
+  "code": 400,
+  "error_code": "invalid_credentials",
+  "msg": "Invalid login credentials"
+}
+
+[2026-02-28T18:46:45.619464] LOGIN ATTEMPT: kilebim1352@bipochub.com
+  local_auth_username: kilebim1352@bipochub.com
+  supabase_error: {"code":400,"error_code":"invalid_credentials","msg":"Invalid login credentials"}
+  supabase_data: 
+{
+  "code": 400,
+  "error_code": "invalid_credentials",
+  "msg": "Invalid login credentials"
+}
+
+[2026-02-28T18:46:45.646537] LOGIN ATTEMPT: kilebim1352@bipochub.com
+  local_auth_username: kilebim1352@bipochub.com
+  supabase_error: {"code":400,"error_code":"invalid_credentials","msg":"Invalid login credentials"}
+  supabase_data: 
+{
+  "code": 400,
+  "error_code": "invalid_credentials",
+  "msg": "Invalid login credentials"
+}
+

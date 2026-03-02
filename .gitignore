@@ -19,4 +19,4 @@ db.sqlite3
 Thumbs.db
 
 # Archivos estáticos compilados
-staticfiles/
+staticfiles/http://127.0.0.1:8000/admin/centros/

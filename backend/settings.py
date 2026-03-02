@@ -124,9 +124,10 @@ STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 
-# Añadir carpeta de imágenes del proyecto Flutter para servirlas como `static` durante desarrollo.
-from pathlib import Path as _Path
-_flutter_images = _Path(r"c:\Users\kevin\Downloads\ecoloop(W)\ecoloop(W)\ecoloop_flutter\assets\images")
+# Try to add Flutter images if they exist (works on any OS)
+# Flutter project location relative to this backend
+_flutter_base = BASE_DIR.parent.parent / 'ecoloop_flutter'
+_flutter_images = _flutter_base / 'assets' / 'images'
 if _flutter_images.exists():
     STATICFILES_DIRS.append(_flutter_images)
 
