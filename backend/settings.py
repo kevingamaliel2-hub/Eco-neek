@@ -9,18 +9,15 @@ load_dotenv()
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-default-key-change-in-production')
-DEBUG = os.getenv('DEBUG', 'True') == 'True'
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
+DEBUG = os.getenv('DEBUG', 'False') == 'True'
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1,econeek.com,136.113.230.27').split(',')
 
-# Allow overriding with explicit NGROK_HOST environment variable (useful when URL changes)
-ngrok_host = os.getenv('NGROK_HOST')
-if ngrok_host:
-    if ngrok_host not in ALLOWED_HOSTS:
+# In development, optionally accept NGROK_HOST for local testing.
+if DEBUG:
+    ngrok_host = os.getenv('NGROK_HOST')
+    if ngrok_host and ngrok_host not in ALLOWED_HOSTS:
         ALLOWED_HOSTS.append(ngrok_host)
 
-# In development, try to auto-detect a running ngrok tunnel via its local API.
-# This way you don't need to edit settings each time the URL changes.
-if DEBUG:
     try:
         import requests
         resp = requests.get('http://127.0.0.1:4040/api/tunnels', timeout=0.5)
@@ -34,7 +31,7 @@ if DEBUG:
     except Exception:
         pass
 
-# Trust headers when behind a proxy (ngrok, load balancer, etc.)
+# Trust headers when behind a proxy (load balancer, reverse proxy)
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 USE_X_FORWARDED_HOST = True
 
@@ -187,15 +184,34 @@ REST_FRAMEWORK = {
 }
 
 # CORS
-#CORS_ALLOWED_ORIGINS = [
-   # "http://localhost:8000",
-   # "http://127.0.0.1:8000",
-   # "http://192.168.0.220:8000",
-   # "http://localhost:3000",
-#]
-CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOWED_ORIGINS = [
+    'https://econeek.com',
+    'https://www.econeek.com',
+]
 CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+]
+CORS_ALLOWED_ORIGIN_REGEXES = [r'^https://.*\.econeek\.com$']
+
+# Production security
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+SECURE_SSL_REDIRECT = os.getenv('SECURE_SSL_REDIRECT', 'True') == 'True'
+SECURE_HSTS_SECONDS = int(os.getenv('SECURE_HSTS_SECONDS', '31536000'))
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_PRELOAD = True
+SECURE_BROWSER_XSS_FILTER = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
+X_FRAME_OPTIONS = 'DENY'
 
 # Al final del archivo, después de todas las configuraciones
 AUTH_USER_MODEL = 'core.UsuarioDjango'
-DEBUG = True

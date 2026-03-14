@@ -1,7 +1,6 @@
 
 from django.urls import path, re_path
 from . import views
-from . import views_debug
 from django.shortcuts import redirect
 
 def social_signup_redirect(request, *args, **kwargs):
@@ -37,10 +36,7 @@ urlpatterns = [
     # centros under a separate path to avoid routing conflicts.
     path('api/supacentros/', views.api_centros, name='api_centros_supabase'),
     path('api/recompensas/', views.api_recompensas, name='api_recompensas'),
-    path('api/supacentros_debug/', views.api_supacentros_debug, name='api_supacentros_debug'),
-    # Endpoints de diagnóstico temporales
-    path('debug/perfil/', views_debug.debug_perfil, name='debug_perfil'),
-    path('debug/centros/', views_debug.debug_centros, name='debug_centros'),
+    path('api/recompensas/', views.api_recompensas, name='api_recompensas'),
     # pantalla de login con botón Google e info de APIs
     path('login-screen/', views.login_screen, name='login_screen'),
     path('register-screen/', views.register_screen, name='register_screen'),

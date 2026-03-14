@@ -98,24 +98,6 @@ def login_screen(request):
                     try:
                         supa = SupabaseClient()
                         resp = supa.sign_in(login_val, password)
-                        # debug: registrar intento de login y respuesta de Supabase
-                        try:
-                            with open('login_debug.log', 'a', encoding='utf-8') as f:
-                                import datetime, json
-                                f.write(f"[{datetime.datetime.utcnow().isoformat()}] LOGIN ATTEMPT: {login_val}\n")
-                                f.write(f"  local_auth_username: {username_for_auth}\n")
-                                f.write(f"  supabase_error: {getattr(resp, 'error', None)}\n")
-                                try:
-                                    # dump entire resp.data for inspection
-                                    f.write("  supabase_data: \n")
-                                    f.write(json.dumps(resp.data, ensure_ascii=False, indent=2))
-                                    f.write("\n")
-                                except Exception:
-                                    f.write(f"  supabase_data (repr): {repr(resp.data)}\n")
-                                f.write("\n")
-                        except Exception:
-                            pass
-                            
                         if resp and getattr(resp, 'data', None) and not getattr(resp, 'error', None):
                             # Resp.data typically contains access_token and user
                             udata = resp.data.get('user') if isinstance(resp.data, dict) else None
@@ -143,9 +125,7 @@ def login_screen(request):
                                             perfil_data = perfil_resp.json()
                                             if perfil_data and len(perfil_data) > 0:
                                                 tipo_usuario = perfil_data[0].get('tipo_usuario', 'usuario')
-                                                print(f"✅ Tipo de usuario desde Supabase: {tipo_usuario}")
-                                except Exception as e:
-                                    print(f"Error obteniendo tipo de usuario: {e}")
+                                except Exception:
                                     tipo_usuario = 'usuario'
 
                                 UserModel = get_user_model()
@@ -748,16 +728,6 @@ def api_recompensas(request):
     return JsonResponse({'premios': premios})
 
 
-def api_supacentros_debug(request):
-    """Endpoint de diagnóstico: devuelve la respuesta cruda de la consulta Supabase para centros."""
-    supa = SupabaseClient()
-    try:
-        resp = supa.client.table('centros_acopio').select('*').limit(20).execute()
-        return JsonResponse({'data': resp.data, 'error': resp.error})
-    except Exception as e:
-        return JsonResponse({'error': str(e)}, status=500)
-
-
 @login_required
 def editar_perfil(request):
     usuario = request.user
@@ -780,13 +750,10 @@ def editar_perfil(request):
             data = response.json()
             if data and len(data) > 0:
                 perfil_id = data[0].get('id')
-                print(f"✅ Perfil encontrado: {perfil_id}")
-            else:
-                print("❌ No se encontró perfil para este correo")
         else:
-            print(f"❌ Error consultando perfil: {response.status_code}")
-    except Exception as e:
-        print(f"❌ Excepción: {e}")
+            pass
+    except Exception:
+        pass
     
     if request.method == 'POST':
         # ========================================
