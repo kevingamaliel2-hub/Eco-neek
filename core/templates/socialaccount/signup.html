@@ -3,49 +3,11 @@
 {% load i18n %}
 
 {% block content %}
-<div class="auth-container">
-  <div class="container">
-    <div class="row g-0 auth-wrapper">
-      
-      <!-- Lado Izquierdo - Ilustración -->
-      <div class="col-lg-6 auth-visual auth-visual-register">
-        <div class="visual-content">
-          <div class="visual-images-dual">
-            <img src="{% static 'assets/img/crearcuenta.jpg' %}" alt="Registro Google" class="visual-main-image">
-          </div>
-          <h2 class="visual-title">¡Bienvenido a EcoNeek!</h2>
-          <p class="visual-subtitle">Ya casi tienes tu cuenta. Solo necesitamos que elijas un nombre de usuario para tu perfil.</p>
-        </div>
-      </div>
-
-      <!-- Lado Derecho - Formulario -->
-      <div class="col-lg-6 auth-form-section">
-        <div class="auth-form-content auth-form-register">
-          
-          <div class="auth-header">
-            <h1 class="auth-title">
-              <i class="bi bi-google me-3" style="color: #4285f4;"></i>
-              Detalles finales
-            </h1>
-            <p class="auth-subtitle">Personaliza tu perfil en EcoNeek</p>
-          </div>
-
-          <div class="alert alert-success alert-custom">
-            <i class="bi bi-check-circle-fill me-2"></i>
-            Tu cuenta de Google ha sido verificada. Solo falta elegir tu nombre de usuario:
-          </div>
-
-          <form class="signup" id="signup_form" method="post" action="{% url 'socialaccount_signup' %}">
-            {% csrf_token %}
-            
-            {% if form.non_field_errors %}
-              <div class="alert alert-danger alert-custom">
-                <i class="bi bi-x-circle-fill me-2"></i>
-                {% for error in form.non_field_errors %}
-                  {{ error }}
-                {% endfor %}
-              </div>
-            {% endif %}
+<script>window.location.href = "{% url 'register_screen' %}";</script>
+<div style="text-align:center;padding:3rem 0;">
+  <h2>Redirigiendo a la página de registro...</h2>
+  <p>Si no eres redirigido automáticamente, <a href="{% url 'register_screen' %}">haz clic aquí</a>.</p>
+</div>
             
             <div class="form-group">
               <label class="form-label">

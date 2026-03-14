@@ -1,121 +1,567 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Registro - Eco-Neek{% endblock %}
+{% block title %}Registro - EcoNeek{% endblock %}
+
+{% block extra_head %}
+  <style>
+    /* ====================================
+       REGISTER - ECO NEEK
+       Con waves decorativas en el fondo
+    ==================================== */
+    
+    :root {
+      --primary-color: #2a9d8f;
+      --secondary-color: #264653;
+      --accent-color: #e9c46a;
+      --light-bg: #f8f9fa;
+      --dark-color: #1e2b37;
+      --text-muted: #6c757d;
+      --white: #ffffff;
+      --green-dark: #1e5f4b;
+    }
+    
+    /* Página con fondo degradado sutil */
+    .register-page {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+      position: relative;
+      background: linear-gradient(135deg, #f5faf9 0%, #f0f7f5 100%);
+      overflow: hidden;
+    }
+    
+    /* Waves de fondo - SUPERIOR */
+    .wave-bg-top {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      line-height: 0;
+      z-index: 1;
+      opacity: 0.3;
+      transform: rotate(180deg);
+    }
+    
+    .wave-bg-top svg {
+      width: 100%;
+      height: auto;
+      fill: var(--primary-color);
+    }
+    
+    /* Waves de fondo - INFERIOR */
+    .wave-bg-bottom {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      line-height: 0;
+      z-index: 1;
+      opacity: 0.3;
+    }
+    
+    .wave-bg-bottom svg {
+      width: 100%;
+      height: auto;
+      fill: var(--primary-color);
+    }
+    
+    /* Círculos decorativos adicionales */
+    .circle-1 {
+      position: absolute;
+      top: 10%;
+      left: 5%;
+      width: 300px;
+      height: 300px;
+      background: radial-gradient(circle, rgba(42,157,143,0.03) 0%, rgba(42,157,143,0) 70%);
+      border-radius: 50%;
+      z-index: 1;
+    }
+    
+    .circle-2 {
+      position: absolute;
+      bottom: 10%;
+      right: 5%;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(42,157,143,0.03) 0%, rgba(42,157,143,0) 70%);
+      border-radius: 50%;
+      z-index: 1;
+    }
+    
+    /* Contenedor principal - sobre las waves */
+    .register-container {
+      max-width: 520px;
+      width: 100%;
+      position: relative;
+      z-index: 10;
+    }
+    
+    /* Tarjeta de registro */
+    .register-card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-radius: 40px;
+      padding: 40px 35px;
+      box-shadow: 0 30px 60px rgba(0,0,0,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .register-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+    }
+    
+    /* Logo y encabezado */
+    .register-header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    
+    .register-logo {
+      width: 90px;
+      height: 90px;
+      background: white;
+      border-radius: 25px;
+      padding: 12px;
+      box-shadow: 0 10px 30px rgba(42, 157, 143, 0.15);
+      margin-bottom: 20px;
+      border: 1px solid rgba(42, 157, 143, 0.1);
+    }
+    
+    .register-logo img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+    
+    .register-header h2 {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--green-dark);
+      margin-bottom: 10px;
+    }
+    
+    .register-header p {
+      color: var(--text-muted);
+      font-size: 1rem;
+    }
+    
+    /* Tipo de usuario selector */
+    .user-type-selector {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 25px;
+      background: #f5f5f5;
+      padding: 5px;
+      border-radius: 50px;
+    }
+    
+    .user-type-btn {
+      flex: 1;
+      padding: 12px;
+      border: none;
+      border-radius: 50px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      background: transparent;
+      color: #999;
+    }
+    
+    .user-type-btn.active {
+      background: var(--primary-color);
+      color: white;
+      box-shadow: 0 5px 15px rgba(42, 157, 143, 0.2);
+    }
+    
+    /* Formulario */
+    .register-form {
+      margin-bottom: 20px;
+    }
+    
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    .form-label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+      color: var(--dark-color);
+      font-size: 0.95rem;
+    }
+    
+    .form-label i {
+      color: var(--primary-color);
+      margin-right: 6px;
+    }
+    
+    .form-control {
+      width: 100%;
+      padding: 14px 18px;
+      border: 2px solid rgba(0,0,0,0.05);
+      border-radius: 20px;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      background: rgba(255,255,255,0.9);
+    }
+    
+    .form-control:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      background: white;
+      box-shadow: 0 0 0 4px rgba(42, 157, 143, 0.1);
+    }
+    
+    .form-text {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 5px;
+      display: block;
+    }
+    
+    /* Grid para dos columnas */
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+    }
+    
+    /* Checkbox de términos */
+    .form-check {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 25px;
+    }
+    
+    .form-check-input {
+      width: 20px;
+      height: 20px;
+      border: 2px solid rgba(0,0,0,0.1);
+      border-radius: 6px;
+      cursor: pointer;
+      accent-color: var(--primary-color);
+    }
+    
+    .form-check-label {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+    
+    .form-check-label a {
+      color: var(--primary-color);
+      text-decoration: none;
+      font-weight: 600;
+    }
+    
+    .form-check-label a:hover {
+      text-decoration: underline;
+    }
+    
+    /* Botón principal */
+    .btn-eco {
+      width: 100%;
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      color: white;
+      padding: 16px;
+      border: none;
+      border-radius: 30px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 10px 20px rgba(42, 157, 143, 0.2);
+    }
+    
+    .btn-eco:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 15px 30px rgba(42, 157, 143, 0.3);
+    }
+    
+    .btn-eco:active {
+      transform: translateY(-1px);
+    }
+    
+    /* Footer */
+    .register-footer {
+      text-align: center;
+      margin-top: 25px;
+      padding-top: 20px;
+      border-top: 1px solid rgba(0,0,0,0.03);
+    }
+    
+    .register-footer a {
+      color: var(--primary-color);
+      text-decoration: none;
+      font-weight: 600;
+      transition: color 0.3s ease;
+    }
+    
+    .register-footer a:hover {
+      color: var(--secondary-color);
+      text-decoration: underline;
+    }
+    
+    /* Alert de error */
+    .alert-danger {
+      background: rgba(220, 53, 69, 0.05);
+      border: 1px solid rgba(220, 53, 69, 0.1);
+      border-radius: 20px;
+      padding: 15px 20px;
+      color: #dc3545;
+      margin-bottom: 25px;
+      font-size: 0.95rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    /* Secciones condicionales */
+    .section-fields {
+      transition: all 0.3s ease;
+      border-left: 3px solid transparent;
+      padding-left: 0;
+    }
+    
+    .section-fields:not(.d-none) {
+      border-left-color: var(--primary-color);
+      padding-left: 15px;
+      margin-left: -15px;
+    }
+    
+    /* Responsive */
+    @media (max-width: 576px) {
+      .register-card {
+        padding: 30px 20px;
+        border-radius: 30px;
+      }
+      
+      .register-header h2 {
+        font-size: 1.8rem;
+      }
+      
+      .register-logo {
+        width: 80px;
+        height: 80px;
+      }
+      
+      .btn-eco {
+        padding: 14px;
+      }
+      
+      .circle-1, .circle-2 {
+        display: none;
+      }
+      
+      .form-row {
+        grid-template-columns: 1fr;
+        gap: 0;
+      }
+      
+      .user-type-selector {
+        flex-direction: column;
+        gap: 5px;
+      }
+    }
+  </style>
+{% endblock %}
 
 {% block content %}
-<div class="container mt-5" style="max-width: 480px;">
-  <div class="text-center mb-4">
-    <img src="{% static 'logo.png' %}" alt="Eco-Neek" style="width:120px;">
-    <h2 class="mt-3">¡Crea tu cuenta!</h2>
-    <p>Ingresa tus datos para comenzar a usar Eco-Neek.</p>
+<div class="register-page">
+  <!-- Waves de fondo - SUPERIOR -->
+  <div class="wave-bg-top">
+    <svg viewBox="0 0 1440 200" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+      <path d="M0 160L40 149.3C80 138.7 160 117.3 240 112C320 106.7 400 117.3 480 128C560 138.7 640 149.3 720 144C800 138.7 880 117.3 960 101.3C1040 85.3 1120 74.7 1200 74.7C1280 74.7 1360 85.3 1400 90.7L1440 96V200H1400C1360 200 1280 200 1200 200C1120 200 1040 200 960 200C880 200 800 200 720 200C640 200 560 200 480 200C400 200 320 200 240 200C160 200 80 200 40 200H0V160Z" fill="white"/>
+    </svg>
   </div>
-  <div class="row g-3">
-    <div class="col-12">
-      <form method="post" action="/register-screen/" class="card p-3 mb-3" id="registerForm">
+
+  <!-- Círculos decorativos -->
+  <div class="circle-1"></div>
+  <div class="circle-2"></div>
+
+  <div class="register-container">
+    <div class="register-card">
+      
+      <!-- Logo y título -->
+      <div class="register-header">
+        <div class="register-logo mx-auto">
+          <img src="{% static 'assets/img/logo.png' %}" alt="Eco-Neek">
+        </div>
+        <h2>¡Crea tu cuenta!</h2>
+        <p>Ingresa tus datos para comenzar a usar EcoNeek</p>
+      </div>
+
+      <!-- Selector de tipo de usuario (mejorado visualmente) -->
+      <div class="user-type-selector">
+        <button type="button" class="user-type-btn active" id="btn-usuario" onclick="setTipo('usuario')">🌱 Usuario</button>
+        <button type="button" class="user-type-btn" id="btn-centro" onclick="setTipo('centro')">🏭 Punto Verde</button>
+      </div>
+
+      <!-- Formulario -->
+      <form method="post" action="/register-screen/" class="register-form" id="registerForm">
         {% csrf_token %}
-        <input type="hidden" id="id_tipo" name="tipo" value="{{ tipo }}">
-        <h5 class="mb-3">Regístrate</h5>
+        <input type="hidden" id="id_tipo" name="tipo" value="{{ tipo|default:'usuario' }}">
+        
         {% if error %}
-          <div class="alert alert-danger">{{ error }}</div>
+          <div class="alert-danger">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+            {{ error }}
+          </div>
         {% endif %}
 
         <!-- Campos para USUARIO (nombre, apellido) -->
-        <div id="usuario-fields" class="d-none">
-          <div class="mb-3">
-            <label for="id_nombre" class="form-label">Nombre</label>
-            <input id="id_nombre" name="nombre" type="text" class="form-control" placeholder="Tu nombre">
-          </div>
-          <div class="mb-3">
-            <label for="id_apellido" class="form-label">Apellido</label>
-            <input id="id_apellido" name="apellido" type="text" class="form-control" placeholder="Tu apellido">
+        <div id="usuario-fields" class="d-none section-fields">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="id_nombre" class="form-label">
+                <i class="bi bi-person"></i>Nombre
+              </label>
+              <input id="id_nombre" name="nombre" type="text" class="form-control" placeholder="Tu nombre">
+            </div>
+            <div class="form-group">
+              <label for="id_apellido" class="form-label">
+                <i class="bi bi-person"></i>Apellido
+              </label>
+              <input id="id_apellido" name="apellido" type="text" class="form-control" placeholder="Tu apellido">
+            </div>
           </div>
         </div>
 
         <!-- Campos para CENTRO (nombre) -->
-        <div id="centro-fields" class="d-none">
-          <div class="mb-3">
-            <label for="id_centro_nombre" class="form-label">Nombre del Centro</label>
+        <div id="centro-fields" class="d-none section-fields">
+          <div class="form-group">
+            <label for="id_centro_nombre" class="form-label">
+              <i class="bi bi-building"></i>Nombre del Centro
+            </label>
             <input id="id_centro_nombre" name="nombre_centro" type="text" class="form-control" placeholder="Nombre del centro / recicladora">
           </div>
         </div>
 
         <!-- Campos comunes -->
-        <div class="mb-3">
-          <label for="id_email" class="form-label">Correo electrónico</label>
+        <div class="form-group">
+          <label for="id_email" class="form-label">
+            <i class="bi bi-envelope-fill"></i>Correo electrónico
+          </label>
           <input id="id_email" name="email" type="email" class="form-control" placeholder="tucorreo@ejemplo.com" required>
         </div>
-        <div class="mb-3">
-          <label for="id_password1" class="form-label">Contraseña</label>
-          <input id="id_password1" name="password" type="password" class="form-control" placeholder="Mínimo 6 caracteres" required>
-          <small class="text-muted">Mínimo 6 caracteres</small>
-        </div>
-        <div class="mb-3">
-          <label for="id_password2" class="form-label">Confirmar contraseña</label>
-          <input id="id_password2" name="password2" type="password" class="form-control" placeholder="Repite la contraseña" required>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="id_password1" class="form-label">
+              <i class="bi bi-lock-fill"></i>Contraseña
+            </label>
+            <input id="id_password1" name="password" type="password" class="form-control" placeholder="Mínimo 6 caracteres" required>
+            <small class="form-text">Mínimo 6 caracteres</small>
+          </div>
+          <div class="form-group">
+            <label for="id_password2" class="form-label">
+              <i class="bi bi-lock-fill"></i>Confirmar
+            </label>
+            <input id="id_password2" name="password2" type="password" class="form-control" placeholder="Repite la contraseña" required>
+          </div>
         </div>
 
         <!-- Campos solo para CENTRO -->
-        <div id="centro-details" class="d-none">
-          <div class="mb-3">
-            <label for="id_telefo" class="form-label">Teléfono</label>
-            <input id="id_telefono" name="telefono" type="tel" class="form-control" placeholder="Número de contacto">
+        <div id="centro-details" class="d-none section-fields">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="id_telefono" class="form-label">
+                <i class="bi bi-telephone-fill"></i>Teléfono
+              </label>
+              <input id="id_telefono" name="telefono" type="tel" class="form-control" placeholder="Número de contacto">
+            </div>
+            <div class="form-group">
+              <label for="id_municipio" class="form-label">
+                <i class="bi bi-geo-alt-fill"></i>Municipio
+              </label>
+              <input id="id_municipio" name="municipio" type="text" class="form-control" placeholder="Municipio/Ciudad">
+            </div>
           </div>
-          <div class="mb-3">
-            <label for="id_direccion" class="form-label">Dirección</label>
+          <div class="form-group">
+            <label for="id_direccion" class="form-label">
+              <i class="bi bi-pin-map-fill"></i>Dirección
+            </label>
             <input id="id_direccion" name="direccion" type="text" class="form-control" placeholder="Dirección del centro">
           </div>
-          <div class="mb-3">
-            <label for="id_municipio" class="form-label">Municipio/Ciudad</label>
-            <input id="id_municipio" name="municipio" type="text" class="form-control" placeholder="Municipio">
-          </div>
-          <div class="mb-3">
-            <label for="id_horarios" class="form-label">Horarios de atención</label>
+          <div class="form-group">
+            <label for="id_horarios" class="form-label">
+              <i class="bi bi-clock-fill"></i>Horarios de atención
+            </label>
             <input id="id_horarios" name="horarios" type="text" class="form-control" placeholder="Ej: Lunes a Viernes 8am-5pm">
           </div>
         </div>
 
         <!-- Términos -->
-        <div class="form-check mb-3">
+        <div class="form-check">
           <input type="checkbox" class="form-check-input" id="id_terms" name="terms" required>
           <label class="form-check-label" for="id_terms">
-            Acepto los <a href="#">términos y condiciones</a>
+            Acepto los <a href="#">términos y condiciones</a> de EcoNeek
           </label>
         </div>
 
-        <div class="d-grid mb-2">
-          <button type="submit" class="btn btn-eco">Crear cuenta</button>
-        </div>
-        <div class="text-center mt-3">
-          <a href="/login-screen/">¿Ya tienes cuenta? Inicia sesión</a>
-        </div>
+        <button type="submit" class="btn-eco">
+          <span>Crear cuenta</span>
+          <i class="bi bi-arrow-right ms-2"></i>
+        </button>
       </form>
+
+      <!-- Footer -->
+      <div class="register-footer">
+        <a href="/login-screen/">¿Ya tienes cuenta? Inicia sesión</a>
+      </div>
+
     </div>
+  </div>
+
+  <!-- Waves de fondo - INFERIOR -->
+  <div class="wave-bg-bottom">
+    <svg viewBox="0 0 1440 200" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+      <path d="M0 40L40 45.3C80 50.7 160 61.3 240 66.7C320 72 400 72 480 66.7C560 61.3 640 50.7 720 48C800 45.3 880 50.7 960 64C1040 77.3 1120 98.7 1200 106.7C1280 114.7 1360 109.3 1400 106.7L1440 104V0H1400C1360 0 1280 0 1200 0C1120 0 1040 0 960 0C880 0 800 0 720 0C640 0 560 0 480 0C400 0 320 0 240 0C160 0 80 0 40 0H0V40Z" fill="white"/>
+    </svg>
   </div>
 </div>
 
 <script>
-  document.addEventListener('DOMContentLoaded', function() {
+  function setTipo(tipo) {
     const tipoInput = document.getElementById('id_tipo');
     const usuarioFields = document.getElementById('usuario-fields');
     const centroFields = document.getElementById('centro-fields');
     const centroDetails = document.getElementById('centro-details');
+    const btnUsuario = document.getElementById('btn-usuario');
+    const btnCentro = document.getElementById('btn-centro');
     
-    function updateFormFields() {
-      const tipo = tipoInput.value || new URL(window.location).searchParams.get('tipo') || 'usuario';
-      
-      if (tipo === 'centro') {
-        usuarioFields.classList.add('d-none');
-        centroFields.classList.remove('d-none');
-        centroDetails.classList.remove('d-none');
-      } else {
-        usuarioFields.classList.remove('d-none');
-        centroFields.classList.add('d-none');
-        centroDetails.classList.add('d-none');
-      }
+    tipoInput.value = tipo;
+    
+    if (tipo === 'centro') {
+      usuarioFields.classList.add('d-none');
+      centroFields.classList.remove('d-none');
+      centroDetails.classList.remove('d-none');
+      btnUsuario.classList.remove('active');
+      btnCentro.classList.add('active');
+    } else {
+      usuarioFields.classList.remove('d-none');
+      centroFields.classList.add('d-none');
+      centroDetails.classList.add('d-none');
+      btnUsuario.classList.add('active');
+      btnCentro.classList.remove('active');
     }
-    
-    updateFormFields();
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    const urlParams = new URL(window.location).searchParams;
+    const tipo = urlParams.get('tipo') || 'usuario';
+    setTipo(tipo);
   });
 </script>
 {% endblock %}

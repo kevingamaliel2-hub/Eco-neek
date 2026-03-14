@@ -113,6 +113,36 @@ class SupabaseClient:
             r.error = str(e)
             return r
 
+    # Auth functions
+    def sign_in(self, email: str, password: str):
+        try:
+            url = f"{self.url}/auth/v1/token?grant_type=password"
+            headers = {
+                'apikey': self.key,
+                'Authorization': f'Bearer {self.key}',
+                'Content-Type': 'application/json',
+            }
+            payload = {
+                'email': email,
+                'password': password,
+            }
+            resp = requests.post(url, json=payload, headers=headers, timeout=15)
+            if resp.status_code in (200, 201):
+                try:
+                    data = resp.json()
+                except ValueError:
+                    data = {'access_token': None, 'error': 'invalid json'}
+                return type('R', (), {'data': data, 'error': None})
+            else:
+                try:
+                    j = resp.json()
+                    err = j.get('error_description') or j.get('error') or resp.text
+                except Exception:
+                    err = resp.text
+                return type('R', (), {'data': None, 'error': err})
+        except Exception as e:
+            return type('R', (), {'data': None, 'error': str(e)})
+
     # QR functions
     def get_user_qr_url(self, user_id):
         return None
@@ -259,3 +289,84 @@ class SupabaseClient:
         if isinstance(resp.data, list) and len(resp.data) > 0:
             return resp.data[0] if isinstance(resp.data[0], dict) else None
         return None
+
+    # ============================================
+    # NUEVOS MÉTODOS PARA SUBIR ARCHIVOS
+    # ============================================
+    
+    def upload_image(self, bucket: str, user_id: str, file, folder: str = "avatars", custom_filename=None):
+        """
+        Sube una imagen a Supabase Storage
+        
+        Args:
+            bucket: Nombre del bucket ('avatars' o 'centros')
+            user_id: ID del usuario para organizar carpetas
+            file: El archivo de imagen (request.FILES['campo'])
+            folder: Subcarpeta (avatars, centros, etc)
+            custom_filename: Nombre personalizado (opcional)
+        
+        Returns:
+            str: URL pública de la imagen o None si hay error
+        """
+        try:
+            # Leer el archivo
+            file_content = file.read()
+            file_ext = file.name.split('.')[-1].lower()
+            
+            # Validar extensiones permitidas
+            if file_ext not in ['jpg', 'jpeg', 'png', 'gif', 'webp']:
+                print(f"Extensión no permitida: {file_ext}")
+                return None
+            
+            # Generar nombre único o usar el personalizado
+            import uuid
+            if custom_filename:
+                file_name = f"{folder}/{custom_filename}"
+            else:
+                unique_id = uuid.uuid4()
+                file_name = f"{folder}/{user_id}_{unique_id}.{file_ext}"
+            
+            # Asegurar nombre de bucket correcto
+                
+            # URL de Supabase Storage
+            url = f"{self.url}/storage/v1/object/{bucket}/{file_name}"
+            
+            # Headers
+            headers = {
+                'apikey': self.key,
+                'Authorization': f'Bearer {self.key}',
+                'Content-Type': file.content_type or f'image/{file_ext}',
+            }
+            
+            # Subir archivo
+            import requests
+            response = requests.post(url, headers=headers, data=file_content)
+            
+            if response.status_code in [200, 201]:
+                # Obtener URL pública
+                public_url = f"{self.url}/storage/v1/object/public/{bucket}/{file_name}"
+                return public_url
+            else:
+                print(f"Error subiendo imagen: {response.text}")
+                return None
+                
+        except Exception as e:
+            print(f"Exception en upload_image: {e}")
+            return None
+    
+    def delete_image(self, bucket: str, file_path: str):
+        """
+        Elimina una imagen de Storage
+        """
+        try:
+            url = f"{self.url}/storage/v1/object/{bucket}/{file_path}"
+            headers = {
+                'apikey': self.key,
+                'Authorization': f'Bearer {self.key}',
+            }
+            import requests
+            response = requests.delete(url, headers=headers)
+            return response.status_code in [200, 204]
+        except Exception as e:
+            print(f"Error eliminando imagen: {e}")
+            return False

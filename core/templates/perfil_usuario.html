@@ -1,41 +1,734 @@
 {% extends "base.html" %}
 {% load static %}
 
+{% block extra_head %}
+  <style>
+    /* ====================================
+       PERFIL DE USUARIO - ECO NEEK
+       Diseño profesional - CORREGIDO
+    ==================================== */
+    
+    :root {
+      --primary-color: #2a9d8f;
+      --secondary-color: #264653;
+      --accent-color: #e9c46a;
+      --light-bg: #f8f9fa;
+      --dark-color: #1e2b37;
+      --text-muted: #6c757d;
+      --white: #ffffff;
+      --green-dark: #1e5f4b;
+      --purple-light: #f3e8ff;
+      --blue-light: #e6f3ff;
+      --yellow-light: #fff8e6;
+    }
+    
+    /* Hero del perfil con wave */
+    .profile-hero-full {
+      background: linear-gradient(135deg, var(--secondary-color) 0%, var(--primary-color) 100%);
+      padding: 60px 0 100px;
+      position: relative;
+      overflow: hidden;
+      margin-bottom: 40px;
+    }
+    
+    .profile-hero-full::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+      opacity: 0.1;
+      pointer-events: none;
+    }
+    
+    /* Wave decorativa */
+    .profile-wave {
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      width: 100%;
+      line-height: 0;
+    }
+    
+    .profile-wave svg {
+      width: 100%;
+      height: auto;
+      fill: var(--white);
+    }
+    
+    /* Tarjeta de perfil principal */
+    .profile-header-card {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border-radius: 60px;
+      padding: 30px 40px;
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 30px;
+      border: 1px solid rgba(255,255,255,0.2);
+      position: relative;
+      z-index: 2;
+    }
+    
+    .profile-avatar-wrapper {
+      width: 100px;
+      height: 100px;
+      border-radius: 30px;
+      overflow: hidden;
+      border: 4px solid white;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+    
+    .profile-avatar-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .profile-info {
+      flex: 1;
+    }
+    
+    .profile-name {
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: white;
+      margin: 0 0 10px;
+    }
+    
+    .profile-name i {
+      font-size: 1.5rem;
+    }
+    
+    .profile-member-since {
+      color: rgba(255,255,255,0.9);
+      font-size: 1rem;
+      margin: 0;
+      display: flex;
+      align-items: center;
+    }
+    
+    .profile-points {
+      background: rgba(255,255,255,0.15);
+      border-radius: 50px;
+      padding: 12px 25px;
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+    
+    .points-badge {
+      background: white;
+      color: var(--primary-color);
+      padding: 8px 15px;
+      border-radius: 30px;
+      font-weight: 700;
+      font-size: 1.2rem;
+      display: inline-block;
+    }
+    
+    .profile-actions {
+      display: flex;
+      gap: 15px;
+      margin-top: 20px;
+      width: 100%;
+      justify-content: flex-end;
+    }
+    
+    .btn-profile-edit {
+      background: white;
+      color: var(--primary-color);
+      padding: 12px 25px;
+      border-radius: 40px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      border: none;
+    }
+    
+    .btn-profile-edit:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+      color: var(--secondary-color);
+    }
+    
+    .btn-profile-logout {
+      background: rgba(255,255,255,0.15);
+      color: white;
+      padding: 12px 25px;
+      border-radius: 40px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      border: 2px solid rgba(255,255,255,0.3);
+      cursor: pointer;
+    }
+    
+    .btn-profile-logout:hover {
+      background: white;
+      color: var(--primary-color);
+      border-color: white;
+      transform: translateY(-3px);
+    }
+    
+    /* Contenido principal */
+    .profile-content-container {
+      margin-top: -60px;
+      position: relative;
+      z-index: 3;
+    }
+    
+    /* Tarjetas de información */
+
+    .profile-card {
+      background: #f8f9fa;
+      border-radius: 28px;
+      padding: 28px 30px 22px 30px;
+      box-shadow: 0 8px 32px rgba(42, 157, 143, 0.10);
+      border: 1.5px solid #e0e4ea;
+      margin-bottom: 28px;
+      transition: box-shadow 0.25s, border-color 0.25s;
+    }
+    .profile-card:hover {
+      box-shadow: 0 16px 48px rgba(42, 157, 143, 0.16);
+      border-color: var(--primary-color);
+    }
+    .profile-card-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: linear-gradient(135deg, #2a9d8f, #1f7a6b);
+      color: white;
+      padding: 14px 18px;
+      border-radius: 16px;
+      margin-bottom: 20px;
+    }
+    .profile-card-header i {
+      font-size: 1.4rem;
+      color: white;
+    }
+    .profile-card-header h5 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: white;
+      margin: 0;
+    }
+    
+    .profile-card-body {
+      padding: 5px 0;
+    }
+    
+    /* Items de información */
+    .info-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(0,0,0,0.03);
+    }
+    
+    .info-item:last-child {
+      border-bottom: none;
+    }
+    
+    .info-label {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .info-label i {
+      color: var(--primary-color);
+      width: 20px;
+    }
+    
+    .info-value {
+      font-weight: 600;
+      color: var(--dark-color);
+    }
+    
+    /* QR Code */
+    .qr-code-container {
+      background: #f8f9fa;
+      padding: 20px;
+      border-radius: 30px;
+      display: inline-block;
+      margin-bottom: 15px;
+    }
+    
+    .qr-code-img {
+      width: 180px;
+      height: 180px;
+      border-radius: 20px;
+    }
+    
+    .qr-description {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      margin-bottom: 20px;
+    }
+    
+    .btn-qr-view, .btn-qr-generate {
+      padding: 10px 20px;
+      border-radius: 30px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+    
+    .btn-qr-view {
+      background: var(--light-bg);
+      color: var(--dark-color);
+      border: 1px solid rgba(0,0,0,0.05);
+    }
+    
+    .btn-qr-view:hover {
+      background: var(--primary-color);
+      color: white;
+    }
+    
+    .btn-qr-generate {
+      background: var(--primary-color);
+      color: white;
+    }
+    
+    .btn-qr-generate:hover {
+      background: var(--secondary-color);
+      transform: translateY(-2px);
+    }
+    
+    .qr-empty-state {
+      text-align: center;
+      padding: 30px 0;
+    }
+    
+    .qr-empty-state i {
+      font-size: 4rem;
+      color: #ddd;
+      margin-bottom: 15px;
+    }
+    
+    .qr-empty-state p {
+      color: #999;
+      margin-bottom: 20px;
+    }
+    
+    /* Historial de canjes */
+    .history-list {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+    
+    .history-item {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      padding: 15px;
+      background: #fafafa;
+      border-radius: 25px;
+      transition: all 0.3s ease;
+    }
+    
+    .history-item:hover {
+      background: white;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    }
+    
+    .history-icon {
+      width: 50px;
+      height: 50px;
+      background: rgba(42, 157, 143, 0.1);
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--primary-color);
+      font-size: 1.5rem;
+    }
+    
+    .history-content {
+      flex: 1;
+    }
+    
+    .history-title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--dark-color);
+      margin: 0 0 5px;
+    }
+    
+    .history-details {
+      display: flex;
+      gap: 15px;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin: 0;
+    }
+    
+    .history-date {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    
+    .history-points {
+      text-align: center;
+      min-width: 70px;
+    }
+    
+    .history-points .points-badge {
+      background: var(--primary-color);
+      color: white;
+      padding: 5px 10px;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      display: inline-block;
+    }
+    
+    .history-points .points-label {
+      font-size: 0.7rem;
+      color: #999;
+      display: block;
+      margin-top: 3px;
+    }
+    
+    .btn-view-all {
+      display: inline-flex;
+      align-items: center;
+      color: var(--primary-color);
+      text-decoration: none;
+      font-weight: 600;
+      margin-top: 20px;
+      padding: 10px 20px;
+      border-radius: 30px;
+      transition: all 0.3s ease;
+    }
+    
+    .btn-view-all:hover {
+      background: rgba(42, 157, 143, 0.05);
+      transform: translateX(5px);
+    }
+    
+    .empty-history {
+      text-align: center;
+      padding: 40px 20px;
+    }
+    
+    .empty-history i {
+      font-size: 3rem;
+      color: #ddd;
+      margin-bottom: 15px;
+    }
+    
+    .empty-history p {
+      color: #999;
+      margin-bottom: 5px;
+    }
+    
+    .empty-hint {
+      font-size: 0.85rem;
+      color: #ccc;
+    }
+    
+    /* Tarjetas de acción */
+    .action-card-full {
+      background: white;
+      border-radius: 30px;
+      padding: 25px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      transition: all 0.4s ease;
+      border: 1px solid rgba(0,0,0,0.03);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.02);
+    }
+    
+    .action-card-full:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 20px 40px rgba(42, 157, 143, 0.08);
+      border-color: rgba(42, 157, 143, 0.1);
+    }
+    
+    .action-icon-full {
+      width: 70px;
+      height: 70px;
+      border-radius: 25px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      margin-bottom: 20px;
+    }
+    
+    .action-icon-green {
+      background: rgba(42, 157, 143, 0.1);
+      color: var(--primary-color);
+    }
+    
+    .action-icon-yellow {
+      background: rgba(233, 196, 106, 0.1);
+      color: #b38b40;
+    }
+    
+    .action-icon-blue {
+      background: rgba(70, 130, 180, 0.1);
+      color: #2c5282;
+    }
+    
+    .action-icon-purple {
+      background: rgba(159, 122, 234, 0.1);
+      color: #6b46c1;
+    }
+    
+    .action-content-full {
+      flex: 1;
+      margin-bottom: 20px;
+    }
+    
+    .action-content-full h5 {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: var(--dark-color);
+      margin-bottom: 10px;
+    }
+    
+    .action-content-full p {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      margin: 0;
+    }
+    
+    .btn-action-full {
+      background: transparent;
+      border: 2px solid rgba(0,0,0,0.05);
+      padding: 10px 20px;
+      border-radius: 40px;
+      color: var(--dark-color);
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 0.95rem;
+      transition: all 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+    
+    .btn-action-full:hover {
+      background: var(--primary-color);
+      border-color: var(--primary-color);
+      color: white;
+      transform: translateX(5px);
+    }
+    
+    /* Tarjeta de soporte con correo */
+    .support-card {
+      background: linear-gradient(135deg, #f8f9fa, #f1f3f5);
+      border: 1px solid rgba(0,0,0,0.03);
+      border-radius: 30px;
+      padding: 25px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    
+    .support-icon {
+      width: 60px;
+      height: 60px;
+      background: var(--primary-color);
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 1.8rem;
+    }
+    
+    .support-content {
+      flex: 1;
+    }
+    
+    .support-content h5 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--green-dark);
+      margin: 0 0 5px;
+    }
+    
+    .support-content p {
+      color: var(--text-muted);
+      margin: 0;
+      font-size: 0.95rem;
+    }
+    
+    .support-email {
+      background: white;
+      padding: 12px 25px;
+      border-radius: 40px;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: var(--dark-color);
+      font-weight: 500;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+      transition: all 0.3s ease;
+    }
+    
+    .support-email:hover {
+      background: var(--primary-color);
+      color: white;
+      transform: translateY(-3px);
+    }
+    
+    .support-email i {
+      font-size: 1.2rem;
+    }
+    
+    /* Banner de motivación */
+    .motivation-banner {
+      background: linear-gradient(135deg, rgba(42, 157, 143, 0.05) 0%, rgba(38, 70, 83, 0.05) 100%);
+      border-radius: 40px;
+      padding: 30px;
+      display: flex;
+      align-items: center;
+      gap: 25px;
+      flex-wrap: wrap;
+      border: 1px solid rgba(42, 157, 143, 0.1);
+    }
+    
+    .motivation-icon {
+      width: 70px;
+      height: 70px;
+      background: white;
+      border-radius: 25px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.2rem;
+      color: var(--primary-color);
+      box-shadow: 0 10px 25px rgba(42, 157, 143, 0.1);
+    }
+    
+    .motivation-content {
+      flex: 1;
+    }
+    
+    .motivation-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--green-dark);
+      margin: 0 0 5px;
+    }
+    
+    .motivation-text {
+      color: var(--text-muted);
+      margin: 0;
+      font-size: 1rem;
+    }
+    
+    /* Responsive */
+    @media (max-width: 991px) {
+      .profile-header-card {
+        flex-direction: column;
+        text-align: center;
+        padding: 30px 20px;
+      }
+      
+      .profile-actions {
+        justify-content: center;
+      }
+      
+      .profile-points {
+        margin-left: 0 !important;
+      }
+      
+      .support-card {
+        flex-direction: column;
+        text-align: center;
+      }
+      
+      .motivation-banner {
+        flex-direction: column;
+        text-align: center;
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .profile-name {
+        font-size: 1.8rem;
+      }
+      
+      .profile-actions {
+        flex-direction: column;
+        width: 100%;
+      }
+      
+      .btn-profile-edit, .btn-profile-logout {
+        width: 100%;
+        text-align: center;
+      }
+      
+      .history-item {
+        flex-direction: column;
+        text-align: center;
+      }
+      
+      .history-details {
+        justify-content: center;
+      }
+    }
+  </style>
+{% endblock %}
+
 {% block content %}
-<!-- Hero del Perfil -->
+<!-- Hero del Perfil con wave -->
 <section class="profile-hero-full">
+  <!-- Wave decorativa -->
+  <div class="profile-wave">
+    <svg viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0 120L60 105C120 90 240 60 360 45C480 30 600 30 720 37.5C840 45 960 60 1080 67.5C1200 75 1320 75 1380 75L1440 75V120H1380C1320 120 1200 120 1080 120C960 120 840 120 720 120C600 120 480 120 360 120C240 120 120 120 60 120H0Z" fill="white"/>
+    </svg>
+  </div>
+  
   <div class="container">
     <div class="profile-header-card">
-        <div class="profile-avatar-wrapper">
-          {% if avatar_url %}
-            <!-- usar imagen proporcionada por socialaccount -->
-            <img src="{{ avatar_url }}" alt="Avatar" class="profile-avatar-img">
-          {% elif perfil_firebase and perfil_firebase.imagen_url %}
-            <img src="{{ perfil_firebase.imagen_url }}" alt="Avatar" class="profile-avatar-img">
-          {% elif usuario.avatar %}
-            <img src="/media/{{ usuario.avatar }}" alt="Avatar" class="profile-avatar-img">
-          {% else %}
-            <img src="{% static 'logo.png' %}" alt="Avatar" class="profile-avatar-img">
-          {% endif %}
+      <div class="profile-avatar-wrapper">
+        {% if usuario.avatar_url %}
+          <!-- ✅ Usar la URL de Supabase -->
+          <img src="{{ usuario.avatar_url }}" alt="Avatar" class="profile-avatar-img" style="width:100px; height:100px; border-radius:50%; object-fit:cover;">
+        {% else %}
+          <!-- ⚠️ Fallback a imagen por defecto -->
+          <img src="{% static 'logo.png' %}" alt="Avatar" class="profile-avatar-img" style="width:100px; height:100px; border-radius:50%; object-fit:cover;">
+        {% endif %}
+      </div>
+      <div class="profile-info">
+        <h2 class="profile-name">
+          {{ usuario.first_name|default:usuario.username }}
+          <i class="bi bi-patch-check-fill text-success ms-2"></i>
+        </h2>
+        <p class="profile-member-since">
+          <i class="bi bi-calendar-check me-2"></i>
+          Miembro desde {{ usuario.date_joined|date:"d/m/Y" }}
+        </p>
+      </div>
+      <div class="profile-points d-flex align-items-center ms-4">
+        <div class="points-icon me-2">
+          <img src="{% static 'assets/img/monedaecoloopreal.png' %}" alt="Ecopunto" style="width:44px;height:44px;">
         </div>
-        <div class="profile-info">
-          <h2 class="profile-name">
-            {{ usuario.first_name|default:usuario.username }}
-            <i class="bi bi-patch-check-fill text-success ms-2"></i>
-          </h2>
-          <p class="profile-member-since">
-            <i class="bi bi-calendar-check me-2"></i>
-            Miembro desde {{ usuario.date_joined|date:"d/m/Y" }}
-          </p>
-        </div>
-        <div class="profile-points d-flex align-items-center ms-4">
-          <div class="points-icon me-2">
-            <img src="{% static 'assets/img/monedaecoloopreal.png' %}" alt="Ecopunto" style="width:44px;height:44px;">
-          </div>
-          <div>
-            <div style="font-size:0.9rem;color:#e9f7f5;font-weight:700;">Tus Ecopuntos</div>
-            <div class="points-badge" style="font-size:0.95rem;padding:.4rem .8rem;margin-top:.25rem;">{{ usuario.points|default:0 }} pts</div>
-          </div>
+        <div>
+          <div style="font-size:0.9rem;color:#e9f7f5;font-weight:700;">Tus Ecopuntos</div>
+          <div class="points-badge" style="font-size:0.95rem;padding:.4rem .8rem;margin-top:.25rem;">{{ usuario.points|default:0 }} pts</div>
         </div>
       </div>
       
@@ -44,14 +737,15 @@
           <i class="bi bi-pencil-fill me-2"></i>
           Editar perfil
         </a>
-        <a href="{% url 'logout' %}" class="btn btn-profile-logout">
-          <i class="bi bi-box-arrow-right me-2"></i>
-          Cerrar sesión
-        </a>
+        <form action="{% url 'logout' %}" method="post" style="display:inline;">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-profile-logout">
+            <i class="bi bi-box-arrow-right me-2"></i>
+            Cerrar sesión
+          </button>
+        </form>
       </div>
     </div>
-
-    <!-- Punto: moved into header for compact layout -->
   </div>
 </section>
 
@@ -63,7 +757,7 @@
       <!-- Tarjeta de Información -->
       <div class="profile-card">
         <div class="profile-card-header">
-          <i class="bi bi-person-circle me-2"></i>
+          <i class="bi bi-person-circle"></i>
           <h5>Información Personal</h5>
         </div>
         <div class="profile-card-body">
@@ -90,16 +784,17 @@
           </div>
         </div>
       </div>
-      <!-- Tarjeta de QR - con botón de sincronizar -->
+      
+      <!-- Tarjeta de QR -->
       <div class="profile-card">
         <div class="profile-card-header">
-          <i class="bi bi-qr-code me-2"></i>
+          <i class="bi bi-qr-code"></i>
           <h5>Tu Código QR</h5>
         </div>
         <div class="profile-card-body text-center">
           {% if qr_url %}
             <div class="qr-code-container">
-              <img src="{{ qr_url }}" alt="QR" class="qr-code-img">
+              <img src="{{ qr_url }}" alt="QR" class="qr-code-img" onerror="this.src='{% static 'logo.png' %}'; this.style.background='#f8f9fa';">
             </div>
             <p class="qr-description">Muestra este código en los centros de reciclaje</p>
             <div class="d-flex gap-2 justify-content-center">
@@ -125,12 +820,13 @@
         </div>
       </div>
     </div>
+    
     <!-- Columna Derecha -->
     <div class="col-lg-8">
       <!-- Historial de Canjes -->
       <div class="profile-card">
         <div class="profile-card-header">
-          <i class="bi bi-clock-history me-2"></i>
+          <i class="bi bi-clock-history"></i>
           <h5>Historial de Canjes</h5>
         </div>
         <div class="profile-card-body">
@@ -142,17 +838,18 @@
                     <i class="bi bi-gift"></i>
                   </div>
                   <div class="history-content">
-                    <h6 class="history-title">{{ canje.premio.title }}</h6>
+                    <h6 class="history-title">{{ canje.titulo|default:canje.premio.title|default:'Canje' }}</h6>
                     <p class="history-details">
-                      <span class="history-quantity">Puntos: {{ canje.premio.points_cost }}</span>
+                      <span class="history-quantity">Gastado: {{ canje.puntos|default:canje.monto_puntos_restados|default:canje.premio.points_cost|default:0 }} pts</span>
                       <span class="history-date">
                         <i class="bi bi-calendar3"></i>
-                        {{ canje.created_at|date:"d/m/Y H:i" }}
+                        {{ canje.fecha|default:canje.created_at|default:'-' }}
                       </span>
                     </p>
+                    <p style="margin:0;font-size:.85rem;color:#4d5c6d;">{{ canje.detalle|default:canje.texto|default:canje.premio.title|default:'Canje registrado' }}</p>
                   </div>
                   <div class="history-points">
-                    <span class="points-badge">{{ canje.premio.points_cost }}</span>
+                    <span class="points-badge">-{{ canje.puntos|default:canje.monto_puntos_restados|default:0 }}</span>
                     <span class="points-label">puntos</span>
                   </div>
                 </div>
@@ -173,6 +870,7 @@
           {% endif %}
         </div>
       </div>
+      
       <!-- Acciones Rápidas -->
       <div class="row g-4 mt-4 justify-content-center">
         <div class="col-md-6 col-lg-4 d-flex align-items-stretch">
@@ -220,24 +918,25 @@
             </a>
           </div>
         </div>
-        <div class="col-md-6 col-lg-4 d-flex align-items-stretch">
-          <div class="action-card-full w-100">
-            <div class="action-icon-full action-icon-purple">
-              <i class="bi bi-chat-dots-fill"></i>
-            </div>
-            <div class="action-content-full">
-              <h5>Soporte</h5>
-              <p>Envía tus sugerencias o reporta problemas</p>
-            </div>
-            <a href="{% url 'sugerencias' %}" class="btn-action-full">
-              Contactar
-              <i class="bi bi-arrow-right ms-2"></i>
-            </a>
-          </div>
-        </div>
       </div>
+      
+      <!-- Tarjeta de Soporte con correo -->
+      <div class="support-card mt-4">
+        <div class="support-icon">
+          <i class="bi bi-chat-dots-fill"></i>
+        </div>
+        <div class="support-content">
+          <h5>¿Sugerencias o quejas?</h5>
+          <p>Envíanos tus comentarios para mejorar EcoNeek</p>
+        </div>
+        <a href="mailto:econeek.sugerencias@gmail.com" class="support-email">
+          <i class="bi bi-envelope-fill"></i>
+          econeek.sugerencias@gmail.com
+        </a>
+      </div>
+      
       <!-- Motivación -->
-      <div class="motivation-banner mt-5">
+      <div class="motivation-banner mt-4">
         <div class="motivation-icon">
           <i class="bi bi-recycle"></i>
         </div>
@@ -250,4 +949,3 @@
   </div>
 </div>
 {% endblock %}
-

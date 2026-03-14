@@ -31,12 +31,15 @@
           <div class="flex-grow-1">
             <h6 class="mb-0 fw-bold">{{ canje.premio.title }}</h6>
             <small class="text-muted">
-              <i class="bi bi-calendar3 me-1"></i>{{ canje.created_at|date:"d/m/Y H:i" }}
+              <i class="bi bi-calendar3 me-1"></i>{{ canje.created_at|default:'-' }}
               &nbsp;·&nbsp; Cantidad: {{ canje.quantity }}
             </small>
+            {% if canje.detalle %}
+            <p class="mb-0" style="font-size:.9rem;color:#5f6b74;">{{ canje.detalle }}</p>
+            {% endif %}
           </div>
           <div class="text-end">
-            <span class="points-badge">{{ canje.premio.points_cost }} pts</span>
+            <span class="points-badge">{{ canje.premio.points_cost|default:0 }} pts</span>
             {% if canje.fulfilled %}
               <br><small class="text-success mt-1 d-block"><i class="bi bi-check-circle-fill me-1"></i>Entregado</small>
             {% else %}

@@ -1,119 +1,1035 @@
 {% extends 'base.html' %}
-{% block title %}Mapa - Eco-Neek{% endblock %}
+{% block title %}Mapa de Puntos Verdes - EcoNeek{% endblock %}
+
 {% block extra_head %}
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <style>
-    #map { height: 70vh; border-radius: 12px; box-shadow: 0 6px 24px rgba(0,0,0,.12); margin-bottom: 20px; }
-    .map-info { background: #f0f8f6; padding: 15px; border-radius: 8px; border-left: 4px solid #18bd9b; margin-bottom: 20px; }
-    .loading { text-align: center; padding: 20px; color: #999; }
-    /* Etiquetas permanentes sobre los marcadores */
+    /* ====================================
+       MAPA - DISEÑO LIMPIO ECO NEEK
+       SIN HERO VERDE SUPERIOR
+    ==================================== */
+    
+    /* Contenedor principal */
+    .map-container-modern {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 30px 20px 40px;
+    }
+    
+    /* Header minimalista */
+    .map-header-minimal {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 25px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid rgba(0,0,0,0.05);
+    }
+    
+    .map-title-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .map-title-minimal {
+      font-size: 2.2rem;
+      font-weight: 600;
+      color: var(--dark-color);
+      margin: 0;
+      letter-spacing: -0.5px;
+    }
+    
+    .map-badge {
+      background: rgba(42, 157, 143, 0.1);
+      color: var(--primary-color);
+      padding: 5px 12px;
+      border-radius: 30px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+    
+    .map-stats-minimal {
+      display: flex;
+      gap: 20px;
+    }
+    
+    .stat-item-minimal {
+      background: #f8f9fa;
+      padding: 8px 16px;
+      border-radius: 40px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.95rem;
+    }
+    
+    .stat-number-minimal {
+      font-weight: 700;
+      color: var(--primary-color);
+    }
+    
+    .stat-label-minimal {
+      color: #6c757d;
+    }
+    
+    /* Layout principal */
+    .map-grid {
+      display: grid;
+      grid-template-columns: 350px 1fr;
+      gap: 25px;
+    }
+    
+    /* Sidebar con filtros - DISEÑO LIMPIO */
+    .map-sidebar-clean {
+      background: white;
+      border-radius: 24px;
+      padding: 25px;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.02);
+      height: calc(80vh - 50px);
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      border: 1px solid rgba(0,0,0,0.03);
+      position: sticky;
+      top: 120px;
+    }
+    
+    .sidebar-header-clean {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    
+    .sidebar-title-clean {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--dark-color);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .sidebar-title-clean i {
+      color: var(--primary-color);
+      font-size: 1.2rem;
+    }
+    
+    .sidebar-clear {
+      background: none;
+      border: none;
+      color: #999;
+      font-size: 0.85rem;
+      cursor: pointer;
+      padding: 5px 10px;
+      border-radius: 20px;
+      transition: all 0.2s ease;
+    }
+    
+    .sidebar-clear:hover {
+      background: #f0f0f0;
+      color: var(--primary-color);
+    }
+    
+    /* Buscador minimalista */
+    .search-wrapper {
+      position: relative;
+    }
+    
+    .search-icon-minimal {
+      position: absolute;
+      left: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #adb5bd;
+      font-size: 1rem;
+      z-index: 10;
+    }
+    
+    .search-input-minimal {
+      width: 100%;
+      padding: 14px 15px 14px 45px;
+      border: 1px solid #e0e0e0;
+      border-radius: 50px;
+      font-size: 0.95rem;
+      transition: all 0.2s ease;
+      background: #ffffff;
+    }
+    
+    .search-input-minimal:focus {
+      border-color: var(--primary-color);
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(42, 157, 143, 0.05);
+    }
+    
+    /* Filtros como chips */
+    .filters-minimal {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      border-bottom: 1px solid rgba(0,0,0,0.03);
+      padding-bottom: 20px;
+    }
+    
+    .filter-chip-minimal {
+      background: #f8f9fa;
+      border: 1px solid #e0e0e0;
+      padding: 8px 16px;
+      border-radius: 30px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: #495057;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    
+    .filter-chip-minimal i {
+      font-size: 1rem;
+      color: #adb5bd;
+    }
+    
+    .filter-chip-minimal:hover {
+      background: #ffffff;
+      border-color: var(--primary-color);
+      color: var(--primary-color);
+    }
+    
+    .filter-chip-minimal:hover i {
+      color: var(--primary-color);
+    }
+    
+    .filter-chip-minimal.active {
+      background: var(--primary-color);
+      border-color: var(--primary-color);
+      color: white;
+    }
+    
+    .filter-chip-minimal.active i {
+      color: white;
+    }
+    
+    /* Lista de centros - diseño limpio */
+    .centers-list-container-clean {
+      flex: 1;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .centers-list-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+    
+    .centers-count {
+      font-size: 0.85rem;
+      color: #6c757d;
+      background: #f8f9fa;
+      padding: 4px 10px;
+      border-radius: 20px;
+    }
+    
+    .centers-list-clean {
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding-right: 5px;
+    }
+    
+    .centers-list-clean::-webkit-scrollbar {
+      width: 4px;
+    }
+    
+    .centers-list-clean::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 10px;
+    }
+    
+    .centers-list-clean::-webkit-scrollbar-thumb {
+      background: var(--primary-color);
+      border-radius: 10px;
+      opacity: 0.5;
+    }
+    
+    .center-card-clean {
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 16px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: 1px solid rgba(0,0,0,0.03);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+    }
+    
+    .center-card-clean:hover {
+      border-color: rgba(42, 157, 143, 0.2);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.04);
+      transform: translateY(-2px);
+    }
+    
+    .center-card-header-clean {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 8px;
+    }
+    
+    .center-card-title-clean {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--dark-color);
+      margin: 0;
+    }
+    
+    .center-badge-clean {
+      font-size: 0.7rem;
+      padding: 3px 10px;
+      border-radius: 30px;
+      font-weight: 500;
+    }
+    
+    .badge-validado {
+      background: rgba(42, 157, 143, 0.08);
+      color: var(--primary-color);
+    }
+    
+    .badge-pendiente {
+      background: rgba(233, 196, 106, 0.08);
+      color: #b38b40;
+    }
+    
+    .center-address-clean {
+      font-size: 0.85rem;
+      color: #6c757d;
+      margin: 0 0 12px 0;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    
+    .center-address-clean i {
+      color: var(--primary-color);
+      font-size: 0.85rem;
+      opacity: 0.7;
+    }
+    
+    .center-link-clean {
+      font-size: 0.85rem;
+      color: var(--primary-color);
+      text-decoration: none;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      opacity: 0.8;
+      transition: opacity 0.2s ease;
+    }
+    
+    .center-link-clean:hover {
+      opacity: 1;
+    }
+    
+    /* Mapa */
+    .map-wrapper-clean {
+      position: relative;
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+      height: 80vh;
+      border: 1px solid rgba(0,0,0,0.03);
+    }
+    
+    #map {
+      width: 100%;
+      height: 100%;
+      min-height: 480px;
+      background: #e0f7fa;
+      border-radius: 18px;
+      box-shadow: 0 4px 24px rgba(42,157,143,.10);
+    }
+    
+    /* Controles minimalistas */
+    .map-controls-minimal {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    
+    .map-control-btn-minimal {
+      width: 44px;
+      height: 44px;
+      background: white;
+      border: none;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 1.2rem;
+      color: #495057;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+      transition: all 0.2s ease;
+      border: 1px solid rgba(0,0,0,0.03);
+    }
+    
+    .map-control-btn-minimal:hover {
+      background: var(--primary-color);
+      color: white;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(42, 157, 143, 0.1);
+    }
+    
+    /* Barra de estado minimalista */
+    .map-status-minimal {
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 15px 20px;
+      margin-top: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border: 1px solid rgba(0,0,0,0.03);
+      font-size: 0.95rem;
+    }
+    
+    .status-info-minimal {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #6c757d;
+    }
+    
+    .status-info-minimal i {
+      color: var(--primary-color);
+    }
+    
+    .status-badge-minimal {
+      background: #f8f9fa;
+      padding: 6px 14px;
+      border-radius: 40px;
+      color: var(--primary-color);
+      font-weight: 500;
+      font-size: 0.9rem;
+    }
+    
+    /* Etiquetas en mapa */
     .center-label {
-      background: rgba(255,255,255,0.95) !important;
-      padding: 2px 6px !important;
-      border-radius: 4px !important;
-      border: 1px solid #e0e0e0 !important;
-      font-weight: 600 !important;
-      color: #175a47 !important;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.08) !important;
+      background: white !important;
+      padding: 4px 10px !important;
+      border-radius: 30px !important;
+      border: 1px solid rgba(0,0,0,0.05) !important;
+      font-weight: 500 !important;
+      color: var(--dark-color) !important;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05) !important;
       white-space: nowrap !important;
+      font-size: 0.8rem !important;
+    }
+    
+    /* Popup */
+    .leaflet-popup-content-wrapper {
+      border-radius: 20px !important;
+      padding: 0 !important;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1) !important;
+      border: 1px solid rgba(0,0,0,0.03) !important;
+    }
+    
+    .leaflet-popup-content {
+      margin: 0 !important;
+      padding: 16px !important;
+    }
+    
+    /* Loading */
+    .loading-minimal {
+      text-align: center;
+      padding: 60px;
+      background: white;
+      border-radius: 24px;
+      border: 1px solid rgba(0,0,0,0.03);
+    }
+    
+    .spinner-minimal {
+      width: 40px;
+      height: 40px;
+      border: 2px solid rgba(42, 157, 143, 0.1);
+      border-top-color: var(--primary-color);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 15px;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    /* Mensaje sin resultados */
+    .no-results {
+      text-align: center;
+      padding: 40px 20px;
+      color: #adb5bd;
+    }
+    
+    .no-results i {
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+      opacity: 0.3;
+    }
+    
+    /* Responsive */
+    @media (max-width: 991px) {
+      .map-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .map-sidebar-clean {
+        height: auto;
+        position: relative;
+        top: 0;
+        margin-bottom: 20px;
+      }
+      
+      .map-wrapper-clean {
+        height: 500px;
+      }
+      
+      .map-header-minimal {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+      }
+      
+      .map-stats-minimal {
+        width: 100%;
+        justify-content: flex-start;
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .map-title-minimal {
+        font-size: 1.8rem;
+      }
+      
+      .map-stats-minimal {
+        flex-wrap: wrap;
+      }
+      
+      .filters-minimal {
+        overflow-x: auto;
+        padding-bottom: 10px;
+        flex-wrap: nowrap;
+      }
+      
+      .filter-chip-minimal {
+        white-space: nowrap;
+      }
     }
   </style>
 {% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-  <h2 class="section-title">🗺️ Mapa de Centros</h2>
-  <p class="text-muted">Aquí puedes ver los centros validados. Haz click en un marcador para ver detalles.</p>
-  
-  <div class="map-info">
-    <strong>💡 Tip:</strong> Los datos se cargan en tiempo real desde Supabase
+<div class="map-container-modern">
+  <!-- Header minimalista SIN FONDO VERDE -->
+  <div class="map-header-minimal">
+    <div class="map-title-wrapper">
+      <h1 class="map-title-minimal">
+        <i class="bi bi-geo-alt" style="color: var(--primary-color); margin-right: 8px;"></i>
+        Puntos Verdes
+      </h1>
+      <span class="map-badge">
+        <i class="bi bi-shield-check"></i>
+        Datos en tiempo real
+      </span>
+    </div>
+    
+    <div class="map-stats-minimal">
+      <div class="stat-item-minimal">
+        <span class="stat-number-minimal" id="centros-count">0</span>
+        <span class="stat-label-minimal">centros</span>
+      </div>
+      <div class="stat-item-minimal">
+        <span class="stat-number-minimal" id="ciudades-count">0</span>
+        <span class="stat-label-minimal">ciudades</span>
+      </div>
+    </div>
   </div>
   
-  <div id="map"></div>
-  <div id="loading" class="loading">⏳ Cargando mapa...</div>
+  <!-- Grid principal -->
+  <div class="map-grid">
+    <!-- Sidebar filtros -->
+    <div class="map-sidebar-clean">
+      <div class="sidebar-header-clean">
+        <div class="sidebar-title-clean">
+          <i class="bi bi-sliders2"></i>
+          Filtrar centros
+        </div>
+        <button class="sidebar-clear" id="clear-filters">
+          <i class="bi bi-x"></i> Limpiar
+        </button>
+      </div>
+      
+      <!-- Buscador -->
+      <div class="search-wrapper">
+        <i class="bi bi-search search-icon-minimal"></i>
+        <input type="text" class="search-input-minimal" id="search-input" placeholder="Buscar por nombre o dirección...">
+      </div>
+      
+      <!-- Filtros como chips -->
+      <div class="filters-minimal">
+        <button class="filter-chip-minimal active" data-filter="todos">
+          <i class="bi bi-grid-3x3-gap-fill"></i>
+          Todos
+        </button>
+        <button class="filter-chip-minimal" data-filter="validado">
+          <i class="bi bi-check-circle-fill"></i>
+          Validados
+        </button>
+        <button class="filter-chip-minimal" data-filter="pendiente">
+          <i class="bi bi-hourglass-split"></i>
+          Pendientes
+        </button>
+      </div>
+      
+      <!-- Lista de centros -->
+      <div class="centers-list-container-clean">
+        <div class="centers-list-header">
+          <span class="sidebar-title-clean">
+            <i class="bi bi-buildings"></i>
+            Centros disponibles
+          </span>
+          <span class="centers-count" id="centers-count-display">0</span>
+        </div>
+        
+        <div class="centers-list-clean" id="centers-list">
+          <!-- Se llena con JS -->
+        </div>
+      </div>
+    </div>
+    
+    <!-- Mapa -->
+    <div>
+      <div class="map-wrapper-clean">
+        <div id="map"></div>
+        
+        <!-- Controles minimalistas -->
+        <div class="map-controls-minimal">
+          <button class="map-control-btn-minimal" id="zoom-in" title="Acercar">
+            <i class="bi bi-plus"></i>
+          </button>
+          <button class="map-control-btn-minimal" id="zoom-out" title="Alejar">
+            <i class="bi bi-dash"></i>
+          </button>
+          <button class="map-control-btn-minimal" id="locate-me" title="Mi ubicación">
+            <i class="bi bi-crosshair"></i>
+          </button>
+          <button class="map-control-btn-minimal" id="reset-view" title="Ver todos">
+            <i class="bi bi-arrow-repeat"></i>
+          </button>
+        </div>
+      </div>
+      
+      <!-- Barra de estado minimalista -->
+      <div class="map-status-minimal">
+        <div class="status-info-minimal">
+          <i class="bi bi-shield-lock"></i>
+          <span>Datos seguros</span>
+          <span style="margin:0 8px; color:#dee2e6;">|</span>
+          <i class="bi bi-cloud-check"></i>
+          <span>Actualización automática</span>
+        </div>
+        <div class="status-badge-minimal" id="centros-cargados">
+          Cargando...
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Loading (oculto por defecto) -->
+<div id="loading" class="loading-minimal" style="display: none;">
+  <div class="spinner-minimal"></div>
+  <p style="color: #6c757d;">Cargando mapa y centros...</p>
 </div>
 {% endblock %}
 
 {% block extra_scripts %}
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+  // ====================================
+  // MAPA ECONEEK - VERSIÓN MINIMALISTA
+  // ====================================
+  
+  (function() {
+    // Variables
+    let map;
+    let markers = [];
+    let allCentros = [];
+    let currentBounds = [];
+    
+    const loadingEl = document.getElementById('loading');
+    const centersListEl = document.getElementById('centers-list');
+    const searchInput = document.getElementById('search-input');
+    const centrosCountEl = document.getElementById('centros-count');
+    const ciudadesCountEl = document.getElementById('ciudades-count');
+    const centersCountDisplay = document.getElementById('centers-count-display');
+    const centrosCargadosEl = document.getElementById('centros-cargados');
+    const clearFiltersBtn = document.getElementById('clear-filters');
+    
+    if (loadingEl) loadingEl.style.display = 'block';
+    
+    // ====================================
+    // FUNCIONES DE SEGURIDAD
+    // ====================================
+    
+    function sanitizeText(text) {
+      if (!text) return '';
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+    
+    function validateCoords(lat, lng) {
+      const numLat = parseFloat(lat);
+      const numLng = parseFloat(lng);
+      return !isNaN(numLat) && !isNaN(numLng) && 
+             numLat >= -90 && numLat <= 90 && 
+             numLng >= -180 && numLng <= 180;
+    }
+    
+    // ====================================
+    // CARGA DE DATOS
+    // ====================================
+    
     async function fetchCentros() {
       try {
-        // Use the Supabase-backed endpoint (doesn't conflict with DRF router)
-        const res = await fetch('/api/supacentros/', { credentials: 'include' });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const data = await res.json();
-        console.log('Centros cargados:', data.centros);
-        return data.centros || [];
-      } catch (e) {
-        console.error('Error cargando centros:', e);
-        return [];
-      }
-    }
-
-    function initMap() {
-      const map = L.map('map').setView([20.0, -100.0], 5);
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        attribution: '&copy; OpenStreetMap'
-      }).addTo(map);
-      return map;
-    }
-
-    (async () => {
-      try {
-        const loading = document.getElementById('loading');
-        // Verificación: Leaflet (L) debe estar disponible
-        if (typeof window.L === 'undefined') {
-          console.error('Leaflet no está disponible (L is undefined)');
-          loading.innerHTML = '❌ Error: librería de mapas (Leaflet) no cargada. Abre la consola del navegador.';
-          return;
-        }
-        const map = initMap();
-        const centros = await fetchCentros();
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000);
         
-        if (!centros.length) {
-          loading.innerHTML = '📍 No hay centros disponibles actualmente';
-          loading.style.color = '#999';
-          return;
-        }
-        
-        loading.style.display = 'none';
-        
-        const bounds = [];
-        centros.forEach((c, idx) => {
-          try {
-            const lat = parseFloat(c.lat);
-            const lng = parseFloat(c.lng);
-            if (!isNaN(lat) && !isNaN(lng)) {
-              // Use default Leaflet marker (simpler and more reliable)
-              const marker = L.marker([lat, lng]).addTo(map);
-              const popup = `
-                ${c.foto ? `<div style="text-align:center;margin-bottom:6px;"><img src="${c.foto}" alt="${c.nombre||'imagen'}" style="max-width:160px; max-height:90px; border-radius:8px; object-fit:cover;"></div>` : ''}
-                <strong>${c.nombre || 'Centro'}</strong><br>
-                📍 ${c.direccion || 'Sin dirección'}<br>
-                📞 ${c.telefono || 'Sin teléfono'}<br>
-                📧 ${c.correo || 'Sin email'}<br>
-                ✅ Validado: ${c.validado ? 'Sí' : 'No'}
-              `;
-              marker.bindPopup(popup);
-              // Mostrar etiqueta permanente con el nombre del centro
-              marker.bindTooltip(c.nombre || 'Centro', { permanent: true, direction: 'top', className: 'center-label' });
-              bounds.push([lat, lng]);
-            }
-          } catch (e) {
-            console.warn('Error procesando centro:', c, e);
+        const res = await fetch('/api/supacentros/', { 
+          credentials: 'include',
+          signal: controller.signal,
+          headers: {
+            'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
           }
         });
         
-        if (bounds.length) {
-          map.fitBounds(bounds, {padding: [40, 40]});
-        }
-      } catch (e) {
-        console.error('Error en mapa:', e);
-        document.getElementById('loading').innerHTML = '❌ Error cargando mapa';
+        clearTimeout(timeoutId);
+        
+        if (!res.ok) throw new Error(`Error ${res.status}`);
+        const data = await res.json();
+        // DEPURACIÓN: Mostrar en consola los datos recibidos
+        console.log('Debug centros recibidos:', data.centros);
+        return data.centros || [];
+        
+      } catch (error) {
+        console.error('Error:', error);
+        return [];
       }
-    })();
-    console.log('Script mapa listo. Iniciando carga...');
-  </script>
+    }
+    
+    // ====================================
+    // INICIALIZACIÓN MAPA
+    // ====================================
+    
+    function initMap() {
+      if (typeof L === 'undefined') {
+        throw new Error('Leaflet no disponible');
+      }
+      
+      map = L.map('map', {
+        zoomControl: false,
+        fadeAnimation: true
+      }).setView([20.0, -100.0], 5);
+      
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; OpenStreetMap | EcoNeek'
+      }).addTo(map);
+      
+      // Controles
+      document.getElementById('zoom-in')?.addEventListener('click', () => map.zoomIn());
+      document.getElementById('zoom-out')?.addEventListener('click', () => map.zoomOut());
+      
+      document.getElementById('locate-me')?.addEventListener('click', () => {
+        map.locate({ setView: true, maxZoom: 16 });
+      });
+      
+      document.getElementById('reset-view')?.addEventListener('click', () => {
+        if (currentBounds.length > 0) {
+          map.fitBounds(currentBounds, { padding: [40, 40] });
+        }
+      });
+      
+      return map;
+    }
+    
+    // ====================================
+    // RENDERIZADO
+    // ====================================
+    
+    function clearMarkers() {
+      markers.forEach(marker => map.removeLayer(marker));
+      markers = [];
+    }
+    
+    function createMarker(centro) {
+      try {
+        if (!validateCoords(centro.lat, centro.lng)) return null;
+        
+        const lat = parseFloat(centro.lat);
+        const lng = parseFloat(centro.lng);
+        const nombre = sanitizeText(centro.nombre || 'Centro');
+        const direccion = sanitizeText(centro.direccion || 'Sin dirección');
+        const telefono = sanitizeText(centro.telefono || 'No disponible');
+        const correo = sanitizeText(centro.correo || 'No disponible');
+        const foto = centro.foto ? sanitizeText(centro.foto) : null;
+        const validado = centro.validado === true;
+        
+        // Marcador minimalista
+        const marker = L.marker([lat, lng], {
+          icon: L.divIcon({
+            className: '',
+            html: `<div style="width: 12px; height: 12px; background: ${validado ? '#2a9d8f' : '#e9c46a'}; border: 2px solid white; border-radius: 50%; box-shadow: 0 2px 5px rgba(0,0,0,0.1);"></div>`,
+            iconSize: [16, 16],
+            popupAnchor: [0, -10]
+          })
+        }).addTo(map);
+        
+        // Popup con enlace a detalles del centro
+        const popupContent = `
+          <div style="min-width: 240px;">
+            ${foto ? `<img src="${foto}" style="width:100%; height:100px; object-fit:cover; border-radius:12px; margin-bottom:12px;">` : ''}
+            <h4 style="margin:0 0 8px; font-size:1.1rem;">${nombre}</h4>
+            <div style="font-size:0.85rem; color:#666; margin-bottom:12px;">
+              <div><i class="bi bi-geo-alt" style="color:#2a9d8f; width:16px;"></i> ${direccion}</div>
+              ${telefono !== 'No disponible' ? `<div><i class="bi bi-telephone" style="color:#2a9d8f;"></i> ${telefono}</div>` : ''}
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span style="background:${validado ? '#2a9d8f10' : '#e9c46a10'}; color:${validado ? '#2a9d8f' : '#b38b40'}; padding:3px 10px; border-radius:20px; font-size:0.75rem;">${validado ? 'Validado' : 'Pendiente'}</span>
+              <a href="/centro/${centro.id}/" style="color:#2a9d8f; text-decoration:none; font-size:0.85rem; font-weight:600; padding:4px 8px; border:1px solid #2a9d8f; border-radius:20px;">Ver detalles →</a>
+            </div>
+          </div>
+        `;
+        
+        marker.bindPopup(popupContent);
+        marker.bindTooltip(nombre, { permanent: true, direction: 'top', className: 'center-label' });
+        
+        return marker;
+        
+      } catch (error) {
+        console.error('Error creando marcador:', error);
+        return null;
+      }
+    }
+    
+    function updateCentersList(centros) {
+      if (!centersListEl) return;
+      
+      if (centros.length === 0) {
+        centersListEl.innerHTML = `
+          <div class="no-results">
+            <i class="bi bi-search"></i>
+            <p>No se encontraron centros</p>
+          </div>
+        `;
+        return;
+      }
+      
+      let html = '';
+      centros.forEach(centro => {
+        const nombre = sanitizeText(centro.nombre || 'Centro');
+        const direccion = sanitizeText(centro.direccion || 'Sin dirección');
+        const validado = centro.validado === true;
+        
+        html += `
+          <div class="center-card-clean" data-id="${centro.id}" data-lat="${centro.lat}" data-lng="${centro.lng}">
+            <div class="center-card-header-clean">
+              <h4 class="center-card-title-clean">${nombre}</h4>
+              <span class="center-badge-clean ${validado ? 'badge-validado' : 'badge-pendiente'}">
+                ${validado ? 'Validado' : 'Pendiente'}
+              </span>
+            </div>
+            <p class="center-address-clean">
+              <i class="bi bi-geo-alt-fill"></i>
+              ${direccion}
+            </p>
+            <a href="/centro/${centro.id}/" class="center-link-clean">
+              Ver detalles <i class="bi bi-arrow-right"></i>
+            </a>
+          </div>
+        `;
+      });
+      
+      centersListEl.innerHTML = html;
+      
+      // Click en tarjetas
+      document.querySelectorAll('.center-card-clean').forEach(card => {
+        card.addEventListener('click', function(e) {
+          if (e.target.tagName === 'A') return;
+          
+          const lat = parseFloat(this.dataset.lat);
+          const lng = parseFloat(this.dataset.lng);
+          
+          if (!isNaN(lat) && !isNaN(lng)) {
+            map.setView([lat, lng], 17);
+            markers.forEach(marker => {
+              const pos = marker.getLatLng();
+              if (Math.abs(pos.lat - lat) < 0.0001 && Math.abs(pos.lng - lng) < 0.0001) {
+                marker.openPopup();
+              }
+            });
+          }
+        });
+      });
+    }
+    
+    function updateStats(centros) {
+      if (centrosCountEl) centrosCountEl.textContent = centros.length;
+      if (centersCountDisplay) centersCountDisplay.textContent = centros.length;
+      if (centrosCargadosEl) centrosCargadosEl.textContent = `${centros.length} centros`;
+      
+      const ciudades = new Set();
+      centros.forEach(c => { if (c.ciudad) ciudades.add(c.ciudad); });
+      if (ciudadesCountEl) ciudadesCountEl.textContent = ciudades.size || '0';
+    }
+    
+    function filterCentros(centros, searchText = '', filterType = 'todos') {
+      return centros.filter(centro => {
+        const matchesSearch = searchText === '' || 
+          (centro.nombre && centro.nombre.toLowerCase().includes(searchText)) ||
+          (centro.direccion && centro.direccion.toLowerCase().includes(searchText));
+        
+        let matchesFilter = true;
+        if (filterType === 'validado') matchesFilter = centro.validado === true;
+        if (filterType === 'pendiente') matchesFilter = centro.validado === false;
+        
+        return matchesSearch && matchesFilter;
+      });
+    }
+    
+    // ====================================
+    // INICIALIZACIÓN
+    // ====================================
+    
+    async function initialize() {
+      try {
+        map = initMap();
+        allCentros = await fetchCentros();
+        
+        clearMarkers();
+        currentBounds = [];
+        
+        allCentros.forEach(centro => {
+          if (validateCoords(centro.lat, centro.lng)) {
+            const marker = createMarker(centro);
+            if (marker) {
+              markers.push(marker);
+              currentBounds.push([parseFloat(centro.lat), parseFloat(centro.lng)]);
+            }
+          }
+        });
+        
+        if (currentBounds.length > 0) {
+          map.fitBounds(currentBounds, { padding: [40, 40] });
+        }
+        
+        updateCentersList(allCentros);
+        updateStats(allCentros);
+        
+        // Filtros
+        const filterChips = document.querySelectorAll('.filter-chip-minimal');
+        filterChips.forEach(chip => {
+          chip.addEventListener('click', function() {
+            filterChips.forEach(c => c.classList.remove('active'));
+            this.classList.add('active');
+            
+            const filterType = this.dataset.filter;
+            const searchText = searchInput?.value.toLowerCase() || '';
+            const filtered = filterCentros(allCentros, searchText, filterType);
+            
+            clearMarkers();
+            const newBounds = [];
+            filtered.forEach(centro => {
+              if (validateCoords(centro.lat, centro.lng)) {
+                const marker = createMarker(centro);
+                if (marker) {
+                  markers.push(marker);
+                  newBounds.push([parseFloat(centro.lat), parseFloat(centro.lng)]);
+                }
+              }
+            });
+            
+            if (newBounds.length > 0) map.fitBounds(newBounds, { padding: [40, 40] });
+            updateCentersList(filtered);
+          });
+        });
+        
+        // Búsqueda
+        if (searchInput) {
+          searchInput.addEventListener('input', function() {
+            const activeFilter = document.querySelector('.filter-chip-minimal.active')?.dataset.filter || 'todos';
+            const searchText = this.value.toLowerCase();
+            const filtered = filterCentros(allCentros, searchText, activeFilter);
+            
+            clearMarkers();
+            const newBounds = [];
+            filtered.forEach(centro => {
+              if (validateCoords(centro.lat, centro.lng)) {
+                const marker = createMarker(centro);
+                if (marker) {
+                  markers.push(marker);
+                  newBounds.push([parseFloat(centro.lat), parseFloat(centro.lng)]);
+                }
+              }
+            });
+            
+            if (newBounds.length > 0) map.fitBounds(newBounds, { padding: [40, 40] });
+            updateCentersList(filtered);
+          });
+        }
+        
+        // Limpiar filtros
+        if (clearFiltersBtn) {
+          clearFiltersBtn.addEventListener('click', function() {
+            searchInput.value = '';
+            document.querySelector('.filter-chip-minimal[data-filter="todos"]')?.click();
+          });
+        }
+        
+        if (loadingEl) loadingEl.style.display = 'none';
+        
+      } catch (error) {
+        console.error('Error:', error);
+        if (loadingEl) {
+          loadingEl.innerHTML = `
+            <div style="color:#e76f51;">
+              <i class="bi bi-exclamation-triangle"></i>
+              <p>Error al cargar el mapa</p>
+              <button onclick="location.reload()" style="background:#2a9d8f; color:white; border:none; padding:8px 20px; border-radius:30px; cursor:pointer;">Reintentar</button>
+            </div>
+          `;
+        }
+      }
+    }
+    
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initialize);
+    } else {
+      initialize();
+    }
+  })();
+</script>
 {% endblock %}

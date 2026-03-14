@@ -1,171 +1,634 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Catálogo de Premios - Eco-Loop{% endblock %}
+{% block title %}Catálogo de Premios - EcoNeek{% endblock %}
 
 {% block extra_head %}
   <style>
-    .catalogo-container { max-width: 1200px; margin: 0 auto; }
-    .catalog-header { text-align: center; margin: 40px 0; }
-    .catalog-header h1 { font-size: 2.5rem; font-weight: bold; color: #18bd9b; margin-bottom: 10px; }
-    .catalog-header p { font-size: 1.1rem; color: #666; }
+    /* ====================================
+       CATÁLOGO DE PREMIOS - ECO NEEK
+       Con onda decorativa como en el inicio
+    ==================================== */
     
-    .redemption-notice {
-      background: linear-gradient(135deg, #fff3cd, #ffe69c);
-      border: 2px solid #ffc107;
-      border-radius: 12px;
-      padding: 20px;
-      margin: 20px 0;
-      text-align: center;
-      font-weight: bold;
-      color: #856404;
+    :root {
+      --primary-color: #2a9d8f;
+      --secondary-color: #264653;
+      --accent-color: #e9c46a;
+      --light-bg: #f8f9fa;
+      --dark-color: #1e2b37;
+      --text-muted: #6c757d;
+      --white: #ffffff;
+      --green-dark: #1e5f4b;
     }
-    .redemption-notice i { margin-right: 10px; font-size: 1.3rem; }
     
-    .premios-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 24px; margin-bottom: 60px; }
-    
-    .premio-card {
-      border-radius: 12px;
-      background: white;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    /* Hero del catálogo - IGUAL QUE EL INICIO */
+    .catalog-hero {
+      background: linear-gradient(135deg, var(--secondary-color) 0%, var(--primary-color) 100%);
+      padding: 80px 0 120px;
+      position: relative;
       overflow: hidden;
-      transition: transform 0.2s, box-shadow 0.2s;
+      color: white;
+      margin-bottom: 40px;
+    }
+    
+    .catalog-hero::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+      opacity: 0.1;
+      pointer-events: none;
+    }
+    
+    .catalog-hero-content {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+    }
+    
+    .catalog-hero h1 {
+      font-size: 3.8rem;
+      font-weight: 700;
+      margin-bottom: 20px;
+      color: white;
+    }
+    
+    .catalog-hero p {
+      font-size: 1.2rem;
+      opacity: 0.95;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    
+    /* WAVE - IGUAL QUE EN EL INICIO */
+    .catalog-wave {
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      width: 100%;
+      line-height: 0;
+    }
+    
+    .catalog-wave svg {
+      width: 100%;
+      height: auto;
+      fill: white;
+    }
+    
+    /* Contenedor principal */
+    .catalog-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 20px 60px;
+      position: relative;
+      z-index: 2;
+    }
+    
+    /* Aviso de app */
+    .app-notice {
+      background: white;
+      border-radius: 30px;
+      padding: 25px 30px;
+      margin: -60px 0 50px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 20px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+      border: 1px solid rgba(0,0,0,0.03);
+      position: relative;
+      z-index: 10;
+    }
+    
+    .app-notice-content {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    
+    .app-notice-icon {
+      width: 60px;
+      height: 60px;
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      border-radius: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 2rem;
+      box-shadow: 0 8px 20px rgba(42, 157, 143, 0.2);
+    }
+    
+    .app-notice-text h4 {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: var(--green-dark);
+      margin: 0 0 5px;
+    }
+    
+    .app-notice-text p {
+      color: var(--text-muted);
+      margin: 0;
+    }
+    
+    .app-badge {
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      color: white;
+      padding: 12px 30px;
+      border-radius: 50px;
+      font-size: 1rem;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      box-shadow: 0 8px 20px rgba(42, 157, 143, 0.2);
+    }
+    
+    .app-badge:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 25px rgba(42, 157, 143, 0.3);
+    }
+    
+    /* Filtros */
+    .catalog-filters {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 40px;
+      flex-wrap: wrap;
+      gap: 20px;
+      background: white;
+      padding: 15px 20px;
+      border-radius: 60px;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.02);
+      border: 1px solid rgba(0,0,0,0.03);
+    }
+    
+    .filter-buttons {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    
+    .filter-btn {
+      background: transparent;
+      border: 1px solid rgba(0,0,0,0.05);
+      padding: 10px 22px;
+      border-radius: 40px;
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .filter-btn:hover {
+      border-color: var(--primary-color);
+      color: var(--primary-color);
+    }
+    
+    .filter-btn.active {
+      background: var(--primary-color);
+      border-color: var(--primary-color);
+      color: white;
+      box-shadow: 0 4px 10px rgba(42, 157, 143, 0.2);
+    }
+    
+    .search-wrapper {
+      position: relative;
+    }
+    
+    .search-wrapper i {
+      position: absolute;
+      left: 18px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #adb5bd;
+    }
+    
+    .search-wrapper input {
+      padding: 12px 20px 12px 48px;
+      border: 1px solid rgba(0,0,0,0.05);
+      border-radius: 40px;
+      width: 280px;
+      font-size: 0.95rem;
+      background: #fafafa;
+      transition: all 0.3s ease;
+    }
+    
+    .search-wrapper input:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      background: white;
+      box-shadow: 0 0 0 4px rgba(42, 157, 143, 0.05);
+    }
+    
+    /* Grid de premios */
+    .premios-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 30px;
+      margin: 40px 0;
+    }
+    
+    /* Tarjeta de premio */
+    .premio-card {
+      background: white;
+      border-radius: 28px;
+      overflow: hidden;
+      transition: all 0.4s ease;
+      border: 1px solid rgba(0,0,0,0.03);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.02);
+      position: relative;
       display: flex;
       flex-direction: column;
     }
     
     .premio-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 4px 16px rgba(24,189,155,0.2);
+      transform: translateY(-8px);
+      box-shadow: 0 20px 40px rgba(42, 157, 143, 0.08);
+      border-color: rgba(42, 157, 143, 0.1);
+    }
+    
+    .premio-card::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    
+    .premio-card:hover::after {
+      opacity: 1;
     }
     
     .premio-image {
-      width: 100%;
-      height: 160px;
-      background: linear-gradient(135deg, #dff6f3, #c1ebe5);
+      height: 200px;
+      background: linear-gradient(135deg, #f0f7f5, #e8f3f0);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 3rem;
-      color: #18bd9b;
+      overflow: hidden;
     }
     
-    .premio-content { padding: 16px; flex: 1; display: flex; flex-direction: column; }
-    .premio-name { font-weight: bold; font-size: 1rem; margin-bottom: 8px; color: #333; }
-    .premio-desc { font-size: 0.85rem; color: #666; margin-bottom: 12px; line-height: 1.4; flex: 1; }
-    .premio-points { background: #dff6f3; padding: 8px 12px; border-radius: 8px; text-align: center; }
-    .premio-points-val { font-weight: bold; color: #18bd9b; font-size: 1.2rem; }
-    .premio-points-label { font-size: 0.8rem; color: #666; }
+    .premio-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.6s ease;
+    }
     
-    .loading-state { text-align: center; padding: 60px 20px; }
-    .loading-spinner { font-size: 2rem; display: inline-block; animation: spin 1s linear infinite; margin-bottom: 20px; }
-    @keyframes spin { to { transform: rotate(360deg); } }
+    .premio-card:hover .premio-image img {
+      transform: scale(1.05);
+    }
     
-    .empty-state { text-align: center; padding: 60px 20px; }
-    .empty-icon { font-size: 4rem; color: #ddd; margin-bottom: 20px; }
-    .empty-title { font-size: 1.5rem; color: #999; }
+    .premio-image i {
+      font-size: 4rem;
+      color: rgba(42, 157, 143, 0.2);
+    }
     
-    .error-state { 
-      background: #f8d7da; 
-      border: 2px solid #f5c6cb; 
-      border-radius: 12px; 
-      padding: 20px; 
-      text-align: center; 
-      color: #721c24;
-      margin: 20px 0;
+    .premio-content {
+      padding: 22px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .premio-name {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: var(--green-dark);
+      margin: 0 0 8px;
+    }
+    
+    .premio-desc {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+      margin: 0 0 20px;
+      flex: 1;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    
+    .premio-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 15px;
+      border-top: 1px solid rgba(0,0,0,0.03);
+    }
+    
+    .premio-puntos {
+      display: flex;
+      align-items: baseline;
+      gap: 5px;
+    }
+    
+    .puntos-valor {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--primary-color);
+      line-height: 1;
+    }
+    
+    .puntos-label {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+    
+    .app-indicator {
+      background: rgba(42, 157, 143, 0.05);
+      padding: 6px 12px;
+      border-radius: 30px;
+      font-size: 0.7rem;
+      color: var(--primary-color);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      border: 1px solid rgba(42, 157, 143, 0.1);
+    }
+    
+    /* Estados */
+    .loading-state {
+      text-align: center;
+      padding: 80px 20px;
+    }
+    
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 3px solid rgba(42, 157, 143, 0.05);
+      border-top-color: var(--primary-color);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 20px;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    .error-state {
+      background: #fff8f8;
+      border: 1px solid #ffcdd2;
+      border-radius: 24px;
+      padding: 50px;
+      text-align: center;
+      margin: 40px 0;
+    }
+    
+    .empty-state {
+      text-align: center;
+      padding: 80px 20px;
+      background: #f8f9fa;
+      border-radius: 40px;
+      margin: 40px 0;
+    }
+    
+    .empty-icon {
+      font-size: 5rem;
+      color: #ddd;
+      margin-bottom: 20px;
+      animation: float 3s ease-in-out infinite;
+    }
+    
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+    
+    /* Responsive */
+    @media (max-width: 991px) {
+      .catalog-hero h1 {
+        font-size: 3rem;
+      }
+      
+      .catalog-hero {
+        padding: 60px 0 100px;
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .catalog-hero h1 {
+        font-size: 2.2rem;
+      }
+      
+      .catalog-filters {
+        flex-direction: column;
+        border-radius: 30px;
+      }
+      
+      .search-wrapper input {
+        width: 100%;
+      }
+      
+      .app-notice {
+        flex-direction: column;
+        text-align: center;
+        margin: -40px 0 40px;
+      }
+      
+      .app-notice-content {
+        flex-direction: column;
+      }
     }
   </style>
 {% endblock %}
 
 {% block content %}
-<div class="catalogo-container">
-  <div class="catalog-header">
-    <h1>🎁 Catálogo de Premios</h1>
+<!-- HERO CON WAVE - IGUAL QUE EL INICIO -->
+<section class="catalog-hero">
+  <div class="container catalog-hero-content">
+    <h1>Catálogo de Premios</h1>
     <p>Canjea tus eco-puntos por recompensas increíbles</p>
   </div>
+  
+  <!-- WAVE DECORATIVA -->
+  <div class="catalog-wave">
+    <svg viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0 120L60 105C120 90 240 60 360 45C480 30 600 30 720 37.5C840 45 960 60 1080 67.5C1200 75 1320 75 1380 75L1440 75V120H1380C1320 120 1200 120 1080 120C960 120 840 120 720 120C600 120 480 120 360 120C240 120 120 120 60 120H0Z" fill="white"/>
+    </svg>
+  </div>
+</section>
 
-  <div class="redemption-notice">
-    📱 <strong>Importante:</strong> Los canjes se realizan exclusivamente desde la app móvil Eco-Loop. 
-    Descárgala para canjear tus puntos.
+<div class="catalog-container">
+  <!-- Aviso de app (sobre la wave) -->
+  <div class="app-notice">
+    <div class="app-notice-content">
+      <div class="app-notice-icon">
+        <i class="bi bi-phone"></i>
+      </div>
+      <div class="app-notice-text">
+        <h4>Canje solo desde la app</h4>
+        <p>Descarga EcoNeek para canjear tus puntos</p>
+      </div>
+    </div>
+    <a href="#download" class="app-badge">
+      <i class="bi bi-google-play"></i>
+      Descargar app
+    </a>
+  </div>
+
+  <!-- Filtros -->
+  <div class="catalog-filters">
+    <div class="filter-buttons">
+      <button class="filter-btn active" data-filter="todos">Todos</button>
+      <button class="filter-btn" data-filter="menor">Menor puntos</button>
+      <button class="filter-btn" data-filter="mayor">Mayor puntos</button>
+    </div>
+    <div class="search-wrapper">
+      <i class="bi bi-search"></i>
+      <input type="text" id="search-premios" placeholder="Buscar premios...">
+    </div>
   </div>
 
   <!-- Estado de carga -->
   <div id="loading-state" class="loading-state" style="display: none;">
-    <div class="loading-spinner">⏳</div>
-    <p>Cargando premios...</p>
+    <div class="spinner"></div>
+    <p style="color: var(--text-muted);">Cargando premios...</p>
   </div>
 
   <!-- Grid de premios -->
   <div id="premios-grid" class="premios-grid"></div>
 
   <!-- Estado de error -->
-  <div id="error-state" class="error-state" style="display: none;"></div>
+  <div id="error-state" class="error-state" style="display: none;">
+    <i class="bi bi-exclamation-triangle" style="font-size: 3rem; color: #dc3545;"></i>
+    <h3 style="color: #dc3545;">Error al cargar los premios</h3>
+    <p id="error-message" style="color: #666;"></p>
+    <button onclick="location.reload()" style="background: var(--primary-color); color: white; border: none; padding: 12px 30px; border-radius: 40px; margin-top: 20px; cursor: pointer;">Reintentar</button>
+  </div>
 
   <!-- Estado vacío -->
   <div id="empty-state" class="empty-state" style="display: none;">
     <div class="empty-icon">🎁</div>
-    <h2 class="empty-title">Catálogo vacío</h2>
-    <p style="color: #999; margin-top: 10px;">Los premios estarán disponibles próximamente. ¡Vuelve luego!</p>
+    <h3 style="color: #999;">Próximamente</h3>
+    <p style="color: #bbb;">Nuevos premios estarán disponibles muy pronto</p>
   </div>
+</div>
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
   const gridContainer = document.getElementById('premios-grid');
   const loadingState = document.getElementById('loading-state');
   const errorState = document.getElementById('error-state');
   const emptyState = document.getElementById('empty-state');
+  const errorMessage = document.getElementById('error-message');
+  const searchInput = document.getElementById('search-premios');
+  const filterBtns = document.querySelectorAll('.filter-btn');
+  
+  let premiosOriginales = [];
 
-  // Mostrar cargando
   loadingState.style.display = 'block';
 
-  // Cargar premios desde API (envía cookies para sesiones)
+  function renderizarPremios(premios) {
+    gridContainer.innerHTML = '';
+    
+    if (premios.length === 0) {
+      emptyState.style.display = 'block';
+      return;
+    }
+    
+    emptyState.style.display = 'none';
+    
+    premios.forEach(premio => {
+      const card = document.createElement('div');
+      card.className = 'premio-card';
+      
+      const imagenHtml = premio.imagen_url 
+        ? `<img src="${premio.imagen_url}" alt="${premio.nombre}">`
+        : `<i class="bi bi-gift"></i>`;
+      
+      card.innerHTML = `
+        <div class="premio-image">
+          ${imagenHtml}
+        </div>
+        <div class="premio-content">
+          <h3 class="premio-name">${premio.nombre}</h3>
+          ${premio.descripcion ? `<p class="premio-desc">${premio.descripcion}</p>` : ''}
+          <div class="premio-footer">
+            <div class="premio-puntos">
+              <span class="puntos-valor">${premio.puntos_requeridos}</span>
+              <span class="puntos-label">ecopuntos</span>
+            </div>
+            <div class="app-indicator">
+              <i class="bi bi-phone"></i> App
+            </div>
+          </div>
+        </div>
+      `;
+      
+      gridContainer.appendChild(card);
+    });
+  }
+
+  function aplicarFiltros() {
+    const searchTerm = searchInput?.value.toLowerCase() || '';
+    const activeFilter = document.querySelector('.filter-btn.active')?.dataset.filter || 'todos';
+    
+    let resultados = premiosOriginales.filter(premio => 
+      premio.nombre.toLowerCase().includes(searchTerm) ||
+      (premio.descripcion && premio.descripcion.toLowerCase().includes(searchTerm))
+    );
+    
+    if (activeFilter === 'menor') {
+      resultados.sort((a, b) => a.puntos_requeridos - b.puntos_requeridos);
+    } else if (activeFilter === 'mayor') {
+      resultados.sort((a, b) => b.puntos_requeridos - a.puntos_requeridos);
+    }
+    
+    renderizarPremios(resultados);
+  }
+
   fetch('/api/recompensas/', { credentials: 'include' })
     .then(response => {
-      if (!response.ok) throw new Error('Network response was not ok');
+      if (!response.ok) throw new Error(`Error ${response.status}`);
       return response.json();
     })
     .then(data => {
       loadingState.style.display = 'none';
       
-      const premios = data.premios || [];
+      premiosOriginales = data.premios || [];
       
-      if (premios.length === 0) {
+      if (premiosOriginales.length === 0) {
         emptyState.style.display = 'block';
         return;
       }
       
-      // Renderizar premios
-      premios.forEach(premio => {
-        const card = document.createElement('div');
-        card.className = 'premio-card';
-        
-        const imagenHtml = premio.imagen_url 
-          ? `<img src="${premio.imagen_url}" alt="${premio.nombre}" style="max-width:100%; max-height:160px; object-fit: cover;">`
-          : '🏆';
-        
-        card.innerHTML = `
-          <div class="premio-image">${imagenHtml}</div>
-          <div class="premio-content">
-            <div class="premio-name">${premio.nombre}</div>
-            ${premio.descripcion ? `<div class="premio-desc">${premio.descripcion}</div>` : ''}
-            <div class="premio-points">
-              <div class="premio-points-val">${premio.puntos_requeridos}</div>
-              <div class="premio-points-label">eco-puntos</div>
-            </div>
-          </div>
-        `;
-        
-        gridContainer.appendChild(card);
+      renderizarPremios(premiosOriginales);
+      
+      if (searchInput) {
+        searchInput.addEventListener('input', aplicarFiltros);
+      }
+      
+      filterBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+          filterBtns.forEach(b => b.classList.remove('active'));
+          this.classList.add('active');
+          aplicarFiltros();
+        });
       });
     })
     .catch(error => {
-      console.error('Error cargando premios:', error);
+      console.error('Error:', error);
       loadingState.style.display = 'none';
       errorState.style.display = 'block';
-      errorState.textContent = `❌ Error cargando premios: ${error.message}`;
+      if (errorMessage) errorMessage.textContent = error.message;
     });
 });
 </script>
-
-</div>
 
 {% endblock %}

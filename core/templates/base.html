@@ -11,7 +11,7 @@
     <!-- Bootstrap Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Nunito:wght@400;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
         /* ═══════════════════════════════════════
@@ -49,27 +49,37 @@
             position: fixed;
             top: 0; left: 0; right: 0;
             z-index: 1030;
-            box-shadow: 0 2px 16px rgba(42,157,143,.3);
-            padding: 0 1rem;
+            box-shadow: 0 4px 20px rgba(42,157,143,.15);
+            border-radius: 0 0 16px 16px;
+            padding: 14px 40px !important;
         }
 
-        .eco-navbar .container {
-            height: 100%;
+        .eco-navbar-inner {
             display: flex;
             align-items: center;
+            justify-content: space-between;
+            width: 100%;
         }
 
         /* Brand */
         .eco-navbar .navbar-brand {
-            font-family: 'Nunito', sans-serif;
+            font-family: 'Poppins', 'Nunito', sans-serif;
             font-weight: 800;
-            font-size: 1.4rem;
+            font-size: 1.5rem;
             color: #fff !important;
             display: flex;
             align-items: center;
             gap: .5rem;
-            letter-spacing: -.3px;
+            letter-spacing: -.5px;
             text-decoration: none;
+        }
+
+        .eco-brand-text {
+            font-family: 'Poppins', 'Nunito', sans-serif;
+            font-weight: 600;
+            font-size: 22px;
+            color: #fff;
+            letter-spacing: -.5px;
         }
 
         .eco-navbar .navbar-brand .brand-icon {
@@ -82,19 +92,40 @@
 
         /* Nav links */
         .eco-navbar .nav-link {
-            color: rgba(255,255,255,.88) !important;
+            color: rgba(255,255,255,.92) !important;
+            font-family: 'Poppins', 'Nunito', sans-serif;
             font-weight: 600;
-            font-size: .9rem;
-            padding: .4rem .75rem !important;
+            font-size: 16px;
+            padding: .4rem 1.2rem !important;
             border-radius: 8px;
-            transition: background .2s, color .2s;
+            transition: none;
             text-decoration: none;
+            position: relative;
         }
-
-        .eco-navbar .nav-link:hover,
-        .eco-navbar .nav-link.active {
-            background: rgba(255,255,255,.15);
-            color: #fff !important;
+        .eco-navbar .nav-link::after{
+            content:"";
+            position:absolute;
+            left:0;
+            bottom:-6px;
+            width:0;
+            height:2px;
+            background:white;
+            border-radius:2px;
+            transition:none !important;
+        }
+        .eco-navbar .nav-link.active::after{
+            content:"";
+            position:absolute;
+            left:0;
+            bottom:-6px;
+            width:100%;
+            height:2px;
+            background:white;
+            border-radius:2px;
+        }
+        /* Eliminar hover de la línea blanca */
+        .eco-navbar .nav-link:hover::after{
+            content: none;
         }
 
         /* Botones en navbar */
@@ -154,22 +185,25 @@
             color: #444;
             border: 1.5px solid rgba(255,255,255,.5);
             border-radius: 8px;
-            padding: .35rem 1rem;
-            font-size: .88rem;
+            padding: .35rem 1.1rem;
+            font-size: .95rem;
             font-weight: 700;
             display: flex;
             align-items: center;
-            gap: .4rem;
-            transition: background .2s, transform .15s;
+            gap: .5rem;
+            transition: background .2s, box-shadow .15s, color .2s;
             text-decoration: none;
+            min-width: 140px;
+            box-shadow: 0 2px 8px rgba(42,157,143,.08);
         }
         .btn-google:hover {
             background: #f1f3f4;
-            color: #333;
+            color: #21867a;
+            box-shadow: 0 4px 16px rgba(42,157,143,.13);
             transform: translateY(-1px);
         }
         .btn-google .google-icon {
-            width: 16px; height: 16px;
+            width: 18px; height: 18px;
         }
 
         /* Toggler móvil */
@@ -300,6 +334,29 @@
             color: #fff;
         }
 
+        /* Botón principal Comenzar */
+        .btn-comenzar{
+            background: var(--eco-green-light);
+            color: #ffffff;
+            border: none;
+            border-radius: 10px;
+            padding: 8px 22px;
+            font-size: 15px;
+            font-weight: 700;
+            font-family: 'Poppins','Nunito',sans-serif;
+            cursor: pointer;
+            transition: all .2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+        }
+        .btn-comenzar:hover{
+            background: var(--eco-green-dark);
+            color: #ffffff;
+            transform: translateY(-1px);
+        }
+
         /* ═══════════════════════════════════════
            FOOTER
         ═══════════════════════════════════════ */
@@ -368,6 +425,12 @@
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: #f0faf8; }
         ::-webkit-scrollbar-thumb { background: var(--eco-green); border-radius: 3px; }
+
+        .eco-navbar .nav-link.active::after,
+        .eco-navbar .nav-link.active::before {
+            transition: none !important;
+            animation: none !important;
+        }
     </style>
 
     <!-- CSS propio adicional -->
@@ -380,121 +443,25 @@
 <!-- ═══════════════════════════════════════
      NAVBAR
 ═══════════════════════════════════════ -->
-<nav class="eco-navbar navbar navbar-expand-lg">
-  <div class="container">
-
-    <a class="navbar-brand" href="/">
-      <span class="brand-icon">🌿</span>
-      Eco-Neek
-    </a>
-
-    <!-- Toggler para móvil -->
-    <button class="navbar-toggler ms-auto" type="button"
-            data-bs-toggle="collapse" data-bs-target="#navMain"
-            aria-controls="navMain" aria-expanded="false" aria-label="Menú">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-
-    <div class="collapse navbar-collapse" id="navMain">
-      <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-1">
-
-        {% if not request.user.is_authenticated %}
-          <!-- ── VISITANTE ── -->
-          <li class="nav-item"><a class="nav-link" href="/">Inicio</a></li>
-          <li class="nav-item"><a class="nav-link" href="/mapa/">Mapa</a></li>
-          <li class="nav-item"><a class="nav-link" href="/catalogo/">Premios</a></li>
-          <li class="nav-item"><a class="nav-link" href="/eventos/">Eventos</a></li>
-          <li class="nav-item">
-            <a class="btn-nav-register ms-2" href="/register-screen/">
-              <i class="bi bi-person-plus-fill me-1"></i>Registrarse
-            </a>
-          </li>
-          <li class="nav-item">
-            <!-- Google Login — apunta a allauth -->
-            <a class="btn-google ms-2" href="/login-screen/">
-              <svg class="google-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-                <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-                <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
-                <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
-              </svg>
-              Iniciar sesión
-            </a>
-          </li>
-
-        {% elif request.user.es_centro %}
-          <!-- ── CENTRO ── -->
-          <li class="nav-item"><a class="nav-link" href="/mapa/">
-            <i class="bi bi-map-fill me-1"></i>Mapa
-          </a></li>
-          <li class="nav-item"><a class="nav-link" href="/eventos/">
-            <i class="bi bi-calendar-event-fill me-1"></i>Eventos
-          </a></li>
-          <li class="nav-item"><a class="nav-link" href="/centro/perfil/">
-            <i class="bi bi-building me-1"></i>Mi Centro
-          </a></li>
-          <li class="nav-item">
-            <form id="logoutForm" action="{% url 'logout' %}" method="POST" style="display:none">
-              {% csrf_token %}
-            </form>
-            <a class="btn-nav-danger ms-2" href="#"
-               onclick="document.getElementById('logoutForm').submit(); return false;">
-              <i class="bi bi-box-arrow-right me-1"></i>Salir
-            </a>
-          </li>
-
-        {% elif request.user.es_admin %}
-          <!-- ── ADMIN ── -->
-          <li class="nav-item"><a class="nav-link" href="/admin/">
-            <i class="bi bi-speedometer2 me-1"></i>Dashboard
-          </a></li>
-          <li class="nav-item">
-            <form id="logoutForm" action="{% url 'logout' %}" method="POST" style="display:none">
-              {% csrf_token %}
-            </form>
-            <a class="btn-nav-danger ms-2" href="#"
-               onclick="document.getElementById('logoutForm').submit(); return false;">
-              <i class="bi bi-box-arrow-right me-1"></i>Salir
-            </a>
-          </li>
-
-        {% else %}
-          <!-- ── USUARIO RECICLADOR ── -->
-          <li class="nav-item"><a class="nav-link" href="/">
-            <i class="bi bi-house-fill me-1"></i>Inicio
-          </a></li>
-          <li class="nav-item"><a class="nav-link" href="/mapa/">
-            <i class="bi bi-map-fill me-1"></i>Mapa
-          </a></li>
-          <li class="nav-item"><a class="nav-link" href="/catalogo/">
-            <i class="bi bi-gift-fill me-1"></i>Premios
-          </a></li>
-          <li class="nav-item"><a class="nav-link" href="/eventos/">
-            <i class="bi bi-calendar-event-fill me-1"></i>Eventos
-          </a></li>
-          <li class="nav-item d-flex align-items-center">
-            <a class="nav-link d-flex align-items-center" href="/perfil/">
-              <i class="bi bi-person-circle me-1"></i>
-              Mi Perfil
-              <span class="points-badge ms-2">
-                <i class="bi bi-stars"></i>
-                {{ request.user.points }} pts
-              </span>
-            </a>
-          </li>
-          <li class="nav-item">
-            <form id="logoutForm" action="{% url 'logout' %}" method="POST" style="display:none">
-              {% csrf_token %}
-            </form>
-            <a class="btn-nav-danger ms-2" href="#"
-               onclick="document.getElementById('logoutForm').submit(); return false;">
-              <i class="bi bi-box-arrow-right me-1"></i>Salir
-            </a>
-          </li>
-        {% endif %}
-
-      </ul>
+<nav class="eco-navbar" style="padding:14px 40px;box-shadow:0 4px 20px rgba(42,157,143,.15);border-radius:0 0 16px 16px;">
+  <div class="eco-navbar-inner" style="display:flex;align-items:center;justify-content:space-between;width:100%;">
+    <div class="eco-logo d-flex align-items-center" style="display:flex;align-items:center;gap:12px;text-decoration:none;">
+            <div class="logo-circle" style="width:48px;height:48px;display:flex;align-items:center;justify-content:center;background:#fff;border-radius:50%;box-shadow:0 2px 8px rgba(42,157,143,0.10);">
+                <img src="{% static 'assets/img/logo.png' %}" alt="Logo Eco-Neek">
+            </div>
+      <span class="eco-brand-text" style="font-family:'Poppins', 'Nunito', sans-serif;font-weight:600;font-size:22px;color:#fff;letter-spacing:-.5px;">Eco-Neek</span>
     </div>
+    <ul class="navbar-nav flex-row align-items-center" style="gap:32px;margin:0 32px;">
+      <li class="nav-item"><a class="nav-link{% if request.path == '/' %} active{% endif %}" href="/">Inicio</a></li>
+      <li class="nav-item"><a class="nav-link{% if request.path == '/mapa/' %} active{% endif %}" href="/mapa/">Mapa</a></li>
+      <li class="nav-item"><a class="nav-link{% if request.path == '/catalogo/' %} active{% endif %}" href="/catalogo/">Premios</a></li>
+      <li class="nav-item"><a class="nav-link{% if request.path == '/eventos/' %} active{% endif %}" href="/eventos/">Eventos</a></li>
+    </ul>
+    {% if user.is_authenticated %}
+      <a href="/perfil/" class="btn-comenzar">Mi Perfil</a>
+    {% else %}
+      <a href="/login-screen/" class="btn-comenzar">Comenzar</a>
+    {% endif %}
   </div>
 </nav>
 
@@ -522,64 +489,110 @@
 <main class="page-content">
   {% block content %}{% endblock %}
 </main>
-
-<!-- ═══════════════════════════════════════
-     FOOTER
-═══════════════════════════════════════ -->
+<!-- ====================================
+     FOOTER INNOVADOR - ECO NEEK
+==================================== -->
 <footer class="eco-footer">
   <div class="container">
-    <div class="row align-items-center">
-
-      <!-- Logo -->
-      <div class="col-md-4 text-center text-md-start mb-3 mb-md-0">
-        <div class="d-flex align-items-center justify-content-center justify-content-md-start gap-2">
-          <span style="font-size:1.8rem">🌿</span>
-          <span class="footer-brand">Eco-Neek</span>
-        </div>
-        <p class="footer-text mt-2 mb-0">Reciclaje inteligente para un futuro sostenible</p>
-      </div>
-
-      <!-- Links -->
-      <div class="col-md-4 text-center mb-3 mb-md-0">
-        <div class="footer-links">
-          <a href="/">Inicio</a>
-          <a href="/mapa/">Mapa</a>
-          <a href="/catalogo/">Premios</a>
-          <a href="/eventos/">Eventos</a>
-        </div>
-      </div>
-
-      <!-- Redes + copyright -->
-      <div class="col-md-4 text-center text-md-end">
-        <div class="footer-social mb-2">
-          <a href="#" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
-          <a href="#" aria-label="Instagram"><i class="bi bi-instagram"></i></a>
-          <a href="#" aria-label="Twitter"><i class="bi bi-twitter-x"></i></a>
-        </div>
-        <p class="footer-text mb-0">
-          © 2026 Eco-Neek<br>
-          <small>Todos los derechos reservados</small>
-        </p>
-      </div>
-
+    <!-- Parte superior con ondas decorativas -->
+    <div class="footer-wave">
+      <svg viewBox="0 0 1440 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M0 50L60 55C120 60 240 70 360 70C480 70 600 60 720 50C840 40 960 30 1080 30C1200 30 1320 40 1380 45L1440 50V100H1380C1320 100 1200 100 1080 100C960 100 840 100 720 100C600 100 480 100 360 100C240 100 120 100 60 100H0V50Z" fill="white" fill-opacity="0.1"/>
+      </svg>
     </div>
-    <p class="footer-copy text-center mb-0">
-      Hecho con 💚 para un planeta mejor
-    </p>
+    
+    <div class="row g-4 py-5">
+      <!-- Columna 1: Logo y descripción -->
+      <div class="col-lg-4 col-md-6">
+        <div class="footer-brand-wrapper">
+          <img src="{% static 'assets/img/logo.png' %}" alt="EcoNeek" class="footer-logo">
+          <span class="footer-brand">EcoNeek</span>
+        </div>
+        <p class="footer-text mt-3">
+          Transformamos residuos en recursos a través de tecnología inteligente. Conectamos personas con puntos verdes para un futuro sostenible.
+        </p>
+        
+        <!-- NEWSLETTER ELIMINADO -->
+        
+      </div>
+      
+      <!-- Columna 2: Enlaces rápidos -->
+      <div class="col-lg-2 col-md-6">
+        <h5 class="footer-title">Explora</h5>
+        <ul class="footer-links-list">
+          <li><a href="/mapa/"><i class="bi bi-geo-alt"></i> Mapa Verde</a></li>
+          <li><a href="/catalogo/"><i class="bi bi-gift"></i> Recompensas</a></li>
+          <li><a href="/eventos/"><i class="bi bi-calendar-event"></i> Eventos</a></li>
+        </ul>
+      </div>
+      
+      <!-- Columna 4: Contacto y redes -->
+      <div class="col-lg-4 col-md-6">
+        <h5 class="footer-title">Conecta con nosotros</h5>
+        
+        <!-- Contacto directo -->
+        <div class="footer-contact">
+          <div class="contact-item">
+            <i class="bi bi-envelope-fill"></i>
+            <span>hola@econeek.com</span>
+          </div>
+          <div class="contact-item">
+            <i class="bi bi-telephone-fill"></i>
+            <span>+52 555 123 4567</span>
+          </div>
+          <div class="contact-item">
+            <i class="bi bi-clock-fill"></i>
+            <span>Lun-Vie 9am - 6pm</span>
+          </div>
+        </div>
+        
+        <!-- Redes sociales con efecto hover -->
+        <div class="footer-social mt-4">
+          <a href="#" class="social-icon" aria-label="Facebook">
+            <i class="bi bi-facebook"></i>
+          </a>
+          <a href="#" class="social-icon" aria-label="Instagram">
+            <i class="bi bi-instagram"></i>
+          </a>
+          <a href="#" class="social-icon" aria-label="Twitter">
+            <i class="bi bi-twitter-x"></i>
+          </a>
+        </div>
+        
+        <!-- Badge de descarga -->
+        <div class="footer-download mt-3">
+          
+          </a>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Línea divisoria decorativa -->
+    <div class="footer-divider">
+      <span class="divider-icon">♻️</span>
+    </div>
+    
+    <!-- Copyright con diseño -->
+    <div class="footer-bottom">
+      <div class="row align-items-center">
+        <div class="col-md-6">
+          <p class="copyright">
+            © 2026 EcoNeek. Todos los derechos reservados.
+          </p>
+        </div>
+        <div class="col-md-6 text-md-end">
+          <div class="legal-links">
+            <a href="/privacidad/">Privacidad</a>
+            <span class="separator">|</span>
+            <a href="/terminos/">Términos</a>
+            <span class="separator">|</span>
+            <a href="/cookies/">Cookies</a>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </footer>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
-<!-- Auto-cerrar alertas después de 5 segundos -->
-<script>
-  setTimeout(() => {
-    document.querySelectorAll('.messages-container .alert').forEach(el => {
-      const bsAlert = bootstrap.Alert.getOrCreateInstance(el);
-      bsAlert.close();
-    });
-  }, 5000);
-</script>
 
 {% block extra_scripts %}{% endblock %}
 </body>

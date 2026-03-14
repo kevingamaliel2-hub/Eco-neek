@@ -1,78 +1,590 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Eventos - Eco-Loop{% endblock %}
+{% block title %}Eventos - EcoNeek{% endblock %}
 
 {% block extra_head %}
   <style>
-    .eventos-container { max-width: 1000px; margin: 0 auto; padding: 20px; }
-    .eventos-header { text-align: center; margin: 40px 0; }
-    .eventos-header h1 { font-size: 2.5rem; font-weight: bold; color: #18bd9b; }
+    /* ====================================
+       EVENTOS - ECO NEEK
+       Diseño profesional con wave y tarjetas
+    ==================================== */
     
-    .eventos-list { display: flex; flex-direction: column; gap: 20px; }
-    
-    .evento-card {
-      border-radius: 12px;
-      background: white;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-      overflow: hidden;
-      transition: transform 0.2s;
+    :root {
+      --primary-color: #2a9d8f;
+      --secondary-color: #264653;
+      --accent-color: #e9c46a;
+      --light-bg: #f8f9fa;
+      --dark-color: #1e2b37;
+      --text-muted: #6c757d;
+      --white: #ffffff;
+      --green-dark: #1e5f4b;
     }
     
-    .evento-card:hover { transform: translateY(-2px); }
+    /* Hero con wave - IGUAL QUE EN INICIO */
+    .eventos-hero {
+      background: linear-gradient(135deg, var(--secondary-color) 0%, var(--primary-color) 100%);
+      padding: 80px 0 120px;
+      position: relative;
+      overflow: hidden;
+      color: white;
+      margin-bottom: 40px;
+    }
     
-    .evento-inner { display: flex; gap: 20px; padding: 20px; }
-    .evento-image {
-      width: 180px;
-      height: 180px;
-      border-radius: 8px;
-      background: linear-gradient(135deg, #dff6f3, #c1ebe5);
+    .eventos-hero::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+      opacity: 0.1;
+      pointer-events: none;
+    }
+    
+    .eventos-hero-content {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+    }
+    
+    .eventos-hero h1 {
+      font-size: 3.8rem;
+      font-weight: 700;
+      margin-bottom: 20px;
+      color: white;
+    }
+    
+    .eventos-hero p {
+      font-size: 1.2rem;
+      opacity: 0.95;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    
+    /* Wave decorativa */
+    .eventos-wave {
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      width: 100%;
+      line-height: 0;
+    }
+    
+    .eventos-wave svg {
+      width: 100%;
+      height: auto;
+      fill: white;
+    }
+    
+    /* Contenedor principal */
+    .eventos-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px 60px;
+      position: relative;
+      z-index: 2;
+    }
+    
+    /* Tarjeta flotante de estadísticas */
+    .eventos-stats-card {
+      background: white;
+      border-radius: 30px;
+      padding: 30px;
+      margin: -60px 0 50px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+      border: 1px solid rgba(0,0,0,0.03);
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      flex-wrap: wrap;
+      gap: 30px;
+    }
+    
+    .stat-item-evento {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+    
+    .stat-icon-evento {
+      width: 60px;
+      height: 60px;
+      background: rgba(42, 157, 143, 0.1);
+      border-radius: 18px;
       display: flex;
       align-items: center;
       justify-content: center;
-      flex-shrink: 0;
-      font-size: 3rem;
+      color: var(--primary-color);
+      font-size: 1.8rem;
     }
     
-    .evento-content { flex: 1; }
-    .evento-title { font-weight: bold; font-size: 1.3rem; color: #333; margin-bottom: 8px; }
-    .evento-desc { color: #666; margin-bottom: 12px; line-height: 1.5; }
-    .evento-meta { display: flex; gap: 20px; font-size: 0.9rem; color: #999; }
-    .evento-meta-item { display: flex; align-items: center; gap: 6px; }
+    .stat-info-evento h3 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--green-dark);
+      margin: 0;
+      line-height: 1.2;
+    }
     
-    .empty-state { text-align: center; padding: 60px 20px; }
+    .stat-info-evento p {
+      color: var(--text-muted);
+      margin: 5px 0 0;
+    }
+    
+    /* Filtros */
+    .eventos-filters {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 40px;
+      flex-wrap: wrap;
+      gap: 20px;
+      background: white;
+      padding: 15px 20px;
+      border-radius: 60px;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.02);
+      border: 1px solid rgba(0,0,0,0.03);
+    }
+    
+    .filter-buttons {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    
+    .filter-btn-evento {
+      background: transparent;
+      border: 1px solid rgba(0,0,0,0.05);
+      padding: 10px 22px;
+      border-radius: 40px;
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .filter-btn-evento:hover {
+      border-color: var(--primary-color);
+      color: var(--primary-color);
+    }
+    
+    .filter-btn-evento.active {
+      background: var(--primary-color);
+      border-color: var(--primary-color);
+      color: white;
+      box-shadow: 0 4px 10px rgba(42, 157, 143, 0.2);
+    }
+    
+    .search-wrapper-evento {
+      position: relative;
+    }
+    
+    .search-wrapper-evento i {
+      position: absolute;
+      left: 18px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #adb5bd;
+    }
+    
+    .search-wrapper-evento input {
+      padding: 12px 20px 12px 48px;
+      border: 1px solid rgba(0,0,0,0.05);
+      border-radius: 40px;
+      width: 280px;
+      font-size: 0.95rem;
+      background: #fafafa;
+      transition: all 0.3s ease;
+    }
+    
+    .search-wrapper-evento input:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      background: white;
+      box-shadow: 0 0 0 4px rgba(42, 157, 143, 0.05);
+    }
+    
+    /* Lista de eventos */
+    .eventos-list {
+      display: flex;
+      flex-direction: column;
+      gap: 25px;
+      margin-top: 30px;
+    }
+    
+    /* Tarjeta de evento - DISEÑO PROFESIONAL */
+    .evento-card {
+      background: white;
+      border-radius: 28px;
+      overflow: hidden;
+      transition: all 0.4s ease;
+      border: 1px solid rgba(0,0,0,0.03);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.02);
+      position: relative;
+    }
+    
+    .evento-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 40px rgba(42, 157, 143, 0.08);
+      border-color: rgba(42, 157, 143, 0.1);
+    }
+    
+    .evento-card::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    
+    .evento-card:hover::after {
+      opacity: 1;
+    }
+    
+    .evento-inner {
+      display: flex;
+      gap: 25px;
+      padding: 25px;
+    }
+    
+    .evento-image-wrapper {
+      width: 200px;
+      height: 200px;
+      border-radius: 20px;
+      overflow: hidden;
+      flex-shrink: 0;
+      background: linear-gradient(135deg, #f0f7f5, #e8f3f0);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+    
+    .evento-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.6s ease;
+    }
+    
+    .evento-card:hover .evento-image {
+      transform: scale(1.05);
+    }
+    
+    .evento-image-wrapper i {
+      font-size: 4rem;
+      color: rgba(42, 157, 143, 0.2);
+    }
+    
+    .evento-badge {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(5px);
+      padding: 6px 12px;
+      border-radius: 30px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--primary-color);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      border: 1px solid rgba(255,255,255,0.5);
+    }
+    
+    .evento-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .evento-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--green-dark);
+      margin: 0 0 12px;
+    }
+    
+    .evento-desc {
+      font-size: 1rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+      margin: 0 0 20px;
+      flex: 1;
+    }
+    
+    .evento-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+    
+    .evento-meta-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(42, 157, 143, 0.03);
+      padding: 8px 16px;
+      border-radius: 40px;
+      border: 1px solid rgba(42, 157, 143, 0.05);
+      color: var(--dark-color);
+      font-size: 0.95rem;
+    }
+    
+    .evento-meta-item i {
+      color: var(--primary-color);
+      font-size: 1.1rem;
+    }
+    
+    .evento-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 15px;
+      border-top: 1px solid rgba(0,0,0,0.03);
+    }
+    
+    .evento-interes {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+    
+    .evento-interes i {
+      color: var(--accent-color);
+    }
+    
+    .evento-btn {
+      background: transparent;
+      border: 1px solid var(--primary-color);
+      color: var(--primary-color);
+      padding: 10px 24px;
+      border-radius: 40px;
+      font-weight: 500;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+    }
+    
+    .evento-btn:hover {
+      background: var(--primary-color);
+      color: white;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(42, 157, 143, 0.2);
+    }
+    
+    /* Estados */
+    .empty-state {
+      text-align: center;
+      padding: 80px 20px;
+      background: linear-gradient(135deg, #fafafa, #f5f5f5);
+      border-radius: 50px;
+      margin: 40px 0;
+    }
+    
+    .empty-icon {
+      font-size: 5rem;
+      color: #ddd;
+      margin-bottom: 20px;
+      animation: float 3s ease-in-out infinite;
+    }
+    
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+    
+    .empty-state h2 {
+      color: #999;
+      font-size: 2rem;
+      font-weight: 500;
+      margin-bottom: 10px;
+    }
+    
+    .empty-state p {
+      color: #bbb;
+      font-size: 1.1rem;
+    }
+    
+    /* Loading state */
+    .loading-state {
+      text-align: center;
+      padding: 60px 20px;
+    }
+    
+    .spinner-evento {
+      width: 50px;
+      height: 50px;
+      border: 3px solid rgba(42, 157, 143, 0.05);
+      border-top-color: var(--primary-color);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 20px;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    /* Responsive */
+    @media (max-width: 991px) {
+      .eventos-hero h1 {
+        font-size: 3rem;
+      }
+      
+      .eventos-hero {
+        padding: 60px 0 100px;
+      }
+      
+      .evento-inner {
+        flex-direction: column;
+      }
+      
+      .evento-image-wrapper {
+        width: 100%;
+        height: 250px;
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .eventos-hero h1 {
+        font-size: 2.2rem;
+      }
+      
+      .eventos-filters {
+        flex-direction: column;
+        border-radius: 30px;
+      }
+      
+      .search-wrapper-evento input {
+        width: 100%;
+      }
+      
+      .eventos-stats-card {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      
+      .evento-meta {
+        flex-direction: column;
+        gap: 10px;
+      }
+      
+      .evento-footer {
+        flex-direction: column;
+        gap: 15px;
+        align-items: flex-start;
+      }
+    }
   </style>
 {% endblock %}
 
 {% block content %}
+<!-- HERO CON WAVE - IGUAL QUE EN INICIO -->
+<section class="eventos-hero">
+  <div class="container eventos-hero-content">
+    <h1>Eventos Ecológicos</h1>
+    <p>Participa en talleres, actividades y jornadas de reciclaje</p>
+  </div>
+  
+  <!-- WAVE DECORATIVA -->
+  <div class="eventos-wave">
+    <svg viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0 120L60 105C120 90 240 60 360 45C480 30 600 30 720 37.5C840 45 960 60 1080 67.5C1200 75 1320 75 1380 75L1440 75V120H1380C1320 120 1200 120 1080 120C960 120 840 120 720 120C600 120 480 120 360 120C240 120 120 120 60 120H0Z" fill="white"/>
+    </svg>
+  </div>
+</section>
+
 <div class="eventos-container">
-  <div class="eventos-header">
-    <h1>📅 Eventos Ecológicos</h1>
-    <p style="color: #666;">Participa en actividades y talleres de reciclaje</p>
+  <!-- Tarjeta de estadísticas flotante -->
+  <div class="eventos-stats-card">
+    <div class="stat-item-evento">
+      <div class="stat-icon-evento">
+        <i class="bi bi-calendar-check"></i>
+      </div>
+      <div class="stat-info-evento">
+        <h3 id="eventos-count">{{ eventos|length|default:"0" }}</h3>
+        <p>Eventos programados</p>
+      </div>
+    </div>
+    <div class="stat-item-evento">
+      <div class="stat-icon-evento">
+        <i class="bi bi-people"></i>
+      </div>
+      <div class="stat-info-evento">
+        <h3>+250</h3>
+        <p>Participantes</p>
+      </div>
+    </div>
+    <div class="stat-item-evento">
+      <div class="stat-icon-evento">
+        <i class="bi bi-tree"></i>
+      </div>
+      <div class="stat-info-evento">
+        <h3>12</h3>
+        <p>Estados</p>
+      </div>
+    </div>
   </div>
 
+  <!-- Filtros -->
+  <div class="eventos-filters">
+    <div class="filter-buttons">
+      <button class="filter-btn-evento active" data-filter="todos">Todos</button>
+      <button class="filter-btn-evento" data-filter="proximos">Próximos</button>
+      <button class="filter-btn-evento" data-filter="pasados">Pasados</button>
+    </div>
+    <div class="search-wrapper-evento">
+      <i class="bi bi-search"></i>
+      <input type="text" id="search-eventos" placeholder="Buscar eventos...">
+    </div>
+  </div>
+
+  <!-- Lista de eventos -->
   {% if eventos %}
-    <div class="eventos-list">
+    <div class="eventos-list" id="eventos-list">
       {% for evento in eventos %}
-        <div class="evento-card">
+        <div class="evento-card" data-titulo="{{ evento.titulo|lower }}" data-desc="{{ evento.descripcion|lower|default:'' }}">
           <div class="evento-inner">
-            <div class="evento-image">
+            <div class="evento-image-wrapper">
               {% if evento.imagen_url %}
-                <img src="{{ evento.imagen_url }}" alt="{{ evento.titulo }}" style="width:100%; height:100%; object-fit:cover; border-radius:8px;">
+                <img src="{{ evento.imagen_url }}" alt="{{ evento.titulo }}" class="evento-image">
               {% else %}
-                📍
+                <i class="bi bi-calendar-event"></i>
               {% endif %}
+              <span class="evento-badge">
+                {% now "Y-m-d" as today %}
+                {% if evento.fecha_evento|date:"Y-m-d" >= today %}
+                  Próximo
+                {% else %}
+                  Finalizado
+                {% endif %}
+              </span>
             </div>
             <div class="evento-content">
-              <div class="evento-title">{{ evento.titulo }}</div>
+              <h2 class="evento-title">{{ evento.titulo }}</h2>
               {% if evento.descripcion %}
-                <div class="evento-desc">{{ evento.descripcion }}</div>
+                <p class="evento-desc">{{ evento.descripcion|truncatechars:150 }}</p>
               {% endif %}
+              
               <div class="evento-meta">
                 {% if evento.fecha_evento %}
                   <div class="evento-meta-item">
                     <i class="bi bi-calendar3"></i>
-                    {{ evento.fecha_evento|date:"d/m/Y H:i" }}
+                    {{ evento.fecha_evento|date:"d M Y, H:i" }}
                   </div>
                 {% endif %}
                 {% if evento.ubicacion %}
@@ -81,6 +593,23 @@
                     {{ evento.ubicacion }}
                   </div>
                 {% endif %}
+                {% if evento.organizador %}
+                  <div class="evento-meta-item">
+                    <i class="bi bi-building"></i>
+                    {{ evento.organizador }}
+                  </div>
+                {% endif %}
+              </div>
+              
+              <div class="evento-footer">
+                <div class="evento-interes">
+                  <i class="bi bi-star-fill"></i>
+                  <span>Interés: 24 personas</span>
+                </div>
+                <button class="evento-btn" onclick="window.location.href='/eventos/{{ evento.id }}/'">
+                  Ver detalles
+                  <i class="bi bi-arrow-right"></i>
+                </button>
               </div>
             </div>
           </div>
@@ -89,11 +618,89 @@
     </div>
   {% else %}
     <div class="empty-state">
-      <div style="font-size: 4rem; color: #ddd; margin-bottom: 20px;">📅</div>
-      <h2 style="color: #999;">Sin eventos disponibles</h2>
-      <p style="color: #999; margin-top: 10px;">Los eventos aparecerán aquí cuando estén disponibles.</p>
+      <div class="empty-icon">📅</div>
+      <h2>Sin eventos programados</h2>
+      <p>Próximamente anunciaremos nuevas actividades ecológicas</p>
     </div>
   {% endif %}
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const searchInput = document.getElementById('search-eventos');
+  const filterButtons = document.querySelectorAll('.filter-btn-evento');
+  const eventosList = document.getElementById('eventos-list');
+  
+  if (!eventosList) return;
+  
+  const eventos = document.querySelectorAll('.evento-card');
+  
+  // Función para filtrar eventos
+  function filtrarEventos() {
+    const searchTerm = searchInput?.value.toLowerCase() || '';
+    const activeFilter = document.querySelector('.filter-btn-evento.active')?.dataset.filter || 'todos';
+    
+    let visibleCount = 0;
+    
+    eventos.forEach(evento => {
+      const titulo = evento.dataset.titulo || '';
+      const desc = evento.dataset.desc || '';
+      const badge = evento.querySelector('.evento-badge')?.textContent.toLowerCase() || '';
+      
+      // Filtro de búsqueda
+      const matchesSearch = titulo.includes(searchTerm) || desc.includes(searchTerm);
+      
+      // Filtro de estado
+      let matchesFilter = true;
+      if (activeFilter === 'proximos') {
+        matchesFilter = badge.includes('próximo');
+      } else if (activeFilter === 'pasados') {
+        matchesFilter = badge.includes('finalizado');
+      }
+      
+      if (matchesSearch && matchesFilter) {
+        evento.style.display = 'block';
+        visibleCount++;
+      } else {
+        evento.style.display = 'none';
+      }
+    });
+    
+    // Mostrar mensaje si no hay resultados
+    const emptyMessage = document.getElementById('empty-search');
+    if (emptyMessage) {
+      if (visibleCount === 0) {
+        if (!emptyMessage) {
+          const msg = document.createElement('div');
+          msg.id = 'empty-search';
+          msg.className = 'empty-state';
+          msg.innerHTML = `
+            <div class="empty-icon">🔍</div>
+            <h2>No se encontraron eventos</h2>
+            <p>Intenta con otros términos de búsqueda</p>
+          `;
+          eventosList.appendChild(msg);
+        }
+      } else {
+        emptyMessage?.remove();
+      }
+    }
+  }
+  
+  // Evento de búsqueda
+  if (searchInput) {
+    searchInput.addEventListener('input', filtrarEventos);
+  }
+  
+  // Evento de filtros
+  filterButtons.forEach(btn => {
+    btn.addEventListener('click', function() {
+      filterButtons.forEach(b => b.classList.remove('active'));
+      this.classList.add('active');
+      filtrarEventos();
+    });
+  });
+});
+</script>
 
 {% endblock %}

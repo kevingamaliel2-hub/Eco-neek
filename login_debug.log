@@ -464,3 +464,583 @@
   "msg": "Invalid login credentials"
 }
 
+[2026-03-08T21:19:39.074354] LOGIN ATTEMPT: besasa2303@bipochub.com
+  local_auth_username: besasa2303@bipochub.com
+  supabase_error: None
+  supabase_data: 
+{
+  "access_token": "eyJhbGciOiJIUzI1NiIsImtpZCI6IlY0SVdmTnJQVkFEWmFMUHoiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL3ZnZ2VycnlsaGxzZWJwcmZyb251LnN1cGFiYXNlLmNvL2F1dGgvdjEiLCJzdWIiOiJjZjM2MmY2YS1iZjFiLTQ1ZDctOTE0ZS04ZjdkNzlmNjQxZTAiLCJhdWQiOiJhdXRoZW50aWNhdGVkIiwiZXhwIjoxNzczMDA4Mzc4LCJpYXQiOjE3NzMwMDQ3NzgsImVtYWlsIjoiYmVzYXNhMjMwM0BiaXBvY2h1Yi5jb20iLCJwaG9uZSI6IiIsImFwcF9tZXRhZGF0YSI6eyJwcm92aWRlciI6ImVtYWlsIiwicHJvdmlkZXJzIjpbImVtYWlsIl19LCJ1c2VyX21ldGFkYXRhIjp7ImVtYWlsIjoiYmVzYXNhMjMwM0BiaXBvY2h1Yi5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicGhvbmVfdmVyaWZpZWQiOmZhbHNlLCJzdWIiOiJjZjM2MmY2YS1iZjFiLTQ1ZDctOTE0ZS04ZjdkNzlmNjQxZTAifSwicm9sZSI6ImF1dGhlbnRpY2F0ZWQiLCJhYWwiOiJhYWwxIiwiYW1yIjpbeyJtZXRob2QiOiJwYXNzd29yZCIsInRpbWVzdGFtcCI6MTc3MzAwNDc3OH1dLCJzZXNzaW9uX2lkIjoiYWUxOGE3MWEtOTE5NC00YmJiLTljYjAtMTMwYjU2MjQ4MjliIiwiaXNfYW5vbnltb3VzIjpmYWxzZX0.59T5CqL_EAKYqFvEIRpea-ZMwnm0q1604BdKmczAqvc",
+  "token_type": "bearer",
+  "expires_in": 3600,
+  "expires_at": 1773008378,
+  "refresh_token": "64rreuxzbvig",
+  "user": {
+    "id": "cf362f6a-bf1b-45d7-914e-8f7d79f641e0",
+    "aud": "authenticated",
+    "role": "authenticated",
+    "email": "besasa2303@bipochub.com",
+    "email_confirmed_at": "2025-11-25T23:37:38.594149Z",
+    "phone": "",
+    "confirmation_sent_at": "2025-11-25T23:36:33.049933Z",
+    "confirmed_at": "2025-11-25T23:37:38.594149Z",
+    "last_sign_in_at": "2026-03-08T21:19:38.890556493Z",
+    "app_metadata": {
+      "provider": "email",
+      "providers": [
+        "email"
+      ]
+    },
+    "user_metadata": {
+      "email": "besasa2303@bipochub.com",
+      "email_verified": true,
+      "phone_verified": false,
+      "sub": "cf362f6a-bf1b-45d7-914e-8f7d79f641e0"
+    },
+    "identities": [
+      {
+        "identity_id": "d350fcfd-2b9d-4821-b274-771aaeb3057b",
+        "id": "cf362f6a-bf1b-45d7-914e-8f7d79f641e0",
+        "user_id": "cf362f6a-bf1b-45d7-914e-8f7d79f641e0",
+        "identity_data": {
+          "email": "besasa2303@bipochub.com",
+          "email_verified": true,
+          "phone_verified": false,
+          "sub": "cf362f6a-bf1b-45d7-914e-8f7d79f641e0"
+        },
+        "provider": "email",
+        "last_sign_in_at": "2025-11-25T23:36:33.038276Z",
+        "created_at": "2025-11-25T23:36:33.038326Z",
+        "updated_at": "2025-11-25T23:36:33.038326Z",
+        "email": "besasa2303@bipochub.com"
+      }
+    ],
+    "created_at": "2025-11-25T23:36:33.013499Z",
+    "updated_at": "2026-03-08T21:19:38.931614Z",
+    "is_anonymous": false
+  },
+  "weak_password": null
+}
+
+[2026-03-08T21:43:48.630445] LOGIN ATTEMPT: besasa2303@bipochub.com
+  local_auth_username: besasa2303@bipochub.com
+  supabase_error: None
+  supabase_data: 
+{
+  "access_token": "eyJhbGciOiJIUzI1NiIsImtpZCI6IlY0SVdmTnJQVkFEWmFMUHoiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL3ZnZ2VycnlsaGxzZWJwcmZyb251LnN1cGFiYXNlLmNvL2F1dGgvdjEiLCJzdWIiOiJjZjM2MmY2YS1iZjFiLTQ1ZDctOTE0ZS04ZjdkNzlmNjQxZTAiLCJhdWQiOiJhdXRoZW50aWNhdGVkIiwiZXhwIjoxNzczMDA5ODI4LCJpYXQiOjE3NzMwMDYyMjgsImVtYWlsIjoiYmVzYXNhMjMwM0BiaXBvY2h1Yi5jb20iLCJwaG9uZSI6IiIsImFwcF9tZXRhZGF0YSI6eyJwcm92aWRlciI6ImVtYWlsIiwicHJvdmlkZXJzIjpbImVtYWlsIl19LCJ1c2VyX21ldGFkYXRhIjp7ImVtYWlsIjoiYmVzYXNhMjMwM0BiaXBvY2h1Yi5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicGhvbmVfdmVyaWZpZWQiOmZhbHNlLCJzdWIiOiJjZjM2MmY2YS1iZjFiLTQ1ZDctOTE0ZS04ZjdkNzlmNjQxZTAifSwicm9sZSI6ImF1dGhlbnRpY2F0ZWQiLCJhYWwiOiJhYWwxIiwiYW1yIjpbeyJtZXRob2QiOiJwYXNzd29yZCIsInRpbWVzdGFtcCI6MTc3MzAwNjIyOH1dLCJzZXNzaW9uX2lkIjoiODM4MjI0MzEtYTMwNS00YTc3LWJjNjgtN2U1NjdmMzBlYTJhIiwiaXNfYW5vbnltb3VzIjpmYWxzZX0.-8etqcwIvk9Ak1IzS-3AzK6l2lFT1cQt6mkEzarUvtg",
+  "token_type": "bearer",
+  "expires_in": 3600,
+  "expires_at": 1773009828,
+  "refresh_token": "daocyhmmk6lm",
+  "user": {
+    "id": "cf362f6a-bf1b-45d7-914e-8f7d79f641e0",
+    "aud": "authenticated",
+    "role": "authenticated",
+    "email": "besasa2303@bipochub.com",
+    "email_confirmed_at": "2025-11-25T23:37:38.594149Z",
+    "phone": "",
+    "confirmation_sent_at": "2025-11-25T23:36:33.049933Z",
+    "confirmed_at": "2025-11-25T23:37:38.594149Z",
+    "last_sign_in_at": "2026-03-08T21:43:48.4963011Z",
+    "app_metadata": {
+      "provider": "email",
+      "providers": [
+        "email"
+      ]
+    },
+    "user_metadata": {
+      "email": "besasa2303@bipochub.com",
+      "email_verified": true,
+      "phone_verified": false,
+      "sub": "cf362f6a-bf1b-45d7-914e-8f7d79f641e0"
+    },
+    "identities": [
+      {
+        "identity_id": "d350fcfd-2b9d-4821-b274-771aaeb3057b",
+        "id": "cf362f6a-bf1b-45d7-914e-8f7d79f641e0",
+        "user_id": "cf362f6a-bf1b-45d7-914e-8f7d79f641e0",
+        "identity_data": {
+          "email": "besasa2303@bipochub.com",
+          "email_verified": true,
+          "phone_verified": false,
+          "sub": "cf362f6a-bf1b-45d7-914e-8f7d79f641e0"
+        },
+        "provider": "email",
+        "last_sign_in_at": "2025-11-25T23:36:33.038276Z",
+        "created_at": "2025-11-25T23:36:33.038326Z",
+        "updated_at": "2025-11-25T23:36:33.038326Z",
+        "email": "besasa2303@bipochub.com"
+      }
+    ],
+    "created_at": "2025-11-25T23:36:33.013499Z",
+    "updated_at": "2026-03-08T21:43:48.534268Z",
+    "is_anonymous": false
+  },
+  "weak_password": null
+}
+
+[2026-03-09T03:00:33.730323] LOGIN ATTEMPT: besasa2303@bipochub.com
+  local_auth_username: besasa2303@bipochub.com
+  supabase_error: None
+  supabase_data: 
+{
+  "access_token": "eyJhbGciOiJIUzI1NiIsImtpZCI6IlY0SVdmTnJQVkFEWmFMUHoiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL3ZnZ2VycnlsaGxzZWJwcmZyb251LnN1cGFiYXNlLmNvL2F1dGgvdjEiLCJzdWIiOiJjZjM2MmY2YS1iZjFiLTQ1ZDctOTE0ZS04ZjdkNzlmNjQxZTAiLCJhdWQiOiJhdXRoZW50aWNhdGVkIiwiZXhwIjoxNzczMDI4ODM0LCJpYXQiOjE3NzMwMjUyMzQsImVtYWlsIjoiYmVzYXNhMjMwM0BiaXBvY2h1Yi5jb20iLCJwaG9uZSI6IiIsImFwcF9tZXRhZGF0YSI6eyJwcm92aWRlciI6ImVtYWlsIiwicHJvdmlkZXJzIjpbImVtYWlsIl19LCJ1c2VyX21ldGFkYXRhIjp7ImVtYWlsIjoiYmVzYXNhMjMwM0BiaXBvY2h1Yi5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicGhvbmVfdmVyaWZpZWQiOmZhbHNlLCJzdWIiOiJjZjM2MmY2YS1iZjFiLTQ1ZDctOTE0ZS04ZjdkNzlmNjQxZTAifSwicm9sZSI6ImF1dGhlbnRpY2F0ZWQiLCJhYWwiOiJhYWwxIiwiYW1yIjpbeyJtZXRob2QiOiJwYXNzd29yZCIsInRpbWVzdGFtcCI6MTc3MzAyNTIzNH1dLCJzZXNzaW9uX2lkIjoiZmYyZGEwZGQtOTUyOC00MzViLWE2NDYtOGRmMzQ1ZTFjODc5IiwiaXNfYW5vbnltb3VzIjpmYWxzZX0.PWKjJvPY7mig_OWkUL-oCS7QpONmDnixFEHhx2K1ido",
+  "token_type": "bearer",
+  "expires_in": 3600,
+  "expires_at": 1773028834,
+  "refresh_token": "svdyoxfpby7f",
+  "user": {
+    "id": "cf362f6a-bf1b-45d7-914e-8f7d79f641e0",
+    "aud": "authenticated",
+    "role": "authenticated",
+    "email": "besasa2303@bipochub.com",
+    "email_confirmed_at": "2025-11-25T23:37:38.594149Z",
+    "phone": "",
+    "confirmation_sent_at": "2025-11-25T23:36:33.049933Z",
+    "confirmed_at": "2025-11-25T23:37:38.594149Z",
+    "last_sign_in_at": "2026-03-09T03:00:34.188307475Z",
+    "app_metadata": {
+      "provider": "email",
+      "providers": [
+        "email"
+      ]
+    },
+    "user_metadata": {
+      "email": "besasa2303@bipochub.com",
+      "email_verified": true,
+      "phone_verified": false,
+      "sub": "cf362f6a-bf1b-45d7-914e-8f7d79f641e0"
+    },
+    "identities": [
+      {
+        "identity_id": "d350fcfd-2b9d-4821-b274-771aaeb3057b",
+        "id": "cf362f6a-bf1b-45d7-914e-8f7d79f641e0",
+        "user_id": "cf362f6a-bf1b-45d7-914e-8f7d79f641e0",
+        "identity_data": {
+          "email": "besasa2303@bipochub.com",
+          "email_verified": true,
+          "phone_verified": false,
+          "sub": "cf362f6a-bf1b-45d7-914e-8f7d79f641e0"
+        },
+        "provider": "email",
+        "last_sign_in_at": "2025-11-25T23:36:33.038276Z",
+        "created_at": "2025-11-25T23:36:33.038326Z",
+        "updated_at": "2025-11-25T23:36:33.038326Z",
+        "email": "besasa2303@bipochub.com"
+      }
+    ],
+    "created_at": "2025-11-25T23:36:33.013499Z",
+    "updated_at": "2026-03-09T03:00:34.219247Z",
+    "is_anonymous": false
+  },
+  "weak_password": null
+}
+
+[2026-03-09T03:00:36.468632] LOGIN ATTEMPT: besasa2303@bipochub.com
+  local_auth_username: besasa2303@bipochub.com
+  supabase_error: None
+  supabase_data: 
+{
+  "access_token": "eyJhbGciOiJIUzI1NiIsImtpZCI6IlY0SVdmTnJQVkFEWmFMUHoiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL3ZnZ2VycnlsaGxzZWJwcmZyb251LnN1cGFiYXNlLmNvL2F1dGgvdjEiLCJzdWIiOiJjZjM2MmY2YS1iZjFiLTQ1ZDctOTE0ZS04ZjdkNzlmNjQxZTAiLCJhdWQiOiJhdXRoZW50aWNhdGVkIiwiZXhwIjoxNzczMDI4ODM3LCJpYXQiOjE3NzMwMjUyMzcsImVtYWlsIjoiYmVzYXNhMjMwM0BiaXBvY2h1Yi5jb20iLCJwaG9uZSI6IiIsImFwcF9tZXRhZGF0YSI6eyJwcm92aWRlciI6ImVtYWlsIiwicHJvdmlkZXJzIjpbImVtYWlsIl19LCJ1c2VyX21ldGFkYXRhIjp7ImVtYWlsIjoiYmVzYXNhMjMwM0BiaXBvY2h1Yi5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicGhvbmVfdmVyaWZpZWQiOmZhbHNlLCJzdWIiOiJjZjM2MmY2YS1iZjFiLTQ1ZDctOTE0ZS04ZjdkNzlmNjQxZTAifSwicm9sZSI6ImF1dGhlbnRpY2F0ZWQiLCJhYWwiOiJhYWwxIiwiYW1yIjpbeyJtZXRob2QiOiJwYXNzd29yZCIsInRpbWVzdGFtcCI6MTc3MzAyNTIzN31dLCJzZXNzaW9uX2lkIjoiNGQ4MzBlZGItYzdlNS00MTliLWIxZjctNWVjNDhmZjVlMDNlIiwiaXNfYW5vbnltb3VzIjpmYWxzZX0.7z_YvtpSYxc9XjGLYVEFiBbL_gv9rMAL6bepFd96Cu8",
+  "token_type": "bearer",
+  "expires_in": 3600,
+  "expires_at": 1773028837,
+  "refresh_token": "fmcmcqfbvrlz",
+  "user": {
+    "id": "cf362f6a-bf1b-45d7-914e-8f7d79f641e0",
+    "aud": "authenticated",
+    "role": "authenticated",
+    "email": "besasa2303@bipochub.com",
+    "email_confirmed_at": "2025-11-25T23:37:38.594149Z",
+    "phone": "",
+    "confirmation_sent_at": "2025-11-25T23:36:33.049933Z",
+    "confirmed_at": "2025-11-25T23:37:38.594149Z",
+    "last_sign_in_at": "2026-03-09T03:00:37.049656226Z",
+    "app_metadata": {
+      "provider": "email",
+      "providers": [
+        "email"
+      ]
+    },
+    "user_metadata": {
+      "email": "besasa2303@bipochub.com",
+      "email_verified": true,
+      "phone_verified": false,
+      "sub": "cf362f6a-bf1b-45d7-914e-8f7d79f641e0"
+    },
+    "identities": [
+      {
+        "identity_id": "d350fcfd-2b9d-4821-b274-771aaeb3057b",
+        "id": "cf362f6a-bf1b-45d7-914e-8f7d79f641e0",
+        "user_id": "cf362f6a-bf1b-45d7-914e-8f7d79f641e0",
+        "identity_data": {
+          "email": "besasa2303@bipochub.com",
+          "email_verified": true,
+          "phone_verified": false,
+          "sub": "cf362f6a-bf1b-45d7-914e-8f7d79f641e0"
+        },
+        "provider": "email",
+        "last_sign_in_at": "2025-11-25T23:36:33.038276Z",
+        "created_at": "2025-11-25T23:36:33.038326Z",
+        "updated_at": "2025-11-25T23:36:33.038326Z",
+        "email": "besasa2303@bipochub.com"
+      }
+    ],
+    "created_at": "2025-11-25T23:36:33.013499Z",
+    "updated_at": "2026-03-09T03:00:37.054961Z",
+    "is_anonymous": false
+  },
+  "weak_password": null
+}
+
+[2026-03-09T04:43:44.543040] LOGIN ATTEMPT: besasa2303@bipochub.com
+  local_auth_username: besasa2303@bipochub.com
+  supabase_error: None
+  supabase_data: 
+{
+  "access_token": "eyJhbGciOiJIUzI1NiIsImtpZCI6IlY0SVdmTnJQVkFEWmFMUHoiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL3ZnZ2VycnlsaGxzZWJwcmZyb251LnN1cGFiYXNlLmNvL2F1dGgvdjEiLCJzdWIiOiJjZjM2MmY2YS1iZjFiLTQ1ZDctOTE0ZS04ZjdkNzlmNjQxZTAiLCJhdWQiOiJhdXRoZW50aWNhdGVkIiwiZXhwIjoxNzczMDM1MDI1LCJpYXQiOjE3NzMwMzE0MjUsImVtYWlsIjoiYmVzYXNhMjMwM0BiaXBvY2h1Yi5jb20iLCJwaG9uZSI6IiIsImFwcF9tZXRhZGF0YSI6eyJwcm92aWRlciI6ImVtYWlsIiwicHJvdmlkZXJzIjpbImVtYWlsIl19LCJ1c2VyX21ldGFkYXRhIjp7ImVtYWlsIjoiYmVzYXNhMjMwM0BiaXBvY2h1Yi5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicGhvbmVfdmVyaWZpZWQiOmZhbHNlLCJzdWIiOiJjZjM2MmY2YS1iZjFiLTQ1ZDctOTE0ZS04ZjdkNzlmNjQxZTAifSwicm9sZSI6ImF1dGhlbnRpY2F0ZWQiLCJhYWwiOiJhYWwxIiwiYW1yIjpbeyJtZXRob2QiOiJwYXNzd29yZCIsInRpbWVzdGFtcCI6MTc3MzAzMTQyNX1dLCJzZXNzaW9uX2lkIjoiOWE2ZWJiNDItOTE3Zi00MDJjLWE1MGItZGE0ZjdiNGIzY2ZiIiwiaXNfYW5vbnltb3VzIjpmYWxzZX0.P-ct5ytFxzhfJNGY2rCGeVUHkNfUDzpRitxK9A33Tc4",
+  "token_type": "bearer",
+  "expires_in": 3600,
+  "expires_at": 1773035025,
+  "refresh_token": "xotinwigfytt",
+  "user": {
+    "id": "cf362f6a-bf1b-45d7-914e-8f7d79f641e0",
+    "aud": "authenticated",
+    "role": "authenticated",
+    "email": "besasa2303@bipochub.com",
+    "email_confirmed_at": "2025-11-25T23:37:38.594149Z",
+    "phone": "",
+    "confirmation_sent_at": "2025-11-25T23:36:33.049933Z",
+    "confirmed_at": "2025-11-25T23:37:38.594149Z",
+    "last_sign_in_at": "2026-03-09T04:43:44.974648395Z",
+    "app_metadata": {
+      "provider": "email",
+      "providers": [
+        "email"
+      ]
+    },
+    "user_metadata": {
+      "email": "besasa2303@bipochub.com",
+      "email_verified": true,
+      "phone_verified": false,
+      "sub": "cf362f6a-bf1b-45d7-914e-8f7d79f641e0"
+    },
+    "identities": [
+      {
+        "identity_id": "d350fcfd-2b9d-4821-b274-771aaeb3057b",
+        "id": "cf362f6a-bf1b-45d7-914e-8f7d79f641e0",
+        "user_id": "cf362f6a-bf1b-45d7-914e-8f7d79f641e0",
+        "identity_data": {
+          "email": "besasa2303@bipochub.com",
+          "email_verified": true,
+          "phone_verified": false,
+          "sub": "cf362f6a-bf1b-45d7-914e-8f7d79f641e0"
+        },
+        "provider": "email",
+        "last_sign_in_at": "2025-11-25T23:36:33.038276Z",
+        "created_at": "2025-11-25T23:36:33.038326Z",
+        "updated_at": "2025-11-25T23:36:33.038326Z",
+        "email": "besasa2303@bipochub.com"
+      }
+    ],
+    "created_at": "2025-11-25T23:36:33.013499Z",
+    "updated_at": "2026-03-09T04:43:45.040936Z",
+    "is_anonymous": false
+  },
+  "weak_password": null
+}
+
+[2026-03-09T14:21:34.254663] LOGIN ATTEMPT: besasa2303@bipochub.com
+  local_auth_username: besasa2303@bipochub.com
+  supabase_error: None
+  supabase_data: 
+{
+  "access_token": "eyJhbGciOiJIUzI1NiIsImtpZCI6IlY0SVdmTnJQVkFEWmFMUHoiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL3ZnZ2VycnlsaGxzZWJwcmZyb251LnN1cGFiYXNlLmNvL2F1dGgvdjEiLCJzdWIiOiJjZjM2MmY2YS1iZjFiLTQ1ZDctOTE0ZS04ZjdkNzlmNjQxZTAiLCJhdWQiOiJhdXRoZW50aWNhdGVkIiwiZXhwIjoxNzczMDY5Njk0LCJpYXQiOjE3NzMwNjYwOTQsImVtYWlsIjoiYmVzYXNhMjMwM0BiaXBvY2h1Yi5jb20iLCJwaG9uZSI6IiIsImFwcF9tZXRhZGF0YSI6eyJwcm92aWRlciI6ImVtYWlsIiwicHJvdmlkZXJzIjpbImVtYWlsIl19LCJ1c2VyX21ldGFkYXRhIjp7ImVtYWlsIjoiYmVzYXNhMjMwM0BiaXBvY2h1Yi5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicGhvbmVfdmVyaWZpZWQiOmZhbHNlLCJzdWIiOiJjZjM2MmY2YS1iZjFiLTQ1ZDctOTE0ZS04ZjdkNzlmNjQxZTAifSwicm9sZSI6ImF1dGhlbnRpY2F0ZWQiLCJhYWwiOiJhYWwxIiwiYW1yIjpbeyJtZXRob2QiOiJwYXNzd29yZCIsInRpbWVzdGFtcCI6MTc3MzA2NjA5NH1dLCJzZXNzaW9uX2lkIjoiMjhmMDAwYzEtMmQ4Ny00MDUwLTg4MzAtODkzODRlOTgwMmYxIiwiaXNfYW5vbnltb3VzIjpmYWxzZX0.1dIxwjlslQZY6l-BDuU2NUNmHQQhCJceb0XmgxayZaE",
+  "token_type": "bearer",
+  "expires_in": 3600,
+  "expires_at": 1773069694,
+  "refresh_token": "scbentfewqh2",
+  "user": {
+    "id": "cf362f6a-bf1b-45d7-914e-8f7d79f641e0",
+    "aud": "authenticated",
+    "role": "authenticated",
+    "email": "besasa2303@bipochub.com",
+    "email_confirmed_at": "2025-11-25T23:37:38.594149Z",
+    "phone": "",
+    "confirmation_sent_at": "2025-11-25T23:36:33.049933Z",
+    "confirmed_at": "2025-11-25T23:37:38.594149Z",
+    "last_sign_in_at": "2026-03-09T14:21:34.634584922Z",
+    "app_metadata": {
+      "provider": "email",
+      "providers": [
+        "email"
+      ]
+    },
+    "user_metadata": {
+      "email": "besasa2303@bipochub.com",
+      "email_verified": true,
+      "phone_verified": false,
+      "sub": "cf362f6a-bf1b-45d7-914e-8f7d79f641e0"
+    },
+    "identities": [
+      {
+        "identity_id": "d350fcfd-2b9d-4821-b274-771aaeb3057b",
+        "id": "cf362f6a-bf1b-45d7-914e-8f7d79f641e0",
+        "user_id": "cf362f6a-bf1b-45d7-914e-8f7d79f641e0",
+        "identity_data": {
+          "email": "besasa2303@bipochub.com",
+          "email_verified": true,
+          "phone_verified": false,
+          "sub": "cf362f6a-bf1b-45d7-914e-8f7d79f641e0"
+        },
+        "provider": "email",
+        "last_sign_in_at": "2025-11-25T23:36:33.038276Z",
+        "created_at": "2025-11-25T23:36:33.038326Z",
+        "updated_at": "2025-11-25T23:36:33.038326Z",
+        "email": "besasa2303@bipochub.com"
+      }
+    ],
+    "created_at": "2025-11-25T23:36:33.013499Z",
+    "updated_at": "2026-03-09T14:21:34.705645Z",
+    "is_anonymous": false
+  },
+  "weak_password": null
+}
+
+[2026-03-11T02:48:56.559735] LOGIN ATTEMPT: besasa2303@bipochub.com
+  local_auth_username: besasa2303@bipochub.com
+  supabase_error: None
+  supabase_data: 
+{
+  "access_token": "eyJhbGciOiJIUzI1NiIsImtpZCI6IlY0SVdmTnJQVkFEWmFMUHoiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL3ZnZ2VycnlsaGxzZWJwcmZyb251LnN1cGFiYXNlLmNvL2F1dGgvdjEiLCJzdWIiOiJjZjM2MmY2YS1iZjFiLTQ1ZDctOTE0ZS04ZjdkNzlmNjQxZTAiLCJhdWQiOiJhdXRoZW50aWNhdGVkIiwiZXhwIjoxNzczMjAwOTM3LCJpYXQiOjE3NzMxOTczMzcsImVtYWlsIjoiYmVzYXNhMjMwM0BiaXBvY2h1Yi5jb20iLCJwaG9uZSI6IiIsImFwcF9tZXRhZGF0YSI6eyJwcm92aWRlciI6ImVtYWlsIiwicHJvdmlkZXJzIjpbImVtYWlsIl19LCJ1c2VyX21ldGFkYXRhIjp7ImVtYWlsIjoiYmVzYXNhMjMwM0BiaXBvY2h1Yi5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicGhvbmVfdmVyaWZpZWQiOmZhbHNlLCJzdWIiOiJjZjM2MmY2YS1iZjFiLTQ1ZDctOTE0ZS04ZjdkNzlmNjQxZTAifSwicm9sZSI6ImF1dGhlbnRpY2F0ZWQiLCJhYWwiOiJhYWwxIiwiYW1yIjpbeyJtZXRob2QiOiJwYXNzd29yZCIsInRpbWVzdGFtcCI6MTc3MzE5NzMzN31dLCJzZXNzaW9uX2lkIjoiNjk1OWMxZTEtMjE3Ny00MzdhLWJhZDktNWUwYjgyMzdhMGZiIiwiaXNfYW5vbnltb3VzIjpmYWxzZX0.OOgYC5lKhO0ijuXHqNbcCS7aqne9LVfoPKLmu_fj9gs",
+  "token_type": "bearer",
+  "expires_in": 3600,
+  "expires_at": 1773200937,
+  "refresh_token": "j6c6ual36tgg",
+  "user": {
+    "id": "cf362f6a-bf1b-45d7-914e-8f7d79f641e0",
+    "aud": "authenticated",
+    "role": "authenticated",
+    "email": "besasa2303@bipochub.com",
+    "email_confirmed_at": "2025-11-25T23:37:38.594149Z",
+    "phone": "",
+    "confirmation_sent_at": "2025-11-25T23:36:33.049933Z",
+    "confirmed_at": "2025-11-25T23:37:38.594149Z",
+    "last_sign_in_at": "2026-03-11T02:48:56.997162423Z",
+    "app_metadata": {
+      "provider": "email",
+      "providers": [
+        "email"
+      ]
+    },
+    "user_metadata": {
+      "email": "besasa2303@bipochub.com",
+      "email_verified": true,
+      "phone_verified": false,
+      "sub": "cf362f6a-bf1b-45d7-914e-8f7d79f641e0"
+    },
+    "identities": [
+      {
+        "identity_id": "d350fcfd-2b9d-4821-b274-771aaeb3057b",
+        "id": "cf362f6a-bf1b-45d7-914e-8f7d79f641e0",
+        "user_id": "cf362f6a-bf1b-45d7-914e-8f7d79f641e0",
+        "identity_data": {
+          "email": "besasa2303@bipochub.com",
+          "email_verified": true,
+          "phone_verified": false,
+          "sub": "cf362f6a-bf1b-45d7-914e-8f7d79f641e0"
+        },
+        "provider": "email",
+        "last_sign_in_at": "2025-11-25T23:36:33.038276Z",
+        "created_at": "2025-11-25T23:36:33.038326Z",
+        "updated_at": "2025-11-25T23:36:33.038326Z",
+        "email": "besasa2303@bipochub.com"
+      }
+    ],
+    "created_at": "2025-11-25T23:36:33.013499Z",
+    "updated_at": "2026-03-11T02:48:57.075217Z",
+    "is_anonymous": false
+  },
+  "weak_password": null
+}
+
+[2026-03-11T23:50:37.078855] LOGIN ATTEMPT: besasa2303@bipochub.com
+  local_auth_username: besasa2303@bipochub.com
+  supabase_error: None
+  supabase_data: 
+{
+  "access_token": "eyJhbGciOiJIUzI1NiIsImtpZCI6IlY0SVdmTnJQVkFEWmFMUHoiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL3ZnZ2VycnlsaGxzZWJwcmZyb251LnN1cGFiYXNlLmNvL2F1dGgvdjEiLCJzdWIiOiJjZjM2MmY2YS1iZjFiLTQ1ZDctOTE0ZS04ZjdkNzlmNjQxZTAiLCJhdWQiOiJhdXRoZW50aWNhdGVkIiwiZXhwIjoxNzczMjc2NjM2LCJpYXQiOjE3NzMyNzMwMzYsImVtYWlsIjoiYmVzYXNhMjMwM0BiaXBvY2h1Yi5jb20iLCJwaG9uZSI6IiIsImFwcF9tZXRhZGF0YSI6eyJwcm92aWRlciI6ImVtYWlsIiwicHJvdmlkZXJzIjpbImVtYWlsIl19LCJ1c2VyX21ldGFkYXRhIjp7ImVtYWlsIjoiYmVzYXNhMjMwM0BiaXBvY2h1Yi5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicGhvbmVfdmVyaWZpZWQiOmZhbHNlLCJzdWIiOiJjZjM2MmY2YS1iZjFiLTQ1ZDctOTE0ZS04ZjdkNzlmNjQxZTAifSwicm9sZSI6ImF1dGhlbnRpY2F0ZWQiLCJhYWwiOiJhYWwxIiwiYW1yIjpbeyJtZXRob2QiOiJwYXNzd29yZCIsInRpbWVzdGFtcCI6MTc3MzI3MzAzNn1dLCJzZXNzaW9uX2lkIjoiYjczNDk5OGUtNDFiZC00MWM3LTgyYjYtNjljZjgxNWUxYzVkIiwiaXNfYW5vbnltb3VzIjpmYWxzZX0.d_opmHqI26TYJ8WFSqsKagxbWNvcbDCNFNtzDgf04Q8",
+  "token_type": "bearer",
+  "expires_in": 3600,
+  "expires_at": 1773276636,
+  "refresh_token": "xyguai6mll65",
+  "user": {
+    "id": "cf362f6a-bf1b-45d7-914e-8f7d79f641e0",
+    "aud": "authenticated",
+    "role": "authenticated",
+    "email": "besasa2303@bipochub.com",
+    "email_confirmed_at": "2025-11-25T23:37:38.594149Z",
+    "phone": "",
+    "confirmation_sent_at": "2025-11-25T23:36:33.049933Z",
+    "confirmed_at": "2025-11-25T23:37:38.594149Z",
+    "last_sign_in_at": "2026-03-11T23:50:36.199488116Z",
+    "app_metadata": {
+      "provider": "email",
+      "providers": [
+        "email"
+      ]
+    },
+    "user_metadata": {
+      "email": "besasa2303@bipochub.com",
+      "email_verified": true,
+      "phone_verified": false,
+      "sub": "cf362f6a-bf1b-45d7-914e-8f7d79f641e0"
+    },
+    "identities": [
+      {
+        "identity_id": "d350fcfd-2b9d-4821-b274-771aaeb3057b",
+        "id": "cf362f6a-bf1b-45d7-914e-8f7d79f641e0",
+        "user_id": "cf362f6a-bf1b-45d7-914e-8f7d79f641e0",
+        "identity_data": {
+          "email": "besasa2303@bipochub.com",
+          "email_verified": true,
+          "phone_verified": false,
+          "sub": "cf362f6a-bf1b-45d7-914e-8f7d79f641e0"
+        },
+        "provider": "email",
+        "last_sign_in_at": "2025-11-25T23:36:33.038276Z",
+        "created_at": "2025-11-25T23:36:33.038326Z",
+        "updated_at": "2025-11-25T23:36:33.038326Z",
+        "email": "besasa2303@bipochub.com"
+      }
+    ],
+    "created_at": "2025-11-25T23:36:33.013499Z",
+    "updated_at": "2026-03-11T23:50:36.255718Z",
+    "is_anonymous": false
+  },
+  "weak_password": null
+}
+
+[2026-03-12T00:43:34.789146] LOGIN ATTEMPT: besasa2303@bipochub.com
+  local_auth_username: besasa2303@bipochub.com
+  supabase_error: None
+  supabase_data: 
+{
+  "access_token": "eyJhbGciOiJIUzI1NiIsImtpZCI6IlY0SVdmTnJQVkFEWmFMUHoiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL3ZnZ2VycnlsaGxzZWJwcmZyb251LnN1cGFiYXNlLmNvL2F1dGgvdjEiLCJzdWIiOiJjZjM2MmY2YS1iZjFiLTQ1ZDctOTE0ZS04ZjdkNzlmNjQxZTAiLCJhdWQiOiJhdXRoZW50aWNhdGVkIiwiZXhwIjoxNzczMjc5ODEzLCJpYXQiOjE3NzMyNzYyMTMsImVtYWlsIjoiYmVzYXNhMjMwM0BiaXBvY2h1Yi5jb20iLCJwaG9uZSI6IiIsImFwcF9tZXRhZGF0YSI6eyJwcm92aWRlciI6ImVtYWlsIiwicHJvdmlkZXJzIjpbImVtYWlsIl19LCJ1c2VyX21ldGFkYXRhIjp7ImVtYWlsIjoiYmVzYXNhMjMwM0BiaXBvY2h1Yi5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicGhvbmVfdmVyaWZpZWQiOmZhbHNlLCJzdWIiOiJjZjM2MmY2YS1iZjFiLTQ1ZDctOTE0ZS04ZjdkNzlmNjQxZTAifSwicm9sZSI6ImF1dGhlbnRpY2F0ZWQiLCJhYWwiOiJhYWwxIiwiYW1yIjpbeyJtZXRob2QiOiJwYXNzd29yZCIsInRpbWVzdGFtcCI6MTc3MzI3NjIxM31dLCJzZXNzaW9uX2lkIjoiMGZlZmY4MGItMzFiYy00ZTEwLTliYTEtNjE4YWM5M2I3OTdlIiwiaXNfYW5vbnltb3VzIjpmYWxzZX0.2h-MG3JcBvIfGbyrYvq8_zVQNicEjnlQ22TEUfP5erg",
+  "token_type": "bearer",
+  "expires_in": 3600,
+  "expires_at": 1773279813,
+  "refresh_token": "azumcy4qjhzj",
+  "user": {
+    "id": "cf362f6a-bf1b-45d7-914e-8f7d79f641e0",
+    "aud": "authenticated",
+    "role": "authenticated",
+    "email": "besasa2303@bipochub.com",
+    "email_confirmed_at": "2025-11-25T23:37:38.594149Z",
+    "phone": "",
+    "confirmation_sent_at": "2025-11-25T23:36:33.049933Z",
+    "confirmed_at": "2025-11-25T23:37:38.594149Z",
+    "last_sign_in_at": "2026-03-12T00:43:33.901434644Z",
+    "app_metadata": {
+      "provider": "email",
+      "providers": [
+        "email"
+      ]
+    },
+    "user_metadata": {
+      "email": "besasa2303@bipochub.com",
+      "email_verified": true,
+      "phone_verified": false,
+      "sub": "cf362f6a-bf1b-45d7-914e-8f7d79f641e0"
+    },
+    "identities": [
+      {
+        "identity_id": "d350fcfd-2b9d-4821-b274-771aaeb3057b",
+        "id": "cf362f6a-bf1b-45d7-914e-8f7d79f641e0",
+        "user_id": "cf362f6a-bf1b-45d7-914e-8f7d79f641e0",
+        "identity_data": {
+          "email": "besasa2303@bipochub.com",
+          "email_verified": true,
+          "phone_verified": false,
+          "sub": "cf362f6a-bf1b-45d7-914e-8f7d79f641e0"
+        },
+        "provider": "email",
+        "last_sign_in_at": "2025-11-25T23:36:33.038276Z",
+        "created_at": "2025-11-25T23:36:33.038326Z",
+        "updated_at": "2025-11-25T23:36:33.038326Z",
+        "email": "besasa2303@bipochub.com"
+      }
+    ],
+    "created_at": "2025-11-25T23:36:33.013499Z",
+    "updated_at": "2026-03-12T00:43:33.955119Z",
+    "is_anonymous": false
+  },
+  "weak_password": null
+}
+
+[2026-03-12T00:57:21.184072] LOGIN ATTEMPT: besasa2303@bipochub.com
+  local_auth_username: besasa2303@bipochub.com
+  supabase_error: None
+  supabase_data: 
+{
+  "access_token": "eyJhbGciOiJIUzI1NiIsImtpZCI6IlY0SVdmTnJQVkFEWmFMUHoiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL3ZnZ2VycnlsaGxzZWJwcmZyb251LnN1cGFiYXNlLmNvL2F1dGgvdjEiLCJzdWIiOiJjZjM2MmY2YS1iZjFiLTQ1ZDctOTE0ZS04ZjdkNzlmNjQxZTAiLCJhdWQiOiJhdXRoZW50aWNhdGVkIiwiZXhwIjoxNzczMjgwNjQwLCJpYXQiOjE3NzMyNzcwNDAsImVtYWlsIjoiYmVzYXNhMjMwM0BiaXBvY2h1Yi5jb20iLCJwaG9uZSI6IiIsImFwcF9tZXRhZGF0YSI6eyJwcm92aWRlciI6ImVtYWlsIiwicHJvdmlkZXJzIjpbImVtYWlsIl19LCJ1c2VyX21ldGFkYXRhIjp7ImVtYWlsIjoiYmVzYXNhMjMwM0BiaXBvY2h1Yi5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicGhvbmVfdmVyaWZpZWQiOmZhbHNlLCJzdWIiOiJjZjM2MmY2YS1iZjFiLTQ1ZDctOTE0ZS04ZjdkNzlmNjQxZTAifSwicm9sZSI6ImF1dGhlbnRpY2F0ZWQiLCJhYWwiOiJhYWwxIiwiYW1yIjpbeyJtZXRob2QiOiJwYXNzd29yZCIsInRpbWVzdGFtcCI6MTc3MzI3NzA0MH1dLCJzZXNzaW9uX2lkIjoiZDUxNTU1MzAtZjUxNS00MzM2LWJiOWUtZmUwOWI1YjkzZjdhIiwiaXNfYW5vbnltb3VzIjpmYWxzZX0.k8T3ZueIsIhhYiX5EIJef7-2Dir9QUtQ5gIxPNx307M",
+  "token_type": "bearer",
+  "expires_in": 3600,
+  "expires_at": 1773280640,
+  "refresh_token": "2ti2ienqe5nl",
+  "user": {
+    "id": "cf362f6a-bf1b-45d7-914e-8f7d79f641e0",
+    "aud": "authenticated",
+    "role": "authenticated",
+    "email": "besasa2303@bipochub.com",
+    "email_confirmed_at": "2025-11-25T23:37:38.594149Z",
+    "phone": "",
+    "confirmation_sent_at": "2025-11-25T23:36:33.049933Z",
+    "confirmed_at": "2025-11-25T23:37:38.594149Z",
+    "last_sign_in_at": "2026-03-12T00:57:20.351729397Z",
+    "app_metadata": {
+      "provider": "email",
+      "providers": [
+        "email"
+      ]
+    },
+    "user_metadata": {
+      "email": "besasa2303@bipochub.com",
+      "email_verified": true,
+      "phone_verified": false,
+      "sub": "cf362f6a-bf1b-45d7-914e-8f7d79f641e0"
+    },
+    "identities": [
+      {
+        "identity_id": "d350fcfd-2b9d-4821-b274-771aaeb3057b",
+        "id": "cf362f6a-bf1b-45d7-914e-8f7d79f641e0",
+        "user_id": "cf362f6a-bf1b-45d7-914e-8f7d79f641e0",
+        "identity_data": {
+          "email": "besasa2303@bipochub.com",
+          "email_verified": true,
+          "phone_verified": false,
+          "sub": "cf362f6a-bf1b-45d7-914e-8f7d79f641e0"
+        },
+        "provider": "email",
+        "last_sign_in_at": "2025-11-25T23:36:33.038276Z",
+        "created_at": "2025-11-25T23:36:33.038326Z",
+        "updated_at": "2025-11-25T23:36:33.038326Z",
+        "email": "besasa2303@bipochub.com"
+      }
+    ],
+    "created_at": "2025-11-25T23:36:33.013499Z",
+    "updated_at": "2026-03-12T00:57:20.404842Z",
+    "is_anonymous": false
+  },
+  "weak_password": null
+}
+
+[2026-03-14T01:00:44.240247] LOGIN ATTEMPT: kilebim352@bipochub.com
+  local_auth_username: kilebim352@bipochub.com
+  supabase_error: {"code":400,"error_code":"invalid_credentials","msg":"Invalid login credentials"}
+  supabase_data: 
+{
+  "code": 400,
+  "error_code": "invalid_credentials",
+  "msg": "Invalid login credentials"
+}
+

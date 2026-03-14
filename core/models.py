@@ -43,11 +43,7 @@ class PerfilFirebase(models.Model):
 class Centro(models.Model):
     """Centros de acopio - usando tabla centros_acopio de Supabase"""
     id = models.BigAutoField(primary_key=True)
-    id_usuario = models.ForeignKey(
-        PerfilFirebase, on_delete=models.CASCADE,
-        db_column='id_usuario', blank=True, null=True,
-        related_name='centros'
-    )
+    id_usuario = models.UUIDField(blank=True, null=True)  # Cambiado de ForeignKey
     nombre_comercial = models.CharField(max_length=255)
     descripcion = models.TextField(blank=True, null=True)
     direccion_texto = models.TextField()
@@ -60,19 +56,6 @@ class Centro(models.Model):
     estado_operativo = models.BooleanField(default=True)
     validado = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
-    
-    # Campos legacy
-    name = models.CharField(max_length=255)
-    address = models.TextField()
-    contact_phone = models.CharField(max_length=20, blank=True, null=True)
-    contact_email = models.EmailField(blank=True, null=True)
-    latitude = models.DecimalField(max_digits=10, decimal_places=8, blank=True, null=True)
-    longitude = models.DecimalField(max_digits=11, decimal_places=8, blank=True, null=True)
-    active = models.BooleanField(default=True)
-    created_by = models.ForeignKey(
-        UsuarioDjango, on_delete=models.SET_NULL, 
-        null=True, blank=True, related_name='centros_creados'
-    )
 
     class Meta:
         db_table = 'centros_acopio'
@@ -80,24 +63,8 @@ class Centro(models.Model):
         verbose_name = 'Centro de Acopio'
         verbose_name_plural = 'Centros de Acopio'
 
-    def save(self, *args, **kwargs):
-        """Sincronizar campos"""
-        if not self.nombre_comercial and self.name:
-            self.nombre_comercial = self.name
-        if not self.direccion_texto and self.address:
-            self.direccion_texto = self.address
-        if not self.telefono_contacto and self.contact_phone:
-            self.telefono_contacto = self.contact_phone
-        if not self.correo_contacto and self.contact_email:
-            self.correo_contacto = self.contact_email
-        if not self.latitud and self.latitude:
-            self.latitud = self.latitude
-        if not self.longitud and self.longitude:
-            self.longitud = self.longitude
-        super().save(*args, **kwargs)
-
     def __str__(self):
-        return self.nombre_comercial or self.name
+        return self.nombre_comercial or ''
 
 
 class Material(models.Model):
@@ -212,3 +179,4 @@ class Sugerencia(models.Model):
 
     def __str__(self):
         return f"Sugerencia de {self.usuario.correo}"
+    

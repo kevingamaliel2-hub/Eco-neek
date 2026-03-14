@@ -1,62 +1,526 @@
 {% extends "base.html" %}
 {% load static %}
-{% block title %}Editar Perfil{% endblock %}
+
+{% block title %}Editar Perfil - EcoNeek{% endblock %}
+
+{% block extra_head %}
+<style>
+    :root {
+        --primary: #2a9d8f;
+        --secondary: #264653;
+        --accent: #e9c46a;
+        --light-bg: #f8f9fa;
+        --dark: #1e2b37;
+        --text-muted: #6c757d;
+        --white: #ffffff;
+        --shadow-sm: 0 4px 6px rgba(0,0,0,0.05);
+        --shadow-md: 0 10px 30px rgba(0,0,0,0.1);
+        --shadow-lg: 0 20px 40px rgba(0,0,0,0.15);
+        --border-radius-card: 40px;
+        --border-radius-btn: 50px;
+        --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+
+    body {
+        background: linear-gradient(135deg, rgba(42,157,143,0.05) 0%, rgba(38,70,83,0.05) 100%);
+        min-height: 100vh;
+        padding: 40px 0;
+    }
+
+    /* TARJETA PRINCIPAL */
+    .edit-profile-card {
+        background: white;
+        border-radius: var(--border-radius-card);
+        padding: 50px;
+        box-shadow: var(--shadow-lg);
+        border: 1px solid rgba(0,0,0,0.02);
+        max-width: 800px;
+        margin: 0 auto;
+        position: relative;
+    }
+
+    .edit-profile-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 6px;
+        background: linear-gradient(90deg, var(--primary), var(--secondary));
+        border-radius: var(--border-radius-card) var(--border-radius-card) 0 0;
+    }
+
+    /* AVATAR PRINCIPAL - AQUÍ SE VE LA FOTO ACTUAL */
+    .avatar-section-premium {
+        text-align: center;
+        margin-bottom: 40px;
+    }
+
+    .avatar-wrapper-premium {
+        position: relative;
+        display: inline-block;
+    }
+
+    .avatar-image-premium {
+        width: 140px;
+        height: 140px;
+        border-radius: 40px;
+        object-fit: cover;
+        border: 5px solid white;
+        box-shadow: var(--shadow-lg);
+        transition: var(--transition);
+    }
+
+    .avatar-image-premium:hover {
+        transform: scale(1.05);
+    }
+
+    .avatar-edit-badge-premium {
+        position: absolute;
+        bottom: 10px;
+        right: 10px;
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        color: white;
+        width: 45px;
+        height: 45px;
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.3rem;
+        border: 3px solid white;
+        box-shadow: var(--shadow-md);
+        cursor: pointer;
+        transition: var(--transition);
+    }
+
+    .avatar-edit-badge-premium:hover {
+        transform: scale(1.1);
+        box-shadow: var(--shadow-lg);
+    }
+
+    .avatar-title-premium h2 {
+        color: var(--secondary);
+        font-weight: 700;
+        font-size: 2.2rem;
+        margin: 20px 0 5px;
+        letter-spacing: -0.5px;
+    }
+
+    .avatar-title-premium p {
+        color: var(--text-muted);
+        font-size: 1rem;
+    }
+
+    /* GRID DE FORMULARIO */
+    .form-grid-premium {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 25px;
+        margin-bottom: 25px;
+    }
+
+    @media (max-width: 640px) {
+        .form-grid-premium {
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+    }
+
+    /* GRUPOS DE FORMULARIO */
+    .form-group-premium {
+        margin-bottom: 25px;
+    }
+
+    .form-label-premium {
+        display: block;
+        font-weight: 600;
+        color: var(--secondary);
+        margin-bottom: 10px;
+        font-size: 0.95rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .form-label-premium i {
+        color: var(--primary);
+        margin-right: 8px;
+        font-size: 1rem;
+    }
+
+    .input-wrapper-premium {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+
+    .input-icon-premium {
+        position: absolute;
+        left: 18px;
+        color: var(--primary);
+        font-size: 1.2rem;
+    }
+
+    .form-control-premium {
+        width: 100%;
+        padding: 16px 18px 16px 50px;
+        border: 2px solid #e9ecef;
+        border-radius: 25px;
+        font-size: 1rem;
+        transition: var(--transition);
+        background: var(--light-bg);
+    }
+
+    .form-control-premium:focus {
+        border-color: var(--primary);
+        background: white;
+        box-shadow: 0 0 0 4px rgba(42,157,143,0.1);
+        outline: none;
+    }
+
+    .form-control-premium:disabled {
+        background: #e9ecef;
+        color: var(--text-muted);
+        border-color: #dee2e6;
+        cursor: not-allowed;
+    }
+
+    /* INPUT SIN ICONO (para grid) */
+    .form-control-premium-plain {
+        width: 100%;
+        padding: 16px 20px;
+        border: 2px solid #e9ecef;
+        border-radius: 25px;
+        font-size: 1rem;
+        transition: var(--transition);
+        background: var(--light-bg);
+    }
+
+    .form-control-premium-plain:focus {
+        border-color: var(--primary);
+        background: white;
+        box-shadow: 0 0 0 4px rgba(42,157,143,0.1);
+        outline: none;
+    }
+
+    /* UPLOAD ÁREA - SOLO EL BOTÓN PARA CAMBIAR */
+    .upload-area-premium {
+        border: 2px dashed rgba(42,157,143,0.3);
+        border-radius: 30px;
+        padding: 25px;
+        text-align: center;
+        background: linear-gradient(135deg, rgba(42,157,143,0.02) 0%, rgba(38,70,83,0.02) 100%);
+        cursor: pointer;
+        transition: var(--transition);
+        margin-top: 10px;
+    }
+
+    .upload-area-premium:hover {
+        border-color: var(--primary);
+        background: rgba(42,157,143,0.05);
+        transform: translateY(-2px);
+    }
+
+    .upload-area-premium i {
+        font-size: 2.5rem;
+        color: var(--primary);
+        margin-bottom: 10px;
+        display: block;
+    }
+
+    .upload-area-premium p {
+        font-weight: 600;
+        color: var(--secondary);
+        margin-bottom: 5px;
+    }
+
+    .upload-area-premium small {
+        color: var(--text-muted);
+        font-size: 0.85rem;
+    }
+
+    /* BOTÓN GUARDAR */
+    .btn-save-premium {
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        color: white;
+        width: 100%;
+        padding: 18px;
+        border: none;
+        border-radius: 40px;
+        font-weight: 600;
+        font-size: 1.1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        transition: var(--transition);
+        box-shadow: var(--shadow-md);
+        cursor: pointer;
+        margin: 35px 0 20px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .btn-save-premium::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+        transition: left 0.5s ease;
+    }
+
+    .btn-save-premium:hover {
+        transform: translateY(-3px);
+        box-shadow: var(--shadow-lg);
+    }
+
+    .btn-save-premium:hover::before {
+        left: 100%;
+    }
+
+    /* BOTÓN VOLVER */
+    .back-link-premium {
+        text-align: center;
+        margin-top: 20px;
+    }
+
+    .back-link-premium a {
+        color: var(--text-muted);
+        text-decoration: none;
+        font-size: 0.95rem;
+        transition: var(--transition);
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 30px;
+        border-radius: 40px;
+        background: white;
+        border: 2px solid #e9ecef;
+    }
+
+    .back-link-premium a:hover {
+        color: var(--primary);
+        border-color: var(--primary);
+        background: rgba(42,157,143,0.02);
+        transform: translateX(-5px);
+    }
+
+    /* MENSAJES */
+    .messages-premium {
+        margin-bottom: 30px;
+    }
+
+    .alert-premium {
+        padding: 18px 25px;
+        border-radius: 25px;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        font-size: 0.95rem;
+        border: none;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .alert-premium i {
+        font-size: 1.5rem;
+    }
+
+    .alert-success-premium {
+        background: rgba(42,157,143,0.1);
+        color: var(--primary);
+        border-left: 5px solid var(--primary);
+    }
+
+    .alert-error-premium {
+        background: rgba(220,53,69,0.05);
+        color: #dc3545;
+        border-left: 5px solid #dc3545;
+    }
+
+    .alert-info-premium {
+        background: rgba(233,196,106,0.1);
+        color: #b38b40;
+        border-left: 5px solid var(--accent);
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 768px) {
+        body {
+            padding: 20px 0;
+        }
+        
+        .edit-profile-card {
+            padding: 30px 20px;
+        }
+        
+        .avatar-image-premium {
+            width: 100px;
+            height: 100px;
+            border-radius: 30px;
+        }
+        
+        .avatar-edit-badge-premium {
+            width: 35px;
+            height: 35px;
+            font-size: 1rem;
+            border-radius: 15px;
+        }
+        
+        .avatar-title-premium h2 {
+            font-size: 1.8rem;
+        }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container py-5">
-  <div class="row justify-content-center">
-    <div class="col-12 col-md-7 col-lg-5">
-      <div class="eco-card p-4 p-md-5">
-        <div class="text-center mb-4">
-          <span style="font-size:2.5rem">✏️</span>
-          <h2 class="section-title mt-2 mb-1">Editar Perfil</h2>
-        </div>
-        <form method="POST" enctype="multipart/form-data">
-          {% csrf_token %}
-          <div class="mb-3">
-            <label class="form-label fw-semibold">Nombre</label>
-            <input type="text" name="nombre" class="form-control"
-                   value="{{ usuario.first_name }}" placeholder="Tu nombre">
-          </div>
-          <div class="mb-3">
-            <label class="form-label fw-semibold">Apellido</label>
-            <input type="text" name="apellido" class="form-control"
-                   value="{{ usuario.last_name }}" placeholder="Tu apellido">
-          </div>
-          <div class="mb-3">
-            <label class="form-label fw-semibold">Correo electrónico</label>
-            <input type="email" class="form-control" value="{{ usuario.email }}"
-                   disabled style="background:#f8f9fa; color:#6c757d;">
-          </div>
-          <div class="mb-3">
-            <label class="form-label fw-semibold">Teléfono</label>
-            <div class="input-group">
-              <span class="input-group-text"><i class="bi bi-telephone-fill"></i></span>
-              <input type="tel" name="phone" class="form-control"
-                     value="{{ usuario.phone|default:'' }}" placeholder="Ej: 999 123 4567">
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10">
+            <div class="edit-profile-card">
+
+                <!-- Mensajes -->
+                {% if messages %}
+                    <div class="messages-premium">
+                        {% for message in messages %}
+                            <div class="alert-premium alert-{{ message.tags }}-premium">
+                                <i class="bi {% if message.tags == 'success' %}bi-check-circle-fill{% elif message.tags == 'error' %}bi-exclamation-triangle-fill{% else %}bi-info-circle-fill{% endif %}"></i>
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <!-- AVATAR PRINCIPAL - AQUÍ SE VE LA FOTO ACTUAL -->
+                <div class="avatar-section-premium">
+                    <div class="avatar-wrapper-premium">
+                        {% if usuario.avatar %}
+                            <img src="{{ usuario.avatar }}" id="avatarPreview" class="avatar-image-premium" alt="Avatar">
+                        {% else %}
+                            <img src="{% static 'assets/img/default-avatar.png' %}" id="avatarPreview" class="avatar-image-premium" alt="Avatar">
+                        {% endif %}
+                        <div class="avatar-edit-badge-premium" onclick="document.getElementById('avatarInput').click()">
+                            <i class="bi bi-camera-fill"></i>
+                        </div>
+                    </div>
+                    <div class="avatar-title-premium">
+                        <h2>Editar perfil</h2>
+                        <p>Actualiza tu información personal</p>
+                    </div>
+                </div>
+
+                <!-- FORMULARIO -->
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+
+                    <div class="form-grid-premium">
+                        <div class="form-group-premium">
+                            <label class="form-label-premium">
+                                <i class="bi bi-person"></i>
+                                Nombre
+                            </label>
+                            <input type="text" 
+                                   name="nombre" 
+                                   class="form-control-premium-plain" 
+                                   value="{{ usuario.first_name }}"
+                                   placeholder="Tu nombre">
+                        </div>
+
+                        <div class="form-group-premium">
+                            <label class="form-label-premium">
+                                <i class="bi bi-person"></i>
+                                Apellido
+                            </label>
+                            <input type="text" 
+                                   name="apellido" 
+                                   class="form-control-premium-plain" 
+                                   value="{{ usuario.last_name }}"
+                                   placeholder="Tu apellido">
+                        </div>
+                    </div>
+
+                    <div class="form-group-premium">
+                        <label class="form-label-premium">
+                            <i class="bi bi-envelope"></i>
+                            Correo electrónico
+                        </label>
+                        <div class="input-wrapper-premium">
+                            <i class="bi bi-envelope-fill input-icon-premium"></i>
+                            <input type="email" 
+                                   class="form-control-premium" 
+                                   value="{{ usuario.email }}" 
+                                   disabled>
+                        </div>
+                    </div>
+
+                    <div class="form-group-premium">
+                        <label class="form-label-premium">
+                            <i class="bi bi-telephone"></i>
+                            Teléfono
+                        </label>
+                        <div class="input-wrapper-premium">
+                            <i class="bi bi-telephone-fill input-icon-premium"></i>
+                            <input type="tel" 
+                                   name="phone" 
+                                   class="form-control-premium" 
+                                   value="{{ usuario.phone|default:'' }}"
+                                   placeholder="999 123 4567">
+                        </div>
+                    </div>
+
+                    <!-- SOLO EL BOTÓN PARA CAMBIAR LA FOTO -->
+                    <div class="form-group-premium">
+                        <label class="form-label-premium">
+                            <i class="bi bi-camera"></i>
+                            Cambiar foto de perfil
+                        </label>
+                        <div class="upload-area-premium" onclick="document.getElementById('avatarInput').click()">
+                            <i class="bi bi-cloud-arrow-up"></i>
+                            <p>Seleccionar nueva imagen</p>
+                            <small>JPG, PNG hasta 2MB</small>
+                            <input type="file" 
+                                   id="avatarInput" 
+                                   name="avatar" 
+                                   accept="image/*" 
+                                   style="display: none;"
+                                   onchange="previewAvatar(event)">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-save-premium">
+                        <i class="bi bi-check-lg"></i>
+                        Guardar cambios
+                    </button>
+                </form>
+
+                <!-- VOLVER -->
+                <div class="back-link-premium">
+                    <a href="{% url 'perfil' %}">
+                        <i class="bi bi-arrow-left"></i>
+                        Volver al perfil
+                    </a>
+                </div>
+
             </div>
-          </div>
-          <div class="mb-4">
-            <label class="form-label fw-semibold">Foto de perfil</label>
-            {% if usuario.avatar %}
-              <div class="mb-2">
-                <img src="/media/{{ usuario.avatar }}" alt="Avatar actual"
-                     style="width:60px;height:60px;border-radius:50%;object-fit:cover;">
-                <small class="text-muted ms-2">Foto actual</small>
-              </div>
-            {% endif %}
-            <input type="file" name="avatar" class="form-control" accept="image/*">
-          </div>
-          <button type="submit" class="btn-eco w-100 py-3" style="font-size:1rem; border-radius:10px;">
-            <i class="bi bi-check-lg me-2"></i>Guardar cambios
-          </button>
-        </form>
-        <div class="text-center mt-3">
-          <a href="{% url 'perfil' %}" class="text-muted small">
-            <i class="bi bi-arrow-left me-1"></i>Volver al perfil
-          </a>
         </div>
-      </div>
     </div>
-  </div>
 </div>
+
+<script>
+function previewAvatar(event) {
+    const file = event.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            // Actualizar el avatar grande (que es la foto actual)
+            document.getElementById('avatarPreview').src = e.target.result;
+        }
+        reader.readAsDataURL(file);
+    }
+}
+</script>
 {% endblock %}

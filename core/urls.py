@@ -1,6 +1,11 @@
-from django.urls import path
+
+from django.urls import path, re_path
 from . import views
 from . import views_debug
+from django.shortcuts import redirect
+
+def social_signup_redirect(request, *args, **kwargs):
+    return redirect('/register-screen/')
 
 urlpatterns = [
     path('', views.home, name='home'),
@@ -21,6 +26,7 @@ urlpatterns = [
     path('completar-registro/usuario/', views.completar_usuario, name='completar_usuario'),
     path('completar-registro/centro/', views.completar_centro, name='completar_centro'),
     path('logout/', views.logout_view, name='logout'),
+    path('proximamente/', views.proximamente, name='proximamente'),
     # Panel de gestión de centros fuera del admin de Django (usa Supabase)
     # La ruta previa "admin/centros/" chocaba con el prefijo de admin de Django,
     # por lo que se movió a una URL independiente.
@@ -38,4 +44,11 @@ urlpatterns = [
     # pantalla de login con botón Google e info de APIs
     path('login-screen/', views.login_screen, name='login_screen'),
     path('register-screen/', views.register_screen, name='register_screen'),
+    # Override Allauth social signup URL to always redirect
+    re_path(r'^accounts/social/signup/$', social_signup_redirect),
+    # En core/urls.py, agrega esta línea:
+    path('centro/<int:centro_id>/', views.centro_publico, name='centro_publico'),
+    # Fallback para rutas no existentes: redirige al home por seguridad.
+    # Si empieza con /eventos, redirige a /eventos/ en vez de home.
+    re_path(r'^(?P<unmatched>.*)$', views.route_fallback),
 ]
