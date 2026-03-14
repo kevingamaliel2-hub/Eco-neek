@@ -652,5 +652,16 @@
 </footer>
 
 {% block extra_scripts %}{% endblock %}
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    var toggler = document.querySelector('.navbar-toggler');
+    var collapse = document.getElementById('ecoNavbarCollapse');
+    if (toggler && collapse) {
+      toggler.addEventListener('click', function() {
+        collapse.classList.toggle('show');
+      });
+    }
+  });
+</script>
 </body>
 </html>
