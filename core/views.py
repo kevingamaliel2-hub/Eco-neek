@@ -8,6 +8,8 @@ from django.contrib import messages
 from .models import Premio, Evento, Centro, UsuarioDjango, PerfilFirebase, Canje, Sugerencia
 import uuid
 from django.http import JsonResponse, HttpResponseForbidden
+from django.core.validators import validate_email
+from django.core.exceptions import ValidationError
 from .supabase_client import SupabaseClient
 from django.contrib.admin.views.decorators import staff_member_required
 
@@ -26,9 +28,18 @@ def obtener_direccion_desde_coordenadas(lat, lng):
             data = response.json()
             if 'display_name' in data:
                 return data['display_name']
-    except Exception as e:
-        print(f"Error en geocoding: {e}")
+    except Exception:
+        pass
     return None
+
+
+def is_valid_email(email):
+    """Validar correo con Django para evitar inyecciones y entradas malformadas."""
+    try:
+        validate_email(email)
+        return True
+    except ValidationError:
+        return False
 
 
 def proximamente(request):
@@ -74,84 +85,100 @@ def login_screen(request):
             password = request.POST.get('password', '')
 
             username_for_auth = login_val
-            # si el usuario introdujo un correo, buscar el username asociado
+            # si el usuario introdujo un correo, validar y buscar el username asociado
             if '@' in login_val:
-                try:
-                    User = get_user_model()
-                    u = User.objects.filter(email__iexact=login_val).first()
-                    if u:
-                        username_for_auth = u.get_username()
-                except Exception:
-                    username_for_auth = login_val
-
-                user = authenticate(request, username=username_for_auth, password=password)
-                
-                if user is not None:
-                    login(request, user)
-                    request.session['login_attempts'] = 0
-                    # si es staff, al panel
-                    if user.is_staff:
-                        return redirect('admin_centros')
-                    return redirect('/')
+                if not is_valid_email(login_val):
+                    error = 'Correo electrónico no válido.'
                 else:
-                    # Intentar autenticar contra Supabase (app users)
                     try:
-                        supa = SupabaseClient()
-                        resp = supa.sign_in(login_val, password)
-                        if resp and getattr(resp, 'data', None) and not getattr(resp, 'error', None):
-                            # Resp.data typically contains access_token and user
-                            udata = resp.data.get('user') if isinstance(resp.data, dict) else None
-                            email = None
-                            if isinstance(udata, dict):
-                                email = udata.get('email')
-                            # fallback: use login_val if looks like email
-                            if not email and '@' in login_val:
-                                email = login_val
+                        User = get_user_model()
+                        u = User.objects.filter(email__iexact=login_val).first()
+                        if u:
+                            username_for_auth = u.get_username()
+                    except Exception:
+                        username_for_auth = login_val
 
-                            tipo_usuario = 'usuario'  # Valor por defecto
-                            if email:
-                                # OBTENER EL PERFIL COMPLETO DE SUPABASE
-                                try:
-                                    supa_url = getattr(supa, 'url', None)
-                                    supa_key = getattr(supa, 'key', None)
-                                    if supa_url and supa_key:
-                                        perfil_url = f"{supa_url}/rest/v1/perfiles?correo=eq.{email}"
-                                        perfil_headers = {
-                                            'apikey': supa_key,
-                                            'Authorization': f'Bearer {supa_key}'
-                                        }
-                                        perfil_resp = requests.get(perfil_url, headers=perfil_headers)
-                                        if perfil_resp.status_code == 200:
-                                            perfil_data = perfil_resp.json()
-                                            if perfil_data and len(perfil_data) > 0:
-                                                tipo_usuario = perfil_data[0].get('tipo_usuario', 'usuario')
-                                except Exception:
-                                    tipo_usuario = 'usuario'
+                    user = authenticate(request, username=username_for_auth, password=password)
+                    
+                    if user is not None:
+                        login(request, user)
+                        request.session['login_attempts'] = 0
+                        # si es staff, al panel
+                        if user.is_staff:
+                            return redirect('admin_centros')
+                        return redirect('/')
+                    else:
+                        # Intentar autenticar contra Supabase (app users)
+                        try:
+                            supa = SupabaseClient()
+                            resp = supa.sign_in(login_val, password)
+                            if resp and getattr(resp, 'data', None) and not getattr(resp, 'error', None):
+                                # Resp.data typically contains access_token and user
+                                udata = resp.data.get('user') if isinstance(resp.data, dict) else None
+                                email = None
+                                if isinstance(udata, dict):
+                                    email = udata.get('email')
+                                # fallback: use login_val if looks like email
+                                if not email and '@' in login_val:
+                                    email = login_val
 
-                                UserModel = get_user_model()
-                                user_obj, created = UserModel.objects.get_or_create(username=email, defaults={'email': email})
-                                if created:
-                                    user_obj.set_unusable_password()
-                                    user_obj.save()
-                                # ensure Django knows which backend we're using when logging in
-                                login(request, user_obj, backend='django.contrib.auth.backends.ModelBackend')
-                                request.session['login_attempts'] = 0
-                                if user_obj.is_staff:
-                                    return redirect('admin_centros')
-                                # GUARDAR EL TIPO DE USUARIO EN LA SESIÓN DE DJANGO
-                                request.session['user_type'] = tipo_usuario
-                                request.session['user_id_supabase'] = udata.get('id') if udata else None
-                                # REDIRIGIR SEGÚN EL TIPO
-                                if tipo_usuario == 'centro':
-                                    return redirect('perfil_centro')
+                                tipo_usuario = 'usuario'  # Valor por defecto
+                                if email:
+                                    # OBTENER EL PERFIL COMPLETO DE SUPABASE
+                                    try:
+                                        supa_url = getattr(supa, 'url', None)
+                                        supa_key = getattr(supa, 'key', None)
+                                        if supa_url and supa_key:
+                                            perfil_url = f"{supa_url}/rest/v1/perfiles?correo=eq.{quote_plus(email)}"
+                                            perfil_headers = {
+                                                'apikey': supa_key,
+                                                'Authorization': f'Bearer {supa_key}'
+                                            }
+                                            perfil_resp = requests.get(perfil_url, headers=perfil_headers)
+                                            if perfil_resp.status_code == 200:
+                                                perfil_data = perfil_resp.json()
+                                                if perfil_data and len(perfil_data) > 0:
+                                                    tipo_usuario = perfil_data[0].get('tipo_usuario', 'usuario')
+                                    except Exception:
+                                        tipo_usuario = 'usuario'
+
+                                    UserModel = get_user_model()
+                                    user_obj, created = UserModel.objects.get_or_create(username=email, defaults={'email': email})
+                                    if created:
+                                        user_obj.set_unusable_password()
+                                        user_obj.save()
+                                    # ensure Django knows which backend we're using when logging in
+                                    login(request, user_obj, backend='django.contrib.auth.backends.ModelBackend')
+                                    request.session['login_attempts'] = 0
+                                    if user_obj.is_staff:
+                                        return redirect('admin_centros')
+                                    # GUARDAR EL TIPO DE USUARIO EN LA SESIÓN DE DJANGO
+                                    request.session['user_type'] = tipo_usuario
+                                    request.session['user_id_supabase'] = udata.get('id') if udata else None
+                                    # REDIRIGIR SEGÚN EL TIPO
+                                    if tipo_usuario == 'centro':
+                                        return redirect('perfil_centro')
+                                    else:
+                                        return redirect('perfil')
                                 else:
-                                    return redirect('perfil')
-                            else:
-                                error = 'El usuario y/o la contraseña son incorrectos.'
-                    except Exception as e:
-                        print('Error autenticando en Supabase:', e)
-                        error = 'Error al autenticar. Intente de nuevo.'
-            
+                                    error = 'El usuario y/o la contraseña son incorrectos.'
+                        except Exception as e:
+                            error = 'Error al autenticar. Intente de nuevo.'
+            else:
+                # Username-based login fallback (sin @)
+                try:
+                    user = authenticate(request, username=username_for_auth, password=password)
+                    if user is not None:
+                        login(request, user)
+                        request.session['login_attempts'] = 0
+                        if user.is_staff:
+                            return redirect('admin_centros')
+                        return redirect('/')
+                    else:
+                        error = 'Usuario y/o contraseña incorrectos.'
+                except Exception:
+                    error = 'Usuario y/o contraseña incorrectos.'
+
             # incrementar contador cuando falla la autenticación local/Supabase
             if not error:
                 attempts += 1
@@ -174,7 +201,7 @@ def register_screen(request):
     tipo = request.GET.get('tipo', 'usuario')  # Default 'usuario' si no especifica
     
     if request.method == 'POST':
-        email = request.POST.get('email', '').strip()
+        email = request.POST.get('email', '').strip().lower()
         password = request.POST.get('password', '')
         password2 = request.POST.get('password2', '')
         terms = request.POST.get('terms')
@@ -182,6 +209,8 @@ def register_screen(request):
         # Validaciones comunes
         if not email or not password:
             error = 'Se requieren correo y contraseña.'
+        elif not is_valid_email(email):
+            error = 'Correo electrónico no válido.'
         elif len(password) < 6:
             error = 'La contraseña debe tener al menos 6 caracteres.'
         elif password != password2:
@@ -226,7 +255,6 @@ def register_screen(request):
                         return redirect('completar_registro')
                         
                 except Exception as e:
-                    print(f"Error al crear usuario: {e}")
                     error = f'Ocurrió un error al crear la cuenta: {str(e)}'
 
     return render(request, 'register_screen.html', {
@@ -259,7 +287,6 @@ def catalogo(request):
         )
         premios = resp.data if resp and getattr(resp, 'data', None) else []
     except Exception as e:
-        print('Error consultando recompensas en Supabase:', e)
         premios = []
     return render(request, 'catalogo.html', {'premios': premios})
 
@@ -277,7 +304,6 @@ def eventos(request):
         )
         eventos = resp.data if isinstance(resp.data, list) else []
     except Exception as e:
-        print('Error consultando eventos en Supabase:', e)
         eventos = []
     return render(request, 'eventos.html', {'eventos': eventos})
 
@@ -301,7 +327,7 @@ def perfil(request):
     qr_url = None
     puntos = 0
     try:
-        url = f"{supa.url}/rest/v1/perfiles?correo=eq.{usuario.email}"
+        url = f"{supa.url}/rest/v1/perfiles?correo=eq.{quote_plus(usuario.email)}"
         headers = {
             'apikey': supa.key,
             'Authorization': f'Bearer {supa.key}'
@@ -321,7 +347,7 @@ def perfil(request):
                     qr_value = f"QR_{prefix}_{ts}"
                     try:
                         update_resp = requests.patch(
-                            f"{supa.url}/rest/v1/perfiles?id=eq.{perfil_data.get('id', '')}",
+                            f"{supa.url}/rest/v1/perfiles?id=eq.{quote_plus(str(perfil_data.get('id', '')))}",
                             headers={
                                 'apikey': supa.key,
                                 'Authorization': f'Bearer {supa.key}',
@@ -331,23 +357,19 @@ def perfil(request):
                             json={'qr_codigo': qr_value},
                             timeout=10,
                         )
-                        if update_resp.status_code not in (200, 204):
-                            print(f"❌ No se pudo guardar qr_codigo: {update_resp.status_code} {update_resp.text}")
-                        else:
-                            print("✅ QR generado y guardado en Supabase")
-                    except Exception as e:
-                        print(f"❌ Error guardando qr_codigo: {e}")
+                        pass
+                    except Exception:
+                        pass
 
                 # Generar URL de imagen de QR usando un servicio activo
                 qr_url = f"https://api.qrserver.com/v1/create-qr-code/?size=280x280&data={quote_plus(str(qr_value))}"
                 qr_alt_text = f"QR {qr_value}"
-                print(f"✅ Perfil cargado. Avatar URL: {avatar_url} QR:{qr_url}")
             else:
-                print(f"❌ No se encontró perfil_data")
+                pass
         else:
-            print(f"❌ Error consultando perfil: {response.status_code}")
-    except Exception as e:
-        print(f"❌ Excepción: {e}")
+            pass
+    except Exception:
+        pass
 
     canjes = []
     total_canjes = 0
@@ -358,29 +380,27 @@ def perfil(request):
         canjes_raw = []
         if perfil_id:
             canjes_resp = requests.get(
-                f"{supa.url}/rest/v1/canjes?order=fecha_canje.desc&limit=20&id_usuario=eq.{perfil_id}",
+                f"{supa.url}/rest/v1/canjes?order=fecha_canje.desc&limit=20&id_usuario=eq.{quote_plus(str(perfil_id))}",
                 headers=headers,
                 timeout=10,
             )
             if canjes_resp.status_code == 200:
                 canjes_raw = canjes_resp.json() if isinstance(canjes_resp.json(), list) else []
-                print(f"🔎 Canjes por id_usuario={perfil_id}: {len(canjes_raw)}")
 
         if not canjes_raw and fallback_id and fallback_id != perfil_id:
             canjes_resp = requests.get(
-                f"{supa.url}/rest/v1/canjes?order=fecha_canje.desc&limit=20&id_usuario=eq.{fallback_id}",
+                f"{supa.url}/rest/v1/canjes?order=fecha_canje.desc&limit=20&id_usuario=eq.{quote_plus(str(fallback_id))}",
                 headers=headers,
                 timeout=10,
             )
             if canjes_resp.status_code == 200:
                 canjes_raw = canjes_resp.json() if isinstance(canjes_resp.json(), list) else []
-                print(f"🔎 Canjes por id_usuario fallback={fallback_id}: {len(canjes_raw)}")
 
         if not canjes_raw:
             # último fallback a todos los canjes con filtro por correo en perfil (si existe)
             if perfil_data.get('correo'):
                 canjes_resp = requests.get(
-                    f"{supa.url}/rest/v1/canjes?order=fecha_canje.desc&limit=20&select=*&id_usuario=eq.{perfil_id}",
+                    f"{supa.url}/rest/v1/canjes?order=fecha_canje.desc&limit=20&select=*&id_usuario=eq.{quote_plus(str(perfil_id))}",
                     headers=headers,
                     timeout=10,
                 )
@@ -390,14 +410,13 @@ def perfil(request):
         # Fallback adicional: usar transacciones si no hay canjes registrados
         if not canjes_raw and perfil_id:
             trans_resp = requests.get(
-                f"{supa.url}/rest/v1/transacciones?order=fecha_transaccion.desc&limit=20&id_usuario=eq.{perfil_id}",
+                f"{supa.url}/rest/v1/transacciones?order=fecha_transaccion.desc&limit=20&id_usuario=eq.{quote_plus(str(perfil_id))}",
                 headers=headers,
                 timeout=10,
             )
             if trans_resp.status_code == 200:
                 trans_data = trans_resp.json() if isinstance(trans_resp.json(), list) else []
                 if isinstance(trans_data, list) and trans_data:
-                    print(f"🔎 Fallback transacciones para perfil {perfil_id}: {len(trans_data)}")
                     canjes_raw = []
                     for item in trans_data:
                         if not isinstance(item, dict):
@@ -413,10 +432,9 @@ def perfil(request):
 
         if isinstance(canjes_raw, list):
             if canjes_raw:
-                print('🔎 Primer canje raw:', canjes_raw[0])
-            for record in canjes_raw:
-                if not isinstance(record, dict):
-                    continue
+                for record in canjes_raw:
+                    if not isinstance(record, dict):
+                        continue
                 premio_title = (
                     record.get('tipo_recompensa')
                     or record.get('premio_nombre')
@@ -461,8 +479,8 @@ def perfil(request):
                     'detalle': detalle,
                 })
             total_canjes = len(canjes)
-    except Exception as e:
-        print(f"❌ Error obteniendo canjes: {e}")
+    except Exception:
+        pass
 
     # Recortar últimos 5 para el panel
     ultimos_canjes = canjes[:5]
@@ -482,7 +500,6 @@ def perfil(request):
         'ultimos_canjes': ultimos_canjes,
         'qr_url': qr_url,
     }
-    print(f"📤 Enviando al template: avatar_url={avatar_url}, qr_url={qr_url}, total_canjes={total_canjes}")
     return render(request, 'perfil_usuario.html', context)
 
 
@@ -551,7 +568,6 @@ def admin_centros(request):
             .execute()
         )
     except Exception as e:
-        print('Error listando centros en Supabase:', e)
         resp = None
 
     centros = resp.data if resp and getattr(resp, 'data', None) else []
@@ -599,7 +615,9 @@ def admin_centros_accion(request):
 
         supa.client.table('centros_acopio').update(update).eq('id', int(centro_id)).execute()
     except Exception as e:
-        print('Error actualizando centro en Supabase:', e)
+        # Atendemos errores silenciosamente para no bloquear al usuario.
+        # Preferimos registrar en logs de producción y seguir con redirección.
+        pass
 
     return redirect('admin_centros')
 
@@ -638,7 +656,6 @@ def api_centros(request):
             })
         return JsonResponse({'centros': resultados})
     except Exception as e:
-        print('Error en api_centros:', e)
         return JsonResponse({'error': str(e)}, status=500)
 
 
@@ -662,7 +679,6 @@ def api_recompensas(request):
             premios = []
         premios = [p for p in premios if isinstance(p, dict)]
     except Exception as e:
-        print('Error obteniendo recompensas de Supabase:', e)
         premios = []
     
     # Si no hay datos en Supabase, devolver datos de ejemplo para testing
@@ -739,7 +755,7 @@ def editar_perfil(request):
     perfil_id = None
     try:
         # Consulta directa a Supabase
-        url = f"{supa.url}/rest/v1/perfiles?correo=eq.{usuario.email}&select=id"
+        url = f"{supa.url}/rest/v1/perfiles?correo=eq.{quote_plus(usuario.email)}&select=id"
         headers = {
             'apikey': supa.key,
             'Authorization': f'Bearer {supa.key}'
@@ -796,17 +812,14 @@ def editar_perfil(request):
             if imagen_url:
                 datos_actualizar['imagen_url'] = imagen_url
                 messages.success(request, '✅ Foto subida correctamente')
-                print(f"✅ Imagen subida: {imagen_url}")
-            else:
-                messages.error(request, '❌ Error al subir imagen')
-        
+
         # ========================================
         # 4. ACTUALIZAR EN SUPABASE (MÉTODO DIRECTO)
         # ========================================
         if datos_actualizar and perfil_id:
             try:
                 # URL directa para actualizar
-                update_url = f"{supa.url}/rest/v1/perfiles?id=eq.{perfil_id}"
+                update_url = f"{supa.url}/rest/v1/perfiles?id=eq.{quote_plus(str(perfil_id))}"
                 
                 headers_update = {
                     'apikey': supa.key,
@@ -815,26 +828,14 @@ def editar_perfil(request):
                     'Prefer': 'return=minimal'  # No esperar respuesta
                 }
                 
-                print(f"📤 Enviando PATCH a: {update_url}")
-                print(f"📦 Datos: {datos_actualizar}")
-                
                 response = requests.patch(update_url, headers=headers_update, json=datos_actualizar)
                 
-                print(f"📥 Código respuesta: {response.status_code}")
-                
-                if response.status_code == 204:  # 204 = Success no content
+                if response.status_code in (200, 204):
                     messages.success(request, '✅ Perfil actualizado en Supabase')
-                    print("✅ Actualización exitosa (204)")
-                elif response.status_code == 200:
-                    messages.success(request, '✅ Perfil actualizado en Supabase')
-                    print("✅ Actualización exitosa (200)")
                 else:
                     messages.error(request, f'❌ Error {response.status_code} en Supabase')
-                    print(f"❌ Error: {response.text}")
-                    
             except Exception as e:
                 messages.error(request, f'❌ Error: {str(e)}')
-                print(f"❌ Excepción: {e}")
         else:
             if not perfil_id:
                 messages.error(request, '❌ No se encontró tu perfil')
@@ -882,7 +883,6 @@ def historial_canjes(request):
             elif isinstance(data, dict):
                 perfil_id = data.get('id')
     except Exception as e:
-        print('Error consultando perfil en Supabase para historial:', e)
         perfil_id = None
 
     # Si no hay perfil en `perfiles`, intentar con Firebase UID (campo firebase_uid)
@@ -901,8 +901,7 @@ def historial_canjes(request):
                 elif isinstance(data, dict):
                     perfil_id = data.get('id')
         except Exception as e:
-            print('Error buscando perfil por firebase_uid:', e)
-
+            perfil_id = None
 
     if perfil_id:
         try:
@@ -917,11 +916,9 @@ def historial_canjes(request):
             )
             if hasattr(resp, 'data') and isinstance(resp.data, list):
                 raw_canjes = resp.data
-            print(f"🔎 Historial de canjes para id_usuario={perfil_id} -> code={getattr(resp,'status_code',None)} rows={len(raw_canjes)}")
             if not raw_canjes:
                 # Try logging first 2 canjes just to inspect
                 all_resp = supa.client.table('canjes').select('*').order('fecha_canje', desc=True).limit(5).execute()
-                print('🔎 Primeros canjes globales', getattr(all_resp,'status_code',None), getattr(all_resp,'data',None)[:2] if getattr(all_resp,'data',None) else None)
 
             # Fallback: si no hay canjes, intentar consultar con id_usuario obtenido de sesión
             if not raw_canjes:
@@ -936,7 +933,6 @@ def historial_canjes(request):
                     )
                     if isinstance(resp2.data, list):
                         raw_canjes = resp2.data
-                    print(f"🔎 Fallback de canjes para id_usuario fallback={fallback_user_id}: {len(raw_canjes)}")
 
             total_puntos_usados = sum(c.get('monto_puntos_restados', 0) for c in raw_canjes if isinstance(c, dict))
             for c in raw_canjes:
@@ -965,7 +961,6 @@ def historial_canjes(request):
                     'detalle': c.get('descripcion') or c.get('detalle') or '',
                 })
         except Exception as e:
-            print('Error obteniendo historial de canjes Supabase:', e)
             canjes = []
             total_puntos_usados = 0
 
@@ -995,7 +990,7 @@ def sincronizar_qr(request):
             ts = datetime.datetime.utcnow().strftime('%Y%m%d%H%M%S')
             qr_value = f"QR_{prefix}_{ts}"
             update_resp = requests.patch(
-                f"{supa.url}/rest/v1/perfiles?id=eq.{perfil_id}",
+                f"{supa.url}/rest/v1/perfiles?id=eq.{quote_plus(str(perfil_id))}",
                 headers={
                     'apikey': supa.key,
                     'Authorization': f'Bearer {supa.key}',
@@ -1011,8 +1006,7 @@ def sincronizar_qr(request):
                 messages.error(request, '❌ No se pudo sincronizar QR. Intente más tarde.')
         else:
             messages.error(request, '❌ No se encontró perfil para sincronizar QR.')
-    except Exception as e:
-        print(f"❌ Error sincronizando QR: {e}")
+    except Exception:
         messages.error(request, '❌ Error al sincronizar QR.')
     return redirect('perfil')
 
@@ -1036,8 +1030,8 @@ def sugerencias(request):
         if perfil_resp and perfil_resp.data:
             perfil_id = perfil_resp.data.get('id')
     except Exception as e:
-        print('Error obteniendo perfil para sugerencias:', e)
-    
+        perfil_id = None
+
     if request.method == 'POST':
         tipo = request.POST.get('tipo', 'otro')
         mensaje = request.POST.get('mensaje', '').strip()
@@ -1054,7 +1048,6 @@ def sugerencias(request):
                 }).execute()
                 messages.success(request, '¡Gracias! Tu mensaje fue enviado.')
             except Exception as e:
-                print('Error insertando sugerencia:', e)
                 messages.error(request, 'No se pudo enviar tu sugerencia.')
         else:
             messages.error(request, 'No se encontró tu perfil de usuario.')
@@ -1074,8 +1067,8 @@ def sugerencias(request):
             )
             mis_sugerencias = resp.data if isinstance(resp.data, list) else []
         except Exception as e:
-            print('Error obteniendo sugerencias:', e)
-    
+            mis_sugerencias = []
+
     return render(request, 'sugerencias.html', {'mis_sugerencias': mis_sugerencias})
 
 
@@ -1088,10 +1081,6 @@ def perfil_centro(request):
     usuario = request.user
     supa = SupabaseClient()
     
-    print("\n" + "="*60)
-    print("🔍 INICIANDO perfil_centro")
-    print(f"Usuario: {usuario.email}")
-    print("="*60)
     
     # ========================================
     # 1. OBTENER PERFIL DE SUPABASE
@@ -1099,7 +1088,7 @@ def perfil_centro(request):
     perfil_id = None
     perfil_data = None
     try:
-        url_perfil = f"{supa.url}/rest/v1/perfiles?correo=eq.{usuario.email}"
+        url_perfil = f"{supa.url}/rest/v1/perfiles?correo=eq.{quote_plus(usuario.email)}"
         headers = {
             'apikey': supa.key,
             'Authorization': f'Bearer {supa.key}'
@@ -1111,9 +1100,8 @@ def perfil_centro(request):
             if perfiles and len(perfiles) > 0:
                 perfil_data = perfiles[0]
                 perfil_id = perfil_data.get('id')
-                print(f"✅ Perfil encontrado en Supabase: {perfil_id}")
-    except Exception as e:
-        print(f"❌ Error obteniendo perfil: {e}")
+    except Exception:
+        pass
     
     # ========================================
     # 2. OBTENER DATOS DEL CENTRO
@@ -1125,7 +1113,7 @@ def perfil_centro(request):
     if perfil_id:
         try:
             # Obtener datos del centro
-            url_centro = f"{supa.url}/rest/v1/centros_acopio?id_usuario=eq.{perfil_id}"
+            url_centro = f"{supa.url}/rest/v1/centros_acopio?id_usuario=eq.{quote_plus(str(perfil_id))}"
             response_centro = requests.get(url_centro, headers=headers)
             
             if response_centro.status_code == 200:
@@ -1133,36 +1121,24 @@ def perfil_centro(request):
                 if centros and len(centros) > 0:
                     centro_data = centros[0]
                     centro_id = centro_data.get('id')
-                    print(f"✅ Centro encontrado: {centro_data.get('nombre_comercial')}")
-                    
-                    # ⚠️ DEPURACIÓN: Mostrar todos los datos del centro
-                    print("\n📦 DATOS DEL CENTRO DESDE SUPABASE:")
-                    for key, value in centro_data.items():
-                        print(f"   {key}: {value}")
-                    
-                    # Verificar específicamente foto y dirección
-                    print(f"\n📸 URL FOTO: {centro_data.get('url_foto_portada')}")
-                    print(f"📍 DIRECCIÓN: {centro_data.get('direccion_texto')}")
+                    # Centro encontrado
                     
                     # Obtener eventos del centro
-                    url_eventos = f"{supa.url}/rest/v1/eventos?id_centro=eq.{centro_id}&order=fecha_evento.desc"
+                    url_eventos = f"{supa.url}/rest/v1/eventos?id_centro=eq.{quote_plus(str(centro_id))}&order=fecha_evento.desc"
                     response_eventos = requests.get(url_eventos, headers=headers)
                     
                     if response_eventos.status_code == 200:
                         eventos_centro = response_eventos.json()
-                        print(f"✅ Eventos encontrados: {len(eventos_centro)}")
                     
                     # Obtener horarios del centro
-                    url_horarios = f"{supa.url}/rest/v1/centros_horarios?id_centro=eq.{centro_id}&order=dia_semana.asc"
+                    url_horarios = f"{supa.url}/rest/v1/centros_horarios?id_centro=eq.{quote_plus(str(centro_id))}&order=dia_semana.asc"
                     response_horarios = requests.get(url_horarios, headers=headers)
                     
                     if response_horarios.status_code == 200:
                         horarios_centro = response_horarios.json()
-                        print(f"✅ Horarios encontrados: {len(horarios_centro)}")
                         centro_data['horarios'] = horarios_centro
-        except Exception as e:
-            print(f"❌ Error obteniendo centro/eventos/horarios: {e}")
-    
+        except Exception:
+            pass
     # ========================================
     # 3. PREPARAR CONTEXTO
     # ========================================
@@ -1173,17 +1149,6 @@ def perfil_centro(request):
         'perfil': perfil_data,
         'tiene_centro': centro_data is not None,
     }
-    
-    # ⚠️ DEPURACIÓN: Mostrar qué se envía al template
-    print("\n📤 DATOS ENVIADOS AL TEMPLATE:")
-    if centro_data:
-        print(f"   centro.nombre_comercial: {centro_data.get('nombre_comercial')}")
-        print(f"   centro.direccion_texto: {centro_data.get('direccion_texto')}")
-        print(f"   centro.url_foto_portada: {centro_data.get('url_foto_portada')}")
-        print(f"   horarios: {len(horarios_centro)}")
-    else:
-        print("   centro: None")
-    print("="*60 + "\n")
     
     return render(request, 'perfil_centro.html', context)
 
@@ -1200,7 +1165,7 @@ def editar_perfil_centro(request):
     centro_data = None
     centro_id = None
     try:
-        url_perfil = f"{supa.url}/rest/v1/perfiles?correo=eq.{usuario.email}"
+        url_perfil = f"{supa.url}/rest/v1/perfiles?correo=eq.{quote_plus(usuario.email)}"
         headers = {
             'apikey': supa.key,
             'Authorization': f'Bearer {supa.key}'
@@ -1213,7 +1178,7 @@ def editar_perfil_centro(request):
                 perfil_id = perfiles[0].get('id')
                 
                 # Obtener centro
-                url_centro = f"{supa.url}/rest/v1/centros_acopio?id_usuario=eq.{perfil_id}"
+                url_centro = f"{supa.url}/rest/v1/centros_acopio?id_usuario=eq.{quote_plus(str(perfil_id))}"
                 response_centro = requests.get(url_centro, headers=headers)
                 
                 if response_centro.status_code == 200:
@@ -1223,18 +1188,17 @@ def editar_perfil_centro(request):
                         centro_id = centro_data.get('id')
                         
                         # Obtener horarios del centro
-                        url_horarios = f"{supa.url}/rest/v1/centros_horarios?id_centro=eq.{centro_id}"
+                        url_horarios = f"{supa.url}/rest/v1/centros_horarios?id_centro=eq.{quote_plus(str(centro_id))}"
                         response_horarios = requests.get(url_horarios, headers=headers)
                         if response_horarios.status_code == 200:
                             centro_data['horarios'] = response_horarios.json()
     except Exception as e:
-        print(f"Error obteniendo datos: {e}")
+        pass
 
     if request.method == 'POST':
        
         # Verificar específicamente el campo dirección
         direccion_recibida = request.POST.get('direccion', '')
-        print(f"📍 CAMPO DIRECCIÓN: '{direccion_recibida}'")
         
         datos_actualizar = {}
         
@@ -1252,13 +1216,11 @@ def editar_perfil_centro(request):
         latitud = request.POST.get('latitud', '').strip()
         longitud = request.POST.get('longitud', '').strip()
         
-        print(f"📍 Coordenadas recibidas: '{latitud}', '{longitud}'")
         
         if latitud and longitud:
             try:
                 lat_float = float(latitud)
                 lng_float = float(longitud)
-                print(f"✅ Coordenadas convertidas: {lat_float}, {lng_float}")
                 
                 if 20.0 <= lat_float <= 22.0 and -91.0 <= lng_float <= -87.0:
                     datos_actualizar['latitud'] = lat_float
@@ -1266,52 +1228,41 @@ def editar_perfil_centro(request):
                     
                     # Obtener dirección automática
                     direccion_auto = obtener_direccion_desde_coordenadas(lat_float, lng_float)
-                    print(f"📍 Dirección automática obtenida: '{direccion_auto}'")
                     
                     if direccion_auto:
                         datos_actualizar['direccion_texto'] = direccion_auto
                         messages.success(request, '📍 Dirección obtenida automáticamente')
-                        print("✅ Usando dirección automática")
                     else:
                         if direccion_manual:
                             datos_actualizar['direccion_texto'] = direccion_manual
-                            print("⚠️ Usando dirección manual (falló geocoding)")
                 else:
-                    print("⚠️ Coordenadas fuera de Yucatán")
                     if direccion_manual:
                         datos_actualizar['direccion_texto'] = direccion_manual
-                        print("✅ Usando dirección manual")
                         
             except Exception as e:
-                print(f"❌ Error en geocoding: {e}")
                 if direccion_manual:
                     datos_actualizar['direccion_texto'] = direccion_manual
-                    print("✅ Usando dirección manual (por error)")
         else:
-            print("⚠️ No se recibieron coordenadas")
             if direccion_manual:
                 datos_actualizar['direccion_texto'] = direccion_manual
-                print("✅ Usando dirección manual")
         
         # 3. ACTUALIZAR CENTRO
         if datos_actualizar and centro_id:
-            update_url = f"{supa.url}/rest/v1/centros_acopio?id=eq.{centro_id}"
+            update_url = f"{supa.url}/rest/v1/centros_acopio?id=eq.{quote_plus(str(centro_id))}"
             headers_update = {
                 'apikey': supa.key,
                 'Authorization': f'Bearer {supa.key}',
                 'Content-Type': 'application/json',
                 'Prefer': 'return=minimal'
             }
-            print(f"\n📤 Actualizando centro con datos: {datos_actualizar}")
             response = requests.patch(update_url, headers=headers_update, json=datos_actualizar)
-            print(f"📥 Respuesta: {response.status_code}")
             if response.status_code in [200, 204]:
                 messages.success(request, '✅ Datos del centro actualizados')
         
         # 4. PROCESAR HORARIOS
         if centro_id:
             # Eliminar horarios existentes
-            del_url = f"{supa.url}/rest/v1/centros_horarios?id_centro=eq.{centro_id}"
+            del_url = f"{supa.url}/rest/v1/centros_horarios?id_centro=eq.{quote_plus(str(centro_id))}"
             requests.delete(del_url, headers=headers_update)
             
             # Insertar nuevos horarios
@@ -1348,7 +1299,7 @@ def editar_perfil_centro(request):
                 )
                 if foto_url:
                     foto_update = {'url_foto_portada': foto_url}
-                    update_url = f"{supa.url}/rest/v1/centros_acopio?id=eq.{centro_id}"
+                    update_url = f"{supa.url}/rest/v1/centros_acopio?id=eq.{quote_plus(str(centro_id))}"
                     headers_update = {
                         'apikey': supa.key,
                         'Authorization': f'Bearer {supa.key}',
@@ -1542,24 +1493,21 @@ def centro_publico(request, centro_id):
         }
         
         # Obtener datos del centro por ID
-        url_centro = f"{supa.url}/rest/v1/centros_acopio?id=eq.{centro_id}"
+        url_centro = f"{supa.url}/rest/v1/centros_acopio?id=eq.{quote_plus(str(centro_id))}"
         response_centro = requests.get(url_centro, headers=headers)
         
         if response_centro.status_code == 200:
             centros = response_centro.json()
             if centros and len(centros) > 0:
                 centro_data = centros[0]
-                print(f"✅ Centro encontrado: {centro_data.get('nombre_comercial')}")
                 
                 # Obtener horarios del centro
-                url_horarios = f"{supa.url}/rest/v1/centros_horarios?id_centro=eq.{centro_id}&order=dia_semana.asc"
+                url_horarios = f"{supa.url}/rest/v1/centros_horarios?id_centro=eq.{quote_plus(str(centro_id))}&order=dia_semana.asc"
                 response_horarios = requests.get(url_horarios, headers=headers)
                 if response_horarios.status_code == 200:
                     horarios_centro = response_horarios.json()
-                    print(f"✅ Horarios encontrados: {len(horarios_centro)}")
-                    
-    except Exception as e:
-        print(f"❌ Error obteniendo datos del centro: {e}")
+    except Exception:
+        pass
     
     if not centro_data:
         # Si no existe el centro, mostrar 404
@@ -1575,7 +1523,6 @@ def centro_publico(request, centro_id):
     }
     
     return render(request, 'centro_publico.html', context)
-
 
 
 

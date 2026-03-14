@@ -1,7 +1,10 @@
 import os
 import json
+import logging
 import requests
 from django.conf import settings
+
+logger = logging.getLogger(__name__)
 
 class SupabaseClient:
     """Lightweight Supabase client using REST calls via requests.
@@ -106,7 +109,7 @@ class SupabaseClient:
             r.error = None if resp.ok else resp.text
             return r
         except Exception as e:
-            print(f"HTTP error ({method} {url}): {e}")
+            logger.warning("HTTP error (%s %s): %s", method, url, e)
             class Resp: pass
             r = Resp()
             r.data = None
@@ -155,7 +158,7 @@ class SupabaseClient:
         url = self._table_url('perfiles')
         resp = self._request('POST', url, json_body=user_data)
         if resp.error:
-            print(f"Supabase error: {resp.error}")
+            logger.warning("Supabase error: %s", resp.error)
         if isinstance(resp.data, list) and len(resp.data) > 0:
             return resp.data[0] if isinstance(resp.data[0], dict) else None
         return None
@@ -266,7 +269,7 @@ class SupabaseClient:
             r.error = None if resp.ok else resp.text
             return r
         except Exception as e:
-            print('Supabase auth error:', e)
+            logger.warning('Supabase auth error: %s', e)
             class Resp: pass
             r = Resp()
             r.data = None
@@ -315,7 +318,7 @@ class SupabaseClient:
             
             # Validar extensiones permitidas
             if file_ext not in ['jpg', 'jpeg', 'png', 'gif', 'webp']:
-                print(f"Extensión no permitida: {file_ext}")
+                logger.warning("Extensión no permitida: %s", file_ext)
                 return None
             
             # Generar nombre único o usar el personalizado
@@ -347,11 +350,11 @@ class SupabaseClient:
                 public_url = f"{self.url}/storage/v1/object/public/{bucket}/{file_name}"
                 return public_url
             else:
-                print(f"Error subiendo imagen: {response.text}")
+                logger.warning("Error subiendo imagen: %s", response.text)
                 return None
                 
         except Exception as e:
-            print(f"Exception en upload_image: {e}")
+            logger.warning("Exception en upload_image: %s", e)
             return None
     
     def delete_image(self, bucket: str, file_path: str):
@@ -368,5 +371,5 @@ class SupabaseClient:
             response = requests.delete(url, headers=headers)
             return response.status_code in [200, 204]
         except Exception as e:
-            print(f"Error eliminando imagen: {e}")
+            logger.warning("Error eliminando imagen: %s", e)
             return False
