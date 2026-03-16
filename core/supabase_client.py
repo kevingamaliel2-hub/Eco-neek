@@ -69,6 +69,11 @@ class SupabaseClient:
             self.payload = data
             return self
 
+        def delete(self):
+            self.method = 'DELETE'
+            self.payload = None
+            return self
+
         def single(self):
             # Add single() support for queries that return one result
             return self
@@ -270,6 +275,28 @@ class SupabaseClient:
             return r
         except Exception as e:
             logger.warning('Supabase auth error: %s', e)
+            class Resp: pass
+            r = Resp()
+            r.data = None
+            r.error = str(e)
+            return r
+
+    def sign_up(self, email: str, password: str):
+        """Sign up a new user in Supabase Auth and return user metadata."""
+        try:
+            url = f"{self.url}/auth/v1/signup"
+            body = {'email': email, 'password': password}
+            resp = requests.post(url, headers=self.headers, json=body)
+            class Resp: pass
+            r = Resp()
+            try:
+                r.data = resp.json()
+            except ValueError:
+                r.data = None
+            r.error = None if resp.ok else resp.text
+            return r
+        except Exception as e:
+            logger.warning('Supabase signup error: %s', e)
             class Resp: pass
             r = Resp()
             r.data = None

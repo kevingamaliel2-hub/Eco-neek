@@ -33,6 +33,27 @@ def obtener_direccion_desde_coordenadas(lat, lng):
     return None
 
 
+def obtener_coordenadas_desde_direccion(direccion):
+    """Obtiene lat/lng de una dirección usando Nominatim."""
+    if not direccion:
+        return None
+    try:
+        url = f"https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&limit=1&q={quote_plus(direccion)}"
+        headers = {'User-Agent': 'EcoNeek/1.0'}
+        response = requests.get(url, headers=headers, timeout=15)
+        if response.status_code == 200:
+            data = response.json()
+            if isinstance(data, list) and len(data) > 0:
+                first = data[0]
+                lat = first.get('lat')
+                lon = first.get('lon')
+                if lat and lon:
+                    return {'lat': float(lat), 'lon': float(lon)}
+    except Exception:
+        pass
+    return None
+
+
 def is_valid_email(email):
     """Validar correo con Django para evitar inyecciones y entradas malformadas."""
     try:
@@ -361,16 +382,62 @@ def register_screen(request):
                 error = 'Ya existe una cuenta con ese correo.'
             else:
                 try:
-                    # Crear usuario Django local
+                    # Para centros, crear usuario en Supabase Auth y guardar el ID de usuario.
+                    supa_user_id = None
+                    if tipo == 'centro':
+                        signup = supa.sign_up(email, password)
+                        if getattr(signup, 'error', None):
+                            err = signup.error or ''
+                            low = err.lower() if isinstance(err, str) else ''
+                            if 'already registered' in low or 'duplicate' in low or 'already exists' in low:
+                                error = 'El correo ya está registrado en Supabase. Inicia sesión para continuar.'
+                            else:
+                                error = f'Error al crear usuario en Supabase: {err}'
+                            raise Exception(error)
+
+                        data = getattr(signup, 'data', None) or {}
+                        user_info = None
+                        if isinstance(data, dict):
+                            user_info = data.get('user') or data.get('data') or data
+
+                        if isinstance(user_info, dict):
+                            supa_user_id = user_info.get('id') or user_info.get('user_id')
+                        elif isinstance(data, dict):
+                            supa_user_id = data.get('id')
+
+                        if not supa_user_id:
+                            error = 'No se obtuvo el ID de usuario desde Supabase. Intenta nuevamente.'
+                            raise Exception(error)
+
+                    # Crear usuario Django local para control de sesión en el sitio
                     user = User.objects.create_user(username=email, email=email, password=password)
                     login(request, user, backend='django.contrib.auth.backends.ModelBackend')
                     success = True
-                    
+
                     if tipo == 'centro':
-                        # Crear perfil y centro directamente desde el registro (sin completar_centro separado)
+                        if not supa_user_id:
+                            raise Exception('No se pudo obtener el ID de usuario de Supabase para crear el centro.')
+
+                        # Crear perfil en Supabase (id igual al id de auth)
+                        try:
+                            perfil_data = {
+                                'id': supa_user_id,
+                                'nombre': nombre_centro,
+                                'apellido': responsable,
+                                'telefono': telefono,
+                                'correo': email,
+                                'tipo_usuario': 'centro',
+                                'eco_puntos_saldo': 0,
+                                'estado_cuenta': True,
+                            }
+                            supa.client.table('perfiles').insert(perfil_data).execute()
+                        except Exception:
+                            pass
+
+                        # También crear registro local de perfil para Django (opcional)
                         try:
                             perfil = PerfilFirebase.objects.create(
-                                id=uuid.uuid4(),
+                                id=uuid.UUID(supa_user_id),
                                 nombre=nombre_centro,
                                 apellido=responsable,
                                 telefono=telefono,
@@ -379,89 +446,147 @@ def register_screen(request):
                                 eco_puntos_saldo=0,
                                 estado_cuenta=True
                             )
-                            texto_descripcion = f"Responsable: {responsable}. {descripcion_publica or ''}"
-                            centro = Centro.objects.create(
-                                nombre_comercial=nombre_centro,
-                                descripcion=texto_descripcion,
-                                direccion_texto=direccion,
-                                telefono_contacto=telefono,
-                                correo_contacto=correo_publico or email,
-                                estado_operativo=False,
-                                validado=False,
-                                id_usuario=perfil
-                            )
+                        except Exception:
+                            perfil = None
 
-                            # Horarios detallados
-                            dias = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']
-                            horarios_guardar = []
-                            for i, dia in enumerate(dias, start=1):
-                                apertura = request.POST.get(f'apertura_{i}', '').strip()
-                                cierre = request.POST.get(f'cierre_{i}', '').strip()
-                                activo = bool(request.POST.get(f'activo_{i}', 'on'))
-                                if apertura and cierre and activo:
-                                    horarios_guardar.append({
-                                        'dia_semana': i,
-                                        'hora_apertura': apertura,
-                                        'hora_cierre': cierre,
-                                    })
+                        texto_descripcion = f"Responsable: {responsable}. {descripcion_publica or ''}"
 
-                            # Guardar horarios en Supabase
+                        # Horarios del formulario (para guardar en Supabase) -- evitar variable no definida
+                        dias = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']
+                        horarios_guardar = []
+                        for i, dia in enumerate(dias, start=1):
+                            apertura = request.POST.get(f'apertura_{i}', '').strip()
+                            cierre = request.POST.get(f'cierre_{i}', '').strip()
+                            activo = bool(request.POST.get(f'activo_{i}', 'on'))
+                            if apertura and cierre and activo:
+                                horarios_guardar.append({
+                                    'dia_semana': i,
+                                    'hora_apertura': apertura,
+                                    'hora_cierre': cierre,
+                                })
+
+                        # Intentar geocodificar la dirección para mapear el centro.
+                        geo = obtener_coordenadas_desde_direccion(f"{direccion}, {municipio}, Yucatán, México")
+                        if geo is None:
+                            # Fallback muy básico a Mérida si no se obtiene coordenadas.
+                            geo = {'lat': 20.9674, 'lon': -89.6237}
+                        latitud = geo['lat'] if geo else None
+                        longitud = geo['lon'] if geo else None
+
+                        centro_payload = {
+                            'id_usuario': supa_user_id,
+                            'nombre_comercial': nombre_centro,
+                            'descripcion': texto_descripcion,
+                            'direccion_texto': direccion,
+                            'telefono_contacto': telefono,
+                            'correo_contacto': correo_publico or email,
+                            'estado_operativo': False,
+                            'validado': False,
+                        }
+                        if latitud is not None and longitud is not None:
+                            centro_payload['latitud'] = latitud
+                            centro_payload['longitud'] = longitud
+
+                        created_centro_resp = supa.client.table('centros_acopio').insert(centro_payload).execute()
+                        centro_data = None
+                        centro_id = None
+                        created_centro_debug = {
+                            'error': getattr(created_centro_resp, 'error', None),
+                            'data': getattr(created_centro_resp, 'data', None)
+                        }
+
+                        if isinstance(created_centro_resp.data, list) and len(created_centro_resp.data) > 0:
+                            centro_data = created_centro_resp.data[0]
+                            centro_id = centro_data.get('id')
+                        elif isinstance(created_centro_resp.data, dict):
+                            centro_data = created_centro_resp.data
+                            centro_id = centro_data.get('id')
+
+                        # Fallback: si insert no devuelve id, intentar obtener el centro recien creado por id_usuario y nombre
+                        if centro_id is None:
                             try:
-                                for h in horarios_guardar:
-                                    supa.client.table('centros_horarios').insert({
-                                        'id_centro': centro.id,
-                                        'dia_semana': h['dia_semana'],
-                                        'hora_apertura': h['hora_apertura'],
-                                        'hora_cierre': h['hora_cierre'],
-                                    }).execute()
+                                query_resp = supa.client.table('centros_acopio').select('*').eq('id_usuario', supa_user_id).eq('nombre_comercial', nombre_centro).order('created_at', desc=True).limit(1).execute()
+                                if hasattr(query_resp, 'data') and isinstance(query_resp.data, list) and len(query_resp.data) > 0:
+                                    centro_data = query_resp.data[0]
+                                    centro_id = centro_data.get('id')
                             except Exception:
                                 pass
 
-                            # Guardar materiales
-                            try:
-                                materiales_post = request.POST.getlist('materiales')
-                                for mid in materiales_post:
-                                    supa.client.table('centros_materiales').insert({
-                                        'id_centro': centro.id,
-                                        'id_material': mid,
-                                    }).execute()
-                                    supa.client.table('precios_centro').insert({
-                                        'id_centro': centro.id,
-                                        'id_material': mid,
-                                        'precio_compra_actual': 0.0,
-                                    }).execute()
-                            except Exception:
-                                pass
+                        if centro_id is None:
+                            err_text = 'No se pudo crear el centro en Supabase.'
+                            if created_centro_debug.get('error'):
+                                err_text += f" Error: {created_centro_debug.get('error')}"
+                            err_text += f" Response: {created_centro_debug.get('data')}"
+                            raise Exception(err_text)
 
-                            # Subir foto de centro si existe
+                        # Guardar horarios en Supabase
+                        try:
+                            for h in horarios_guardar:
+                                supa.client.table('centros_horarios').insert({
+                                    'id_centro': centro_id,
+                                    'dia_semana': h['dia_semana'],
+                                    'hora_apertura': h['hora_apertura'],
+                                    'hora_cierre': h['hora_cierre'],
+                                }).execute()
+                        except Exception:
+                            pass
+
+                        # Guardar materiales en Supabase
+                        try:
+                            materiales_post = request.POST.getlist('materiales')
+                            for mid in materiales_post:
+                                supa.client.table('centros_materiales').insert({
+                                    'id_centro': centro_id,
+                                    'id_material': mid,
+                                }).execute()
+                                supa.client.table('precios_centro').insert({
+                                    'id_centro': centro_id,
+                                    'id_material': mid,
+                                    'precio_compra_actual': 0.0,
+                                }).execute()
+                        except Exception:
+                            pass
+
+                        # Subir foto de centro si existe y actualizar URL
+                        if request.FILES.get('foto'):
                             try:
                                 foto_archivo = request.FILES.get('foto')
-                                if foto_archivo:
-                                    foto_url = supa.upload_image(
-                                        bucket='centros',
-                                        user_id=str(request.user.id),
-                                        file=foto_archivo,
-                                        folder='',
-                                        custom_filename=f'centro_{request.user.id}_{uuid.uuid4().hex}.jpg'
-                                    )
-                                    if foto_url:
-                                        centro.url_foto_portada = foto_url
-                                        centro.save()
+                                foto_url = supa.upload_image(
+                                    bucket='centros',
+                                    user_id=supa_user_id,
+                                    file=foto_archivo,
+                                    folder='',
+                                    custom_filename=f'centro_{centro_id}_{uuid.uuid4().hex}.jpg'
+                                )
+                                if foto_url:
+                                    supa.client.table('centros_acopio').update({'url_foto_portada': foto_url}).eq('id', centro_id).execute()
+                                    supa.client.table('perfiles').update({'imagen_url': foto_url}).eq('id', supa_user_id).execute()
+                                    if centro_data is not None:
+                                        centro_data['url_foto_portada'] = foto_url
                             except Exception:
                                 pass
 
-                            messages.success(request, 'Registro completado! Tu centro se ha creado y está pendiente de validación.')
-                            return render(request, 'centro_pendiente.html', {'centro': centro})
-                        except Exception as e:
-                            error = 'No fue posible completar el registro del centro. Intenta de nuevo.'
-                            # si el perfil/casco partial se creó, se podría limpiar; pero para ahora no
+                        # Para la plantilla de centro_pendiente, usar el dict del supa
+                        centro = centro_data or {
+                            'id': centro_id,
+                            'nombre_comercial': nombre_centro,
+                            'direccion_texto': direccion,
+                            'telefono_contacto': telefono,
+                            'correo_contacto': correo_publico or email,
+                            'url_foto_portada': None,
+                            'validado': False,
+                            'estado_operativo': False,
+                        }
+
+                        messages.success(request, 'Registro completado! Tu centro se ha creado y está pendiente de validación.')
+                        return render(request, 'centro_pendiente.html', {'centro': centro})
                     else:
                         request.session['usuario_nombre'] = nombre
                         request.session['usuario_apellido'] = apellido
                         return redirect('completar_registro')
-                        
                 except Exception as e:
-                    error = f'Ocurrió un error al crear la cuenta: {str(e)}'
+                    if not error:
+                        error = f'Ocurrió un error al crear la cuenta: {str(e)}'
 
     return render(request, 'register_screen.html', {
         'error': error,
@@ -775,26 +900,34 @@ def api_editar_perfil(request):
 def admin_centros(request):
     """Panel sencillo para administradores: listar centros pendientes desde Supabase."""
     supa = SupabaseClient()
+    pending_centros = []
+    approved_centros = []
     try:
-        # Obtener centros pendientes (no validados)
-        resp = (
+        resp_pending = (
             supa.client.table('centros_acopio')
             .select('*')
             .eq('validado', False)
             .order('created_at', desc=False)
             .execute()
         )
-    except Exception as e:
-        resp = None
+        pending_centros = resp_pending.data if resp_pending and getattr(resp_pending, 'data', None) else []
+    except Exception:
+        pending_centros = []
 
-    centros = resp.data if resp and getattr(resp, 'data', None) else []
+    try:
+        resp_approved = (
+            supa.client.table('centros_acopio')
+            .select('*')
+            .eq('validado', True)
+            .order('created_at', desc=False)
+            .execute()
+        )
+        approved_centros = resp_approved.data if resp_approved and getattr(resp_approved, 'data', None) else []
+    except Exception:
+        approved_centros = []
 
-    # Normalizar claves para facilitar el template:
-    # el panel usa campos "legacy" (name, address, etc) además de la versión
-    # en español; al garantizar que siempre existan las claves, evitamos que
-    # el template intente resolver variables inexistentes y genere errores.
-    for c in centros:
-        # c es un dict devuelto por Supabase
+    # Normalizar claves para facilitar el template
+    for c in pending_centros + approved_centros:
         if 'name' not in c:
             c['name'] = c.get('nombre_comercial')
         if 'address' not in c:
@@ -805,11 +938,13 @@ def admin_centros(request):
             c['latitude'] = c.get('latitud')
         if 'longitude' not in c:
             c['longitude'] = c.get('longitud')
-        # también aprovechamos para igualar correo si falta
         if 'correo' not in c:
             c['correo'] = c.get('correo_contacto')
 
-    return render(request, 'admin_centros.html', {'centros': centros})
+    return render(request, 'admin_centros.html', {
+        'pending_centros': pending_centros,
+        'approved_centros': approved_centros,
+    })
 
 
 @staff_member_required
@@ -820,21 +955,36 @@ def admin_centros_accion(request):
 
     centro_id = request.POST.get('centro_id')
     accion = request.POST.get('accion')
-    if not centro_id or accion not in ('aprobar', 'rechazar'):
+    if not centro_id or accion not in ('aprobar', 'rechazar', 'eliminar'):
         return redirect('admin_centros')
 
     supa = SupabaseClient()
     try:
         if accion == 'aprobar':
             update = {'validado': True, 'estado_operativo': True}
-        else:
+            supa.client.table('centros_acopio').update(update).eq('id', int(centro_id)).execute()
+            messages.success(request, 'Centro aprobado correctamente.')
+        elif accion == 'rechazar':
             update = {'validado': False, 'estado_operativo': False}
+            supa.client.table('centros_acopio').update(update).eq('id', int(centro_id)).execute()
+            messages.success(request, 'Centro rechazado correctamente.')
+        elif accion == 'eliminar':
+            try:
+                centro_resp = supa.client.table('centros_acopio').select('*').eq('id', centro_id).execute()
+                centro = centro_resp.data[0] if centro_resp and getattr(centro_resp, 'data', None) and len(centro_resp.data) > 0 else None
+                id_usuario = centro.get('id_usuario') if isinstance(centro, dict) else None
 
-        supa.client.table('centros_acopio').update(update).eq('id', int(centro_id)).execute()
+                supa.client.table('centros_horarios').delete().eq('id_centro', centro_id).execute()
+                supa.client.table('centros_materiales').delete().eq('id_centro', centro_id).execute()
+                supa.client.table('precios_centro').delete().eq('id_centro', centro_id).execute()
+                supa.client.table('centros_acopio').delete().eq('id', centro_id).execute()
+                if id_usuario:
+                    supa.client.table('perfiles').delete().eq('id', id_usuario).execute()
+                messages.success(request, 'Centro eliminado y datos relacionados borrados.')
+            except Exception as e:
+                messages.error(request, f'Error al eliminar el centro: {str(e)}')
     except Exception as e:
-        # Atendemos errores silenciosamente para no bloquear al usuario.
-        # Preferimos registrar en logs de producción y seguir con redirección.
-        pass
+        messages.error(request, f'Error en acción de centro: {str(e)}')
 
     return redirect('admin_centros')
 

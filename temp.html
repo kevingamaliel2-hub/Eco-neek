@@ -1,0 +1,1355 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro - EcoNeek</title>
+
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Nunito:wght@400;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+uxs1Ff0cK5jdQVnCw9x3hF5V2h7Q" crossorigin="anonymous"></script>
+
+    <style>
+        /* ═══════════════════════════════════════
+           VARIABLES Y BASE
+        ═══════════════════════════════════════ */
+        :root {
+            --eco-green:      #2a9d8f;
+            --eco-green-dark: #21867a;
+            --eco-green-light:#3dbdad;
+            --eco-yellow:     #e9c46a;
+            --eco-orange:     #f4a261;
+            --eco-dark:       #1a1a2e;
+            --eco-gray:       #6c757d;
+            --eco-bg:         #f0faf8;
+            --navbar-h:       64px;
+            --radius:         12px;
+            --shadow:         0 4px 20px rgba(42,157,143,.15);
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: var(--eco-bg);
+            color: #222;
+            padding-top: var(--navbar-h);
+        }
+
+        /* ═══════════════════════════════════════
+           NAVBAR
+        ═══════════════════════════════════════ */
+        .eco-navbar {
+            background: linear-gradient(135deg, var(--eco-green) 0%, var(--eco-green-dark) 100%);
+            height: var(--navbar-h);
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 1030;
+            box-shadow: 0 4px 20px rgba(42,157,143,.15);
+            border-radius: 0 0 16px 16px;
+            padding: 14px 40px !important;
+        }
+
+        .eco-navbar-inner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .eco-navbar .navbar-nav {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            margin: 0;
+            padding: 0;
+            list-style: none;
+            flex-wrap: wrap;
+        }
+
+        .eco-navbar .nav-item {
+            margin: 0;
+        }
+
+        .eco-navbar .nav-link {
+            display: inline-block;
+            white-space: nowrap;
+        }
+
+        /* Brand */
+        .eco-navbar .navbar-brand {
+            font-family: 'Poppins', 'Nunito', sans-serif;
+            font-weight: 800;
+            font-size: 1.5rem;
+            color: #fff !important;
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+            letter-spacing: -.5px;
+            text-decoration: none;
+        }
+
+        .eco-brand-text {
+            font-family: 'Poppins', 'Nunito', sans-serif;
+            font-weight: 600;
+            font-size: 22px;
+            color: #fff;
+            letter-spacing: -.5px;
+        }
+
+        .eco-navbar .navbar-brand .brand-icon {
+            width: 34px; height: 34px;
+            background: rgba(255,255,255,.2);
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.1rem;
+        }
+
+        /* Nav links */
+        .eco-navbar .nav-link {
+            color: rgba(255,255,255,.92) !important;
+            font-family: 'Poppins', 'Nunito', sans-serif;
+            font-weight: 600;
+            font-size: 16px;
+            padding: .4rem 1.2rem !important;
+            border-radius: 8px;
+            transition: none;
+            text-decoration: none;
+            position: relative;
+        }
+        .eco-navbar .nav-link::after{
+            content:"";
+            position:absolute;
+            left:0;
+            bottom:-6px;
+            width:0;
+            height:2px;
+            background:white;
+            border-radius:2px;
+            transition:none !important;
+        }
+        .eco-navbar .nav-link.active::after{
+            content:"";
+            position:absolute;
+            left:0;
+            bottom:-6px;
+            width:100%;
+            height:2px;
+            background:white;
+            border-radius:2px;
+        }
+        /* Eliminar hover de la línea blanca */
+        .eco-navbar .nav-link:hover::after{
+            content: none;
+        }
+
+        /* Botones en navbar */
+        .eco-navbar .btn-nav-primary {
+            background: rgba(255,255,255,.18);
+            color: #fff;
+            border: 1.5px solid rgba(255,255,255,.4);
+            border-radius: 8px;
+            padding: .35rem 1rem;
+            font-size: .88rem;
+            font-weight: 700;
+            transition: background .2s, border-color .2s;
+            text-decoration: none;
+        }
+        .eco-navbar .btn-nav-primary:hover {
+            background: rgba(255,255,255,.3);
+            color: #fff;
+        }
+
+        .eco-navbar .btn-nav-register {
+            background: var(--eco-yellow);
+            color: #1a1a2e;
+            border: none;
+            border-radius: 8px;
+            padding: .35rem 1rem;
+            font-size: .88rem;
+            font-weight: 700;
+            transition: background .2s, transform .15s;
+            text-decoration: none;
+        }
+        .eco-navbar .btn-nav-register:hover {
+            background: #f0c040;
+            color: #1a1a2e;
+            transform: translateY(-1px);
+        }
+
+        .eco-navbar .btn-nav-danger {
+            background: rgba(220,53,69,.25);
+            color: #fff;
+            border: 1.5px solid rgba(220,53,69,.5);
+            border-radius: 8px;
+            padding: .35rem 1rem;
+            font-size: .88rem;
+            font-weight: 700;
+            transition: background .2s;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .eco-navbar .btn-nav-danger:hover {
+            background: rgba(220,53,69,.5);
+            color: #fff;
+        }
+
+        /* Google button */
+        .btn-google {
+            background: #fff;
+            color: #444;
+            border: 1.5px solid rgba(255,255,255,.5);
+            border-radius: 8px;
+            padding: .35rem 1.1rem;
+            font-size: .95rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+            transition: background .2s, box-shadow .15s, color .2s;
+            text-decoration: none;
+            min-width: 140px;
+            box-shadow: 0 2px 8px rgba(42,157,143,.08);
+        }
+        .btn-google:hover {
+            background: #f1f3f4;
+            color: #21867a;
+            box-shadow: 0 4px 16px rgba(42,157,143,.13);
+            transform: translateY(-1px);
+        }
+        .btn-google .google-icon {
+            width: 18px; height: 18px;
+        }
+
+        /* Toggler móvil */
+        .eco-navbar .navbar-toggler {
+            border: 1.5px solid rgba(255,255,255,.4);
+            border-radius: 8px;
+            padding: .3rem .5rem;
+        }
+        .eco-navbar .navbar-toggler-icon {
+            filter: brightness(10);
+        }
+
+        /* Menú desplegado en móvil */
+        @media (max-width: 991px) {
+            .eco-navbar {
+                padding: 12px 16px !important;
+            }
+            .eco-navbar-inner {
+                flex-wrap: wrap;
+                justify-content: space-between;
+                gap: .5rem;
+            }
+            .eco-navbar .navbar-nav {
+                width: 100%;
+                justify-content: center;
+                gap: .25rem;
+                background: rgba(255,255,255,0.03);
+                border-radius: 10px;
+                padding: .4rem 0;
+            }
+            .eco-navbar .nav-link {
+                padding: .35rem .75rem !important;
+                width: 100%;
+                text-align: center;
+                border-radius: 8px;
+                margin: 0;
+            }
+            .eco-navbar .btn-nav-register,
+            .eco-navbar .btn-google,
+            .eco-navbar .btn-nav-danger,
+            .eco-navbar .btn-nav-primary {
+                width: 100%;
+                justify-content: center;
+                text-align: center;
+            }
+        }
+        @media (max-width: 768px) {
+            .eco-navbar {
+                height: auto;
+                padding: 12px 12px !important;
+            }
+            .eco-navbar .eco-brand-text {
+                font-size: 1.2rem;
+            }
+            .page-content {
+                padding: 0 0.5rem;
+            }
+        }
+
+        /* ═══════════════════════════════════════
+           MENSAJES / ALERTS
+        ═══════════════════════════════════════ */
+        .messages-container {
+            position: fixed;
+            top: calc(var(--navbar-h) + 12px);
+            right: 1rem;
+            z-index: 1040;
+            width: min(380px, calc(100vw - 2rem));
+        }
+
+        .messages-container .alert {
+            border-radius: var(--radius);
+            box-shadow: 0 4px 16px rgba(0,0,0,.12);
+            border: none;
+            font-size: .9rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+            animation: slideIn .3s ease;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(30px); }
+            to   { opacity: 1; transform: translateX(0); }
+        }
+
+        /* ═══════════════════════════════════════
+           CONTENIDO GENERAL
+        ═══════════════════════════════════════ */
+        .page-content {
+            min-height: calc(100vh - var(--navbar-h) - 80px);
+        }
+
+        /* Cards eco */
+        .eco-card {
+            background: #fff;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            border: none;
+            overflow: hidden;
+            transition: transform .2s, box-shadow .2s;
+        }
+        .eco-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(42,157,143,.2);
+        }
+
+        /* Badges de puntos */
+        .points-badge {
+            background: linear-gradient(135deg, var(--eco-green), var(--eco-green-light));
+            color: #fff;
+            border-radius: 20px;
+            padding: .25rem .75rem;
+            font-size: .82rem;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: .3rem;
+        }
+
+        /* Botones principales */
+        .btn-eco {
+            background: linear-gradient(135deg, var(--eco-green), var(--eco-green-light));
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            padding: .6rem 1.5rem;
+            font-weight: 700;
+            transition: opacity .2s, transform .15s;
+        }
+        .btn-eco:hover {
+            opacity: .92;
+            color: #fff;
+            transform: translateY(-1px);
+        }
+
+        .btn-eco-outline {
+            background: transparent;
+            color: var(--eco-green);
+            border: 2px solid var(--eco-green);
+            border-radius: 10px;
+            padding: .55rem 1.5rem;
+            font-weight: 700;
+            transition: background .2s, color .2s;
+        }
+        .btn-eco-outline:hover {
+            background: var(--eco-green);
+            color: #fff;
+        }
+
+        /* Botón principal Comenzar */
+        .btn-comenzar{
+            background: var(--eco-green-light);
+            color: #ffffff;
+            border: none;
+            border-radius: 10px;
+            padding: 8px 22px;
+            font-size: 15px;
+            font-weight: 700;
+            font-family: 'Poppins','Nunito',sans-serif;
+            cursor: pointer;
+            transition: all .2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+        }
+        .btn-comenzar:hover{
+            background: var(--eco-green-dark);
+            color: #ffffff;
+            transform: translateY(-1px);
+        }
+
+        /* ═══════════════════════════════════════
+           FOOTER
+        ═══════════════════════════════════════ */
+        .eco-footer {
+            background: var(--eco-dark);
+            color: rgba(255,255,255,.75);
+            padding: 2.5rem 0 1.5rem;
+            margin-top: 4rem;
+        }
+
+        .eco-footer .footer-brand {
+            font-family: 'Nunito', sans-serif;
+            font-weight: 800;
+            font-size: 1.3rem;
+            color: #fff;
+        }
+
+        .eco-footer .footer-text {
+            font-size: .875rem;
+            color: rgba(255,255,255,.6);
+        }
+
+        .eco-footer .footer-links a {
+            color: rgba(255,255,255,.7);
+            text-decoration: none;
+            font-size: .9rem;
+            font-weight: 600;
+            margin: 0 .6rem;
+            transition: color .2s;
+        }
+        .eco-footer .footer-links a:hover {
+            color: var(--eco-green-light);
+        }
+
+        .eco-footer .footer-social a {
+            color: rgba(255,255,255,.6);
+            font-size: 1.25rem;
+            margin: 0 .4rem;
+            transition: color .2s;
+        }
+        .eco-footer .footer-social a:hover {
+            color: var(--eco-green-light);
+        }
+
+        .eco-footer .footer-copy {
+            font-size: .8rem;
+            color: rgba(255,255,255,.4);
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255,255,255,.08);
+        }
+
+        /* ═══════════════════════════════════════
+           UTILIDADES EXTRA
+        ═══════════════════════════════════════ */
+        .section-title {
+            font-family: 'Nunito', sans-serif;
+            font-weight: 800;
+            color: var(--eco-dark);
+        }
+
+        .text-eco { color: var(--eco-green) !important; }
+        .bg-eco   { background: var(--eco-green) !important; }
+
+        /* Scrollbar personalizado */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #f0faf8; }
+        ::-webkit-scrollbar-thumb { background: var(--eco-green); border-radius: 3px; }
+
+        .eco-navbar .nav-link.active::after,
+    .eco-navbar .nav-link.active::before {
+        transition: none !important;
+        animation: none !important;
+    }
+
+    .navbar-toggler {
+        border-color: rgba(255,255,255,.8);
+    }
+    .navbar-toggler-icon {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3E%3Cpath stroke='rgba%28255,255,255,0.9%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
+    }
+    </style>
+
+    <!-- CSS propio adicional -->
+    <link rel="stylesheet" href="/static/assets/css/style.css">
+
+    
+  <style>
+    /* ====================================
+       REGISTER - ECO NEEK
+       Con waves decorativas en el fondo
+    ==================================== */
+    
+    :root {
+      --primary-color: #2a9d8f;
+      --secondary-color: #264653;
+      --accent-color: #e9c46a;
+      --light-bg: #f8f9fa;
+      --dark-color: #1e2b37;
+      --text-muted: #6c757d;
+      --white: #ffffff;
+      --green-dark: #1e5f4b;
+    }
+    
+    /* Página con fondo degradado sutil */
+    .register-page {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+      position: relative;
+      background: linear-gradient(135deg, #f5faf9 0%, #f0f7f5 100%);
+      overflow: hidden;
+    }
+    
+    /* Waves de fondo - SUPERIOR */
+    .wave-bg-top {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      line-height: 0;
+      z-index: 1;
+      opacity: 0.3;
+      transform: rotate(180deg);
+    }
+    
+    .wave-bg-top svg {
+      width: 100%;
+      height: auto;
+      fill: var(--primary-color);
+    }
+    
+    /* Waves de fondo - INFERIOR */
+    .wave-bg-bottom {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      line-height: 0;
+      z-index: 1;
+      opacity: 0.3;
+    }
+    
+    .wave-bg-bottom svg {
+      width: 100%;
+      height: auto;
+      fill: var(--primary-color);
+    }
+    
+    /* Círculos decorativos adicionales */
+    .circle-1 {
+      position: absolute;
+      top: 10%;
+      left: 5%;
+      width: 300px;
+      height: 300px;
+      background: radial-gradient(circle, rgba(42,157,143,0.03) 0%, rgba(42,157,143,0) 70%);
+      border-radius: 50%;
+      z-index: 1;
+    }
+    
+    .circle-2 {
+      position: absolute;
+      bottom: 10%;
+      right: 5%;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(42,157,143,0.03) 0%, rgba(42,157,143,0) 70%);
+      border-radius: 50%;
+      z-index: 1;
+    }
+    
+    /* Contenedor principal - sobre las waves */
+    .register-container {
+      max-width: 520px;
+      width: 100%;
+      position: relative;
+      z-index: 10;
+    }
+    
+    /* Tarjeta de registro */
+    .register-card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-radius: 40px;
+      padding: 40px 35px;
+      box-shadow: 0 30px 60px rgba(0,0,0,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .register-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+    }
+    
+    /* Logo y encabezado */
+    .register-header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    
+    .register-logo {
+      width: 90px;
+      height: 90px;
+      background: white;
+      border-radius: 25px;
+      padding: 12px;
+      box-shadow: 0 10px 30px rgba(42, 157, 143, 0.15);
+      margin-bottom: 20px;
+      border: 1px solid rgba(42, 157, 143, 0.1);
+    }
+    
+    .register-logo img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+    
+    .register-header h2 {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--green-dark);
+      margin-bottom: 10px;
+    }
+    
+    .register-header p {
+      color: var(--text-muted);
+      font-size: 1rem;
+    }
+    
+    /* Tipo de usuario selector */
+    .user-type-selector {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 25px;
+      background: #f5f5f5;
+      padding: 5px;
+      border-radius: 50px;
+    }
+    
+    .user-type-btn {
+      flex: 1;
+      padding: 12px;
+      border: none;
+      border-radius: 50px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      background: transparent;
+      color: #999;
+    }
+    
+    .user-type-btn.active {
+      background: var(--primary-color);
+      color: white;
+      box-shadow: 0 5px 15px rgba(42, 157, 143, 0.2);
+    }
+    
+    /* Formulario */
+    .register-form {
+      margin-bottom: 20px;
+    }
+    
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    .form-label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+      color: var(--dark-color);
+      font-size: 0.95rem;
+    }
+    
+    .form-label i {
+      color: var(--primary-color);
+      margin-right: 6px;
+    }
+    
+    .form-control {
+      width: 100%;
+      padding: 14px 18px;
+      border: 2px solid rgba(0,0,0,0.05);
+      border-radius: 20px;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      background: rgba(255,255,255,0.9);
+    }
+    
+    .form-control:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      background: white;
+      box-shadow: 0 0 0 4px rgba(42, 157, 143, 0.1);
+    }
+    
+    .form-text {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 5px;
+      display: block;
+    }
+    
+    /* Grid para dos columnas */
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+    }
+    
+    /* Checkbox de términos */
+    .form-check {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 25px;
+    }
+    
+    .form-check-input {
+      width: 20px;
+      height: 20px;
+      border: 2px solid rgba(0,0,0,0.1);
+      border-radius: 6px;
+      cursor: pointer;
+      accent-color: var(--primary-color);
+    }
+    
+    .form-check-label {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+    
+    .form-check-label a {
+      color: var(--primary-color);
+      text-decoration: none;
+      font-weight: 600;
+    }
+    
+    .form-check-label a:hover {
+      text-decoration: underline;
+    }
+    
+    /* Botón principal */
+    .btn-eco {
+      width: 100%;
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      color: white;
+      padding: 16px;
+      border: none;
+      border-radius: 30px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 10px 20px rgba(42, 157, 143, 0.2);
+    }
+    
+    .btn-eco:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 15px 30px rgba(42, 157, 143, 0.3);
+    }
+    
+    .btn-eco:active {
+      transform: translateY(-1px);
+    }
+
+    .show-password {
+      position: absolute;
+      top: 42px;
+      right: 14px;
+      border: none;
+      background: transparent;
+      color: #1e5f4b;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 0;
+    }
+
+    .show-password:focus {
+      outline: none;
+    }
+    
+    /* Footer */
+    .register-footer {
+      text-align: center;
+      margin-top: 25px;
+      padding-top: 20px;
+      border-top: 1px solid rgba(0,0,0,0.03);
+    }
+    
+    .register-footer a {
+      color: var(--primary-color);
+      text-decoration: none;
+      font-weight: 600;
+      transition: color 0.3s ease;
+    }
+    
+    .register-footer a:hover {
+      color: var(--secondary-color);
+      text-decoration: underline;
+    }
+    
+    /* Alert de error */
+    .alert-danger {
+      background: rgba(220, 53, 69, 0.05);
+      border: 1px solid rgba(220, 53, 69, 0.1);
+      border-radius: 20px;
+      padding: 15px 20px;
+      color: #dc3545;
+      margin-bottom: 25px;
+      font-size: 0.95rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    /* Secciones condicionales */
+    .section-fields {
+      transition: all 0.3s ease;
+      border-left: 3px solid transparent;
+      padding-left: 0;
+    }
+    
+    .section-fields:not(.d-none) {
+      border-left-color: var(--primary-color);
+      padding-left: 15px;
+      margin-left: -15px;
+    }
+    
+    /* Responsive */
+    @media (max-width: 576px) {
+      .register-card {
+        padding: 30px 20px;
+        border-radius: 30px;
+      }
+      
+      .register-header h2 {
+        font-size: 1.8rem;
+      }
+      
+      .register-logo {
+        width: 80px;
+        height: 80px;
+      }
+      
+      .btn-eco {
+        padding: 14px;
+      }
+      
+      .circle-1, .circle-2 {
+        display: none;
+      }
+      
+      .form-row {
+        grid-template-columns: 1fr;
+        gap: 0;
+      }
+      
+      .user-type-selector {
+        flex-direction: column;
+        gap: 5px;
+      }
+    }
+  </style>
+
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════
+     NAVBAR
+═══════════════════════════════════════ -->
+<nav class="eco-navbar navbar navbar-expand-lg" style="padding:14px 20px;box-shadow:0 4px 20px rgba(42,157,143,.15);border-radius:0 0 16px 16px;">
+  <div class="container-fluid eco-navbar-inner" style="display:flex;align-items:center;justify-content:space-between;width:100%;gap:.5rem;">
+    <a class="eco-logo d-flex align-items-center text-decoration-none" href="/" style="gap:12px;">
+      <div class="logo-circle" style="width:48px;height:48px;display:flex;align-items:center;justify-content:center;background:#fff;border-radius:50%;box-shadow:0 2px 8px rgba(42,157,143,0.10);">
+        <img src="/static/assets/img/ecoimagen.png" alt="Logo Eco-Neek" style="width:100%;height:100%;object-fit:contain;" onerror="this.style.display='none';">
+      </div>
+      <span class="eco-brand-text" style="font-family:'Poppins', 'Nunito', sans-serif;font-weight:600;font-size:22px;color:#fff;letter-spacing:-.5px;">Eco-Neek</span>
+    </a>
+    <button class="navbar-toggler btn btn-outline-light border-2" type="button" data-bs-toggle="collapse" data-bs-target="#ecoNavbarCollapse" aria-controls="ecoNavbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon" style="filter: invert(1);"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="ecoNavbarCollapse">
+      <ul class="navbar-nav ms-auto mb-2 mb-lg-0 d-flex flex-lg-row align-items-lg-center" style="gap:12px;">
+        <li class="nav-item"><a class="nav-link text-white" href="/">Inicio</a></li>
+        <li class="nav-item"><a class="nav-link text-white" href="/mapa/">Mapa</a></li>
+        <li class="nav-item"><a class="nav-link text-white" href="/catalogo/">Premios</a></li>
+        <li class="nav-item"><a class="nav-link text-white" href="/eventos/">Eventos</a></li>
+        <li class="nav-item">
+          
+            <a href="/login-screen/" class="btn-comenzar">Comenzar</a>
+          
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<!-- ═══════════════════════════════════════
+     MENSAJES FLOTANTES
+═══════════════════════════════════════ -->
+
+
+<!-- ═══════════════════════════════════════
+     CONTENIDO PRINCIPAL
+═══════════════════════════════════════ -->
+<main class="page-content">
+  
+<div class="register-page">
+  <!-- Waves de fondo - SUPERIOR -->
+  <div class="wave-bg-top">
+    <svg viewBox="0 0 1440 200" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+      <path d="M0 160L40 149.3C80 138.7 160 117.3 240 112C320 106.7 400 117.3 480 128C560 138.7 640 149.3 720 144C800 138.7 880 117.3 960 101.3C1040 85.3 1120 74.7 1200 74.7C1280 74.7 1360 85.3 1400 90.7L1440 96V200H1400C1360 200 1280 200 1200 200C1120 200 1040 200 960 200C880 200 800 200 720 200C640 200 560 200 480 200C400 200 320 200 240 200C160 200 80 200 40 200H0V160Z" fill="white"/>
+    </svg>
+  </div>
+
+  <!-- Círculos decorativos -->
+  <div class="circle-1"></div>
+  <div class="circle-2"></div>
+
+  <div class="register-container">
+    <div class="register-card">
+      
+      <!-- Logo y título -->
+      <div class="register-header">
+        <div class="register-logo mx-auto">
+          <img src="/static/assets/img/logo.png" alt="Eco-Neek">
+        </div>
+        <h2>¡Crea tu cuenta!</h2>
+        <p>Ingresa tus datos para comenzar a usar EcoNeek</p>
+      </div>
+
+      <!-- Selector de tipo de usuario (mejorado visualmente) -->
+      <div class="user-type-selector">
+        <button type="button" class="user-type-btn active" id="btn-usuario" onclick="setTipo('usuario')">🌱 Usuario</button>
+        <button type="button" class="user-type-btn" id="btn-centro" onclick="setTipo('centro')">🏭 Punto Verde</button>
+      </div>
+
+      <!-- Formulario -->
+      <form method="post" action="/register-screen/" class="register-form" id="registerForm" onsubmit="return validateRegister();">
+        <input type="hidden" name="csrfmiddlewaretoken" value="pqeQGefZsfDgPmrnuBXuiNzSjvuRUcXThiN462FFu8IOml7CClUzrEBMOfzPh7wE">
+        <input type="hidden" id="id_tipo" name="tipo" value="usuario">
+        
+        
+
+        <!-- Campos para USUARIO (nombre, apellido) -->
+        <div id="usuario-fields" class="d-none section-fields">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="id_nombre" class="form-label">
+                <i class="bi bi-person"></i>Nombre
+              </label>
+              <input id="id_nombre" name="nombre" type="text" class="form-control" placeholder="Tu nombre" value="">
+            </div>
+            <div class="form-group">
+              <label for="id_apellido" class="form-label">
+                <i class="bi bi-person"></i>Apellido
+              </label>
+              <input id="id_apellido" name="apellido" type="text" class="form-control" placeholder="Tu apellido" value="">
+            </div>
+          </div>
+        </div>
+
+        <!-- Campos para CENTRO (paso 1) -->
+        <div id="centro-fields" class="d-none section-fields">
+          <div class="form-group">
+            <label for="id_responsable" class="form-label">
+              <i class="bi bi-person-vcard"></i>Nombre del responsable
+            </label>
+            <input id="id_responsable" name="responsable" type="text" class="form-control" placeholder="Nombre del responsable" value="">
+          </div>
+          <div class="form-group">
+            <label for="id_centro_nombre" class="form-label">
+              <i class="bi bi-building"></i>Nombre del Centro
+            </label>
+            <input id="id_centro_nombre" name="nombre_centro" type="text" class="form-control" placeholder="Nombre del centro / recicladora" value="">
+          </div>
+        </div>
+
+        <!-- Campos comunes -->
+        <div class="form-group">
+          <label for="id_email" class="form-label">
+            <i class="bi bi-envelope-fill"></i>Correo electrónico
+          </label>
+          <input id="id_email" name="email" type="email" class="form-control" placeholder="tucorreo@ejemplo.com" required value="">
+        </div>
+
+        <div class="form-row">
+          <div class="form-group" style="position: relative;">
+            <label for="id_password1" class="form-label">
+              <i class="bi bi-lock-fill"></i>Contraseña
+            </label>
+            <div style="position: relative;">
+              <input id="id_password1" name="password" type="password" class="form-control" placeholder="Mínimo 6 caracteres" required>
+              <button type="button" class="show-password" style="position:absolute; right:10px; top:10px;" onclick="togglePassword('id_password1', this)"><i class="bi bi-eye"></i></button>
+            </div>
+            <small class="form-text">Mínimo 6 caracteres</small>
+          </div>
+          <div class="form-group" style="position: relative;">
+            <label for="id_password2" class="form-label">
+              <i class="bi bi-lock-fill"></i>Confirmar contraseña
+            </label>
+            <div style="position: relative;">
+              <input id="id_password2" name="password2" type="password" class="form-control" placeholder="Repite la contraseña" required>
+              <button type="button" class="show-password" style="position:absolute; right:10px; top:10px;" onclick="togglePassword('id_password2', this)"><i class="bi bi-eye"></i></button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Campos solo para CENTRO -->
+        <div id="centro-details" class="d-none section-fields">
+          <div class="mb-2" style="display:flex; align-items:center; gap:.4rem;"><span class="step-badge">PASO 2 DE 3</span><strong>Datos de tu Local</strong></div>
+          <div class="form-row">
+            <div class="form-group" style="flex:1;">
+              <label for="id_telefono" class="form-label"><i class="bi bi-telephone-fill"></i>Teléfono</label>
+              <input id="id_telefono" name="telefono" type="tel" class="form-control" placeholder="Número de contacto" value="">
+            </div>
+            <div class="form-group" style="flex:1;">
+              <label for="id_municipio" class="form-label"><i class="bi bi-geo-alt-fill"></i>Municipio/Alcaldía</label>
+              <input id="id_municipio" name="municipio" type="text" class="form-control" placeholder="Municipio/Ciudad" value="">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="id_direccion" class="form-label"><i class="bi bi-pin-map-fill"></i>Dirección de tu Centro</label>
+            <div style="display:flex; gap:.25rem;">
+              <input id="id_direccion" name="direccion" type="text" class="form-control" placeholder="Calle, número, colonia" value="">
+              <button type="button" class="btn btn-outline-secondary" style="min-width:44px; border-radius:8px;" onclick="buscarDireccion();">📍</button>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group" style="flex:1;"><label class="form-label">Código Postal</label><input name="codigo_postal" class="form-control" placeholder="Código postal" value=""></div>
+            <div class="form-group" style="flex:1;"><label class="form-label">Estado</label><input name="estado" class="form-control" placeholder="Estado" value=""></div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group" style="flex:1;"><label class="form-label">Localidad / Ciudad</label><input name="localidad" class="form-control" placeholder="Localidad" value=""></div>
+            <div class="form-group" style="flex:1;"><label class="form-label">Colonia / Barrio</label><input name="colonia" class="form-control" placeholder="Colonia" value=""></div>
+          </div>
+          <div class="form-group"><label class="form-label">Descripción del negocio</label><textarea name="descripcion_publica" class="form-control" rows="2" placeholder="Escribe una breve descripción"></textarea></div>
+          <div class="form-group"><label class="form-label">Correo público (Opcional)</label><input name="correo_publico" class="form-control" placeholder="correo@centro.com" value=""></div>
+          <div class="form-group"><label class="form-label"><i class="bi bi-clock-fill"></i>Horarios de atención</label><input id="id_horarios" name="horarios" type="text" class="form-control" placeholder="Ej: Lunes a Viernes 8am-5pm" value=""></div>
+        </div>
+
+        <!-- Términos -->
+        <div class="form-check">
+          <input type="checkbox" class="form-check-input" id="id_terms" name="terms" required>
+          <label class="form-check-label" for="id_terms">
+            Acepto los <a href="#">términos y condiciones</a> de EcoNeek
+          </label>
+        </div>
+
+        <button type="submit" class="btn-eco">
+          <span>Crear cuenta</span>
+          <i class="bi bi-arrow-right ms-2"></i>
+        </button>
+      </form>
+
+      <!-- Footer -->
+      <div class="register-footer">
+        <a href="/login-screen/">¿Ya tienes cuenta? Inicia sesión</a>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Waves de fondo - INFERIOR -->
+  <div class="wave-bg-bottom">
+    <svg viewBox="0 0 1440 200" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+      <path d="M0 40L40 45.3C80 50.7 160 61.3 240 66.7C320 72 400 72 480 66.7C560 61.3 640 50.7 720 48C800 45.3 880 50.7 960 64C1040 77.3 1120 98.7 1200 106.7C1280 114.7 1360 109.3 1400 106.7L1440 104V0H1400C1360 0 1280 0 1200 0C1120 0 1040 0 960 0C880 0 800 0 720 0C640 0 560 0 480 0C400 0 320 0 240 0C160 0 80 0 40 0H0V40Z" fill="white"/>
+    </svg>
+  </div>
+</div>
+
+<script>
+  function setTipo(tipo) {
+    const tipoInput = document.getElementById('id_tipo');
+    const usuarioFields = document.getElementById('usuario-fields');
+    const centroFields = document.getElementById('centro-fields');
+    const centroDetails = document.getElementById('centro-details');
+    const btnUsuario = document.getElementById('btn-usuario');
+    const btnCentro = document.getElementById('btn-centro');
+    
+    tipoInput.value = tipo;
+    
+    if (tipo === 'centro') {
+      usuarioFields.classList.add('d-none');
+      centroFields.classList.remove('d-none');
+      centroDetails.classList.remove('d-none');
+      btnUsuario.classList.remove('active');
+      btnCentro.classList.add('active');
+    } else {
+      usuarioFields.classList.remove('d-none');
+      centroFields.classList.add('d-none');
+      centroDetails.classList.add('d-none');
+      btnUsuario.classList.add('active');
+      btnCentro.classList.remove('active');
+    }
+  }
+
+  function togglePassword(fieldId, btn) {
+    const input = document.getElementById(fieldId);
+    if (input.type === 'password') {
+      input.type = 'text';
+      btn.innerText = 'Ocultar';
+    } else {
+      input.type = 'password';
+      btn.innerText = 'Mostrar';
+    }
+  }
+
+function buscarDireccion() {
+      const direccionEntrada = document.getElementById('id_direccion').value.trim();
+      if (!direccionEntrada) {
+        alert('Escribe una dirección primero.');
+        return;
+      }
+      fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(direccionEntrada + ', Yucatán, México')}`)
+        .then(r => r.json())
+        .then(data => {
+          if (!data || data.length === 0) {
+            alert('No se encontró la dirección. Ajusta tu texto.');
+            return;
+          }
+          const first = data[0];
+          const details = first.address || {};
+          document.getElementById('id_direccion').value = first.display_name || direccionEntrada;
+          document.getElementById('id_municipio').value = details.city || details.town || details.county || details.municipality || details.state_district || '';
+          const cpField = document.querySelector('input[name="codigo_postal"]');
+          if (cpField) cpField.value = details.postcode || cpField.value;
+          const estadoField = document.querySelector('input[name="estado"]');
+          if (estadoField) estadoField.value = details.state || details.region || 'Yucatán';
+          const localidadField = document.querySelector('input[name="localidad"]');
+          if (localidadField) localidadField.value = details.suburb || details.village || details.city || details.town || details.county || '';
+          const coloniaField = document.querySelector('input[name="colonia"]');
+          if (coloniaField) coloniaField.value = details.neighbourhood || details.suburb || details.road || '';
+        })
+        .catch(() => {
+          alert('No se pudo autocompletar. Intenta de nuevo.');
+        });
+    }
+
+    function validateRegister() {
+    const tipo = document.getElementById('id_tipo').value;
+    const nombre = document.getElementById('id_nombre')?.value?.trim();
+    const apellido = document.getElementById('id_apellido')?.value?.trim();
+    const responsable = document.getElementById('id_responsable')?.value?.trim();
+    const nombreCentro = document.getElementById('id_centro_nombre')?.value?.trim();
+    const direccion = document.getElementById('id_direccion')?.value?.trim();
+    const municipio = document.getElementById('id_municipio')?.value?.trim();
+    const horarios = document.getElementById('id_horarios')?.value?.trim();
+    const password = document.getElementById('id_password1')?.value || '';
+    const password2 = document.getElementById('id_password2')?.value || '';
+    const email = document.getElementById('id_email')?.value?.trim() || '';
+    const terms = document.getElementById('id_terms')?.checked;
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email) {
+      alert('Por favor ingresa tu correo.');
+      return false;
+    }
+    if (email.length > 320 || !emailRegex.test(email)) {
+      alert('Formato de correo inválido.');
+      return false;
+    }
+    if (!password || password.length < 6) {
+      alert('La contraseña debe tener al menos 6 caracteres.');
+      return false;
+    }
+    if (password.length > 128) {
+      alert('La contraseña es demasiado larga.');
+      return false;
+    }
+    if (password !== password2) {
+      alert('Las contraseñas no coinciden.');
+      return false;
+    }
+    if (!terms) {
+      alert('Debes aceptar los términos y condiciones.');
+      return false;
+    }
+
+    if (tipo === 'usuario') {
+      if (!nombre) {
+        alert('Ingresa tu nombre.');
+        return false;
+      }
+      if (!apellido) {
+        alert('Ingresa tu apellido.');
+        return false;
+      }
+    } else if (tipo === 'centro') {
+      if (!responsable) {
+        alert('Ingresa el nombre del responsable.');
+        return false;
+      }
+      if (!nombreCentro) {
+        alert('Ingresa el nombre del centro.');
+        return false;
+      }
+      if (!direccion) {
+        alert('Ingresa la dirección del centro.');
+        return false;
+      }
+      if (!municipio) {
+        alert('Ingresa el municipio del centro.');
+        return false;
+      }
+      if (!horarios) {
+        alert('Ingresa los horarios del centro.');
+        return false;
+      }
+    }
+    return true;
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    const tipo = 'usuario';
+    setTipo(tipo);
+  });
+</script>
+
+</main>
+<!-- ====================================
+     FOOTER INNOVADOR - ECO NEEK
+==================================== -->
+<footer class="eco-footer">
+  <div class="container">
+    <!-- Parte superior con ondas decorativas -->
+    <div class="footer-wave">
+      <svg viewBox="0 0 1440 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M0 50L60 55C120 60 240 70 360 70C480 70 600 60 720 50C840 40 960 30 1080 30C1200 30 1320 40 1380 45L1440 50V100H1380C1320 100 1200 100 1080 100C960 100 840 100 720 100C600 100 480 100 360 100C240 100 120 100 60 100H0V50Z" fill="white" fill-opacity="0.1"/>
+      </svg>
+    </div>
+    
+    <div class="row g-4 py-5">
+      <!-- Columna 1: Logo y descripción -->
+      <div class="col-lg-4 col-md-6">
+        <div class="footer-brand-wrapper">
+          <img src="/static/assets/img/logo.png" alt="EcoNeek" class="footer-logo">
+          <span class="footer-brand">EcoNeek</span>
+        </div>
+        <p class="footer-text mt-3">
+          Transformamos residuos en recursos a través de tecnología inteligente. Conectamos personas con puntos verdes para un futuro sostenible.
+        </p>
+        
+        <!-- NEWSLETTER ELIMINADO -->
+        
+      </div>
+      
+      <!-- Columna 2: Enlaces rápidos -->
+      <div class="col-lg-2 col-md-6">
+        <h5 class="footer-title">Explora</h5>
+        <ul class="footer-links-list">
+          <li><a href="/mapa/"><i class="bi bi-geo-alt"></i> Mapa Verde</a></li>
+          <li><a href="/catalogo/"><i class="bi bi-gift"></i> Recompensas</a></li>
+          <li><a href="/eventos/"><i class="bi bi-calendar-event"></i> Eventos</a></li>
+        </ul>
+      </div>
+      
+      <!-- Columna 4: Contacto y redes -->
+      <div class="col-lg-4 col-md-6">
+        <h5 class="footer-title">Conecta con nosotros</h5>
+        
+        <!-- Contacto directo -->
+        <div class="footer-contact">
+          <div class="contact-item">
+            <i class="bi bi-envelope-fill"></i>
+            <span>hola@econeek.com</span>
+          </div>
+          <div class="contact-item">
+            <i class="bi bi-telephone-fill"></i>
+            <span>+52 555 123 4567</span>
+          </div>
+          <div class="contact-item">
+            <i class="bi bi-clock-fill"></i>
+            <span>Lun-Vie 9am - 6pm</span>
+          </div>
+        </div>
+        
+        <!-- Redes sociales con efecto hover -->
+        <div class="footer-social mt-4">
+          <a href="#" class="social-icon" aria-label="Facebook">
+            <i class="bi bi-facebook"></i>
+          </a>
+          <a href="#" class="social-icon" aria-label="Instagram">
+            <i class="bi bi-instagram"></i>
+          </a>
+          <a href="#" class="social-icon" aria-label="Twitter">
+            <i class="bi bi-twitter-x"></i>
+          </a>
+        </div>
+        
+        <!-- Badge de descarga -->
+        <div class="footer-download mt-3">
+          
+          </a>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Línea divisoria decorativa -->
+    <div class="footer-divider">
+      <span class="divider-icon">♻️</span>
+    </div>
+    
+    <!-- Copyright con diseño -->
+    <div class="footer-bottom">
+      <div class="row align-items-center">
+        <div class="col-md-6">
+          <p class="copyright">
+            © 2026 EcoNeek. Todos los derechos reservados.
+          </p>
+        </div>
+        <div class="col-md-6 text-md-end">
+          <div class="legal-links">
+            <a href="/privacidad/">Privacidad</a>
+            <span class="separator">|</span>
+            <a href="/terminos/">Términos</a>
+            <span class="separator">|</span>
+            <a href="/cookies/">Cookies</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    var toggler = document.querySelector('.navbar-toggler');
+    var collapse = document.getElementById('ecoNavbarCollapse');
+    if (toggler && collapse) {
+      toggler.addEventListener('click', function() {
+        collapse.classList.toggle('show');
+      });
+    }
+  });
+</script>
+</body>
+</html>

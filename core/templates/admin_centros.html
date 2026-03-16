@@ -2,7 +2,15 @@
 {% block content %}
 <div class="container mt-4">
   <h2>Gestión de Centros (Supabase)</h2>
-  {% if centros %}
+  {% if messages %}
+  <div class="mt-2">
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags }}" role="alert">{{ message }}</div>
+    {% endfor %}
+  </div>
+  {% endif %}
+  <h4>Centros pendientes</h4>
+  {% if pending_centros %}
   <table class="table table-striped mt-3">
     <thead>
       <tr>
@@ -16,7 +24,7 @@
       </tr>
     </thead>
     <tbody>
-      {% for c in centros %}
+      {% for c in pending_centros %}
       <tr>
         <td>{{ c.id }}</td>
         <td>{{ c.nombre_comercial|default:c.name }}</td>
@@ -42,6 +50,44 @@
   </table>
   {% else %}
   <p>No hay centros pendientes.</p>
+  {% endif %}
+
+  <h4 class="mt-4">Centros validados (eliminar)</h4>
+  {% if approved_centros %}
+  <table class="table table-striped mt-3">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Nombre</th>
+        <th>Correo</th>
+        <th>Dirección</th>
+        <th>Lat</th>
+        <th>Lng</th>
+        <th>Acción</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for c in approved_centros %}
+      <tr>
+        <td>{{ c.id }}</td>
+        <td>{{ c.nombre_comercial|default:c.name }}</td>
+        <td>{{ c.correo_contacto|default:c.correo }}</td>
+        <td>{{ c.direccion_texto|default:c.address }}</td>
+        <td>{{ c.latitud|default:c.latitude }}</td>
+        <td>{{ c.longitud|default:c.longitude }}</td>
+        <td>
+          <form action="{% url 'admin_centros_accion' %}" method="post" style="display:inline">{% csrf_token %}
+            <input type="hidden" name="centro_id" value="{{ c.id }}">
+            <input type="hidden" name="accion" value="eliminar">
+            <button class="btn btn-outline-danger btn-sm" onclick="return confirm('¿Estás seguro de eliminar este centro? Esta acción no se puede deshacer.')">Eliminar</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p>No hay centros validados aún.</p>
   {% endif %}
 </div>
 {% endblock %}
