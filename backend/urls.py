@@ -20,6 +20,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     # Override account login route to use custom logic (and still keep allauth routes).
     path('accounts/login/', core_views.login_screen, name='account_login'),
+    path('accounts/social/signup/', core_views.social_signup_redirect),
+    path('accounts/3rdparty/signup/', core_views.social_signup_redirect),
     path('accounts/', include('allauth.urls')),
     path('api/', include(router.urls)),
     path('api/auth/register/', api.RegisterView.as_view(), name='register'),

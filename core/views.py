@@ -85,6 +85,11 @@ def custom_404(request, exception=None):
     return redirect('/')
 
 
+def social_signup_redirect(request, *args, **kwargs):
+    # Redirigir a registro personalizado con tipo usuario para cuentas Google nuevas.
+    return redirect('/register-screen/?tipo=usuario')
+
+
 def login_screen(request):
     """Formulario de inicio de sesión por correo/contraseña con soporte Google.
 
