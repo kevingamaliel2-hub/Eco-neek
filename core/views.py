@@ -384,145 +384,154 @@ def register_screen(request):
         else:
             User = get_user_model()
             if User.objects.filter(email__iexact=email).exists():
-                error = 'Ya existe una cuenta con ese correo.'
+                error = 'Ya existe una cuenta local con ese correo.'
             else:
+                # Verificar duplicado en Supabase perfiles por correo
                 try:
-                    # Para centros, crear usuario en Supabase Auth y guardar el ID de usuario.
-                    supa_user_id = None
-                    if tipo == 'centro':
-                        signup = supa.sign_up(email, password)
-                        if getattr(signup, 'error', None):
-                            err = signup.error or ''
-                            low = err.lower() if isinstance(err, str) else ''
-                            if 'already registered' in low or 'duplicate' in low or 'already exists' in low:
-                                error = 'El correo ya está registrado en Supabase. Inicia sesión para continuar.'
-                            else:
-                                error = f'Error al crear usuario en Supabase: {err}'
-                            raise Exception(error)
+                    perfil_resp = supa.client.table('perfiles').select('id').eq('correo', email).limit(1).execute()
+                    if getattr(perfil_resp, 'data', None):
+                        error = 'Ya existe una cuenta con ese correo en Supabase. Inicia sesión.'
+                    centro_resp = supa.client.table('centros_acopio').select('id').eq('correo_contacto', email).limit(1).execute()
+                    if getattr(centro_resp, 'data', None):
+                        error = 'Ya existe un centro con ese correo. Inicia sesión.'
+                except Exception:
+                    pass
 
-                        data = getattr(signup, 'data', None) or {}
-                        user_info = None
-                        if isinstance(data, dict):
-                            user_info = data.get('user') or data.get('data') or data
+                if not error:
+                        supa_user_id = None
+                        created_django_user = None
+                        if tipo == 'centro':
+                            signup = supa.sign_up(email, password)
+                            if getattr(signup, 'error', None):
+                                err = signup.error or ''
+                                low = err.lower() if isinstance(err, str) else ''
+                                if 'already registered' in low or 'duplicate' in low or 'already exists' in low:
+                                    error = 'El correo ya está registrado en Supabase. Inicia sesión para continuar.'
+                                else:
+                                    error = f'Error al crear usuario en Supabase: {err}'
+                                raise Exception(error)
 
-                        if isinstance(user_info, dict):
-                            supa_user_id = user_info.get('id') or user_info.get('user_id')
-                        elif isinstance(data, dict):
-                            supa_user_id = data.get('id')
+                            data = getattr(signup, 'data', None) or {}
+                            user_info = None
+                            if isinstance(data, dict):
+                                user_info = data.get('user') or data.get('data') or data
 
-                        if not supa_user_id:
-                            error = 'No se obtuvo el ID de usuario desde Supabase. Intenta nuevamente.'
-                            raise Exception(error)
+                            if isinstance(user_info, dict):
+                                supa_user_id = user_info.get('id') or user_info.get('user_id')
+                            elif isinstance(data, dict):
+                                supa_user_id = data.get('id')
 
-                    # Crear usuario Django local para control de sesión en el sitio
-                    user = User.objects.create_user(username=email, email=email, password=password)
-                    login(request, user, backend='django.contrib.auth.backends.ModelBackend')
-                    success = True
+                            if not supa_user_id:
+                                error = 'No se obtuvo el ID de usuario desde Supabase. Intenta nuevamente.'
+                                raise Exception(error)
 
-                    if tipo == 'centro':
-                        if not supa_user_id:
-                            raise Exception('No se pudo obtener el ID de usuario de Supabase para crear el centro.')
+                        # Crear usuario Django local para control de sesión en el sitio
+                        created_django_user = User.objects.create_user(username=email, email=email, password=password)
+                        login(request, created_django_user, backend='django.contrib.auth.backends.ModelBackend')
+                        success = True
 
-                        # Crear perfil en Supabase (id igual al id de auth)
-                        try:
-                            perfil_data = {
-                                'id': supa_user_id,
-                                'nombre': nombre_centro,
-                                'apellido': responsable,
-                                'telefono': telefono,
-                                'correo': email,
-                                'tipo_usuario': 'centro',
-                                'eco_puntos_saldo': 0,
-                                'estado_cuenta': True,
-                            }
-                            supa.client.table('perfiles').insert(perfil_data).execute()
-                        except Exception:
-                            pass
+                        if tipo == 'centro':
+                            if not supa_user_id:
+                                raise Exception('No se pudo obtener el ID de usuario de Supabase para crear el centro.')
 
-                        # También crear registro local de perfil para Django (opcional)
-                        try:
-                            perfil = PerfilFirebase.objects.create(
-                                id=uuid.UUID(supa_user_id),
-                                nombre=nombre_centro,
-                                apellido=responsable,
-                                telefono=telefono,
-                                correo=email,
-                                tipo_usuario='centro',
-                                eco_puntos_saldo=0,
-                                estado_cuenta=True
-                            )
-                        except Exception:
-                            perfil = None
-
-                        texto_descripcion = f"Responsable: {responsable}. {descripcion_publica or ''}"
-
-                        # Horarios del formulario (para guardar en Supabase) -- evitar variable no definida
-                        dias = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']
-                        horarios_guardar = []
-                        for i, dia in enumerate(dias, start=1):
-                            apertura = request.POST.get(f'apertura_{i}', '').strip()
-                            cierre = request.POST.get(f'cierre_{i}', '').strip()
-                            activo = bool(request.POST.get(f'activo_{i}', 'on'))
-                            if apertura and cierre and activo:
-                                horarios_guardar.append({
-                                    'dia_semana': i,
-                                    'hora_apertura': apertura,
-                                    'hora_cierre': cierre,
-                                })
-
-                        # Intentar geocodificar la dirección para mapear el centro.
-                        geo = obtener_coordenadas_desde_direccion(f"{direccion}, {municipio}, Yucatán, México")
-                        if geo is None:
-                            # Fallback muy básico a Mérida si no se obtiene coordenadas.
-                            geo = {'lat': 20.9674, 'lon': -89.6237}
-                        latitud = geo['lat'] if geo else None
-                        longitud = geo['lon'] if geo else None
-
-                        centro_payload = {
-                            'id_usuario': supa_user_id,
-                            'nombre_comercial': nombre_centro,
-                            'descripcion': texto_descripcion,
-                            'direccion_texto': direccion,
-                            'telefono_contacto': telefono,
-                            'correo_contacto': correo_publico or email,
-                            'estado_operativo': False,
-                            'validado': False,
-                        }
-                        if latitud is not None and longitud is not None:
-                            centro_payload['latitud'] = latitud
-                            centro_payload['longitud'] = longitud
-
-                        created_centro_resp = supa.client.table('centros_acopio').insert(centro_payload).execute()
-                        centro_data = None
-                        centro_id = None
-                        created_centro_debug = {
-                            'error': getattr(created_centro_resp, 'error', None),
-                            'data': getattr(created_centro_resp, 'data', None)
-                        }
-
-                        if isinstance(created_centro_resp.data, list) and len(created_centro_resp.data) > 0:
-                            centro_data = created_centro_resp.data[0]
-                            centro_id = centro_data.get('id')
-                        elif isinstance(created_centro_resp.data, dict):
-                            centro_data = created_centro_resp.data
-                            centro_id = centro_data.get('id')
-
-                        # Fallback: si insert no devuelve id, intentar obtener el centro recien creado por id_usuario y nombre
-                        if centro_id is None:
+                            # Crear perfil en Supabase (id igual al id de auth)
                             try:
-                                query_resp = supa.client.table('centros_acopio').select('*').eq('id_usuario', supa_user_id).eq('nombre_comercial', nombre_centro).order('created_at', desc=True).limit(1).execute()
-                                if hasattr(query_resp, 'data') and isinstance(query_resp.data, list) and len(query_resp.data) > 0:
-                                    centro_data = query_resp.data[0]
-                                    centro_id = centro_data.get('id')
+                                perfil_data = {
+                                    'id': supa_user_id,
+                                    'nombre': nombre_centro,
+                                    'apellido': responsable,
+                                    'telefono': telefono,
+                                    'correo': email,
+                                    'tipo_usuario': 'centro',
+                                    'eco_puntos_saldo': 0,
+                                    'estado_cuenta': True,
+                                }
+                                supa.client.table('perfiles').insert(perfil_data).execute()
                             except Exception:
                                 pass
 
-                        if centro_id is None:
-                            err_text = 'No se pudo crear el centro en Supabase.'
-                            if created_centro_debug.get('error'):
-                                err_text += f" Error: {created_centro_debug.get('error')}"
-                            err_text += f" Response: {created_centro_debug.get('data')}"
-                            raise Exception(err_text)
+                            # También crear registro local de perfil para Django (opcional)
+                            try:
+                                perfil = PerfilFirebase.objects.create(
+                                    id=uuid.UUID(supa_user_id),
+                                    nombre=nombre_centro,
+                                    apellido=responsable,
+                                    telefono=telefono,
+                                    correo=email,
+                                    tipo_usuario='centro',
+                                    eco_puntos_saldo=0,
+                                    estado_cuenta=True
+                                )
+                            except Exception:
+                                perfil = None
+
+                            texto_descripcion = f"Responsable: {responsable}. {descripcion_publica or ''}"
+
+                            # Horarios del formulario (para guardar en Supabase) -- evitar variable no definida
+                            dias = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']
+                            horarios_guardar = []
+                            for i, dia in enumerate(dias, start=1):
+                                apertura = request.POST.get(f'apertura_{i}', '').strip()
+                                cierre = request.POST.get(f'cierre_{i}', '').strip()
+                                activo = bool(request.POST.get(f'activo_{i}', 'on'))
+                                if apertura and cierre and activo:
+                                    horarios_guardar.append({
+                                        'dia_semana': i,
+                                        'hora_apertura': apertura,
+                                        'hora_cierre': cierre,
+                                    })
+
+                            # Intentar geocodificar la dirección para mapear el centro.
+                            geo = obtener_coordenadas_desde_direccion(f"{direccion}, {municipio}, Yucatán, México")
+                            if geo is None:
+                                geo = {'lat': 20.9674, 'lon': -89.6237}
+                            latitud = geo['lat'] if geo else None
+                            longitud = geo['lon'] if geo else None
+
+                            centro_payload = {
+                                'id_usuario': supa_user_id,
+                                'nombre_comercial': nombre_centro,
+                                'descripcion': texto_descripcion,
+                                'direccion_texto': direccion,
+                                'telefono_contacto': telefono,
+                                'correo_contacto': correo_publico or email,
+                                'estado_operativo': False,
+                                'validado': False,
+                            }
+                            if latitud is not None and longitud is not None:
+                                centro_payload['latitud'] = latitud
+                                centro_payload['longitud'] = longitud
+
+                            created_centro_resp = supa.client.table('centros_acopio').insert(centro_payload).execute()
+                            centro_data = None
+                            centro_id = None
+                            created_centro_debug = {
+                                'error': getattr(created_centro_resp, 'error', None),
+                                'data': getattr(created_centro_resp, 'data', None)
+                            }
+
+                            if isinstance(created_centro_resp.data, list) and len(created_centro_resp.data) > 0:
+                                centro_data = created_centro_resp.data[0]
+                                centro_id = centro_data.get('id')
+                            elif isinstance(created_centro_resp.data, dict):
+                                centro_data = created_centro_resp.data
+                                centro_id = centro_data.get('id')
+
+                            if centro_id is None:
+                                try:
+                                    query_resp = supa.client.table('centros_acopio').select('*').eq('id_usuario', supa_user_id).eq('nombre_comercial', nombre_centro).order('created_at', desc=True).limit(1).execute()
+                                    if hasattr(query_resp, 'data') and isinstance(query_resp.data, list) and len(query_resp.data) > 0:
+                                        centro_data = query_resp.data[0]
+                                        centro_id = centro_data.get('id')
+                                except Exception:
+                                    pass
+
+                            if centro_id is None:
+                                err_text = 'No se pudo crear el centro en Supabase.'
+                                if created_centro_debug.get('error'):
+                                    err_text += f" Error: {created_centro_debug.get('error')}"
+                                err_text += f" Response: {created_centro_debug.get('data')}"
+                                raise Exception(err_text)
 
                         # Guardar horarios en Supabase
                         try:
@@ -572,26 +581,25 @@ def register_screen(request):
                                 pass
 
                         # Para la plantilla de centro_pendiente, usar el dict del supa
-                        centro = centro_data or {
-                            'id': centro_id,
-                            'nombre_comercial': nombre_centro,
-                            'direccion_texto': direccion,
-                            'telefono_contacto': telefono,
-                            'correo_contacto': correo_publico or email,
-                            'url_foto_portada': None,
-                            'validado': False,
-                            'estado_operativo': False,
-                        }
+                        if tipo == 'centro':
+                            centro = centro_data or {
+                                'id': centro_id,
+                                'nombre_comercial': nombre_centro,
+                                'direccion_texto': direccion,
+                                'telefono_contacto': telefono,
+                                'correo_contacto': correo_publico or email,
+                                'url_foto_portada': None,
+                                'validado': False,
+                                'estado_operativo': False,
+                            }
+                            messages.success(request, 'Registro completado! Tu centro se ha creado y está pendiente de validación.')
+                            return render(request, 'centro_pendiente.html', {'centro': centro})
+                        else:
+                            request.session['usuario_nombre'] = nombre
+                            request.session['usuario_apellido'] = apellido
+                            return redirect('completar_registro')
+                # if not error
 
-                        messages.success(request, 'Registro completado! Tu centro se ha creado y está pendiente de validación.')
-                        return render(request, 'centro_pendiente.html', {'centro': centro})
-                    else:
-                        request.session['usuario_nombre'] = nombre
-                        request.session['usuario_apellido'] = apellido
-                        return redirect('completar_registro')
-                except Exception as e:
-                    if not error:
-                        error = f'Ocurrió un error al crear la cuenta: {str(e)}'
 
     return render(request, 'register_screen.html', {
         'error': error,
