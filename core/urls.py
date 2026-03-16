@@ -40,6 +40,7 @@ urlpatterns = [
     # pantalla de login con botón Google e info de APIs
     path('login-screen/', views.login_screen, name='login_screen'),
     path('register-screen/', views.register_screen, name='register_screen'),
+    path('forgot-password/', views.forgot_password, name='forgot_password'),
     # Override Allauth social signup URL to always redirect
     re_path(r'^accounts/social/signup/$', social_signup_redirect),
     # En core/urls.py, agrega esta línea:

@@ -292,6 +292,22 @@
     .btn-eco:active {
       transform: translateY(-1px);
     }
+
+    .show-password {
+      position: absolute;
+      top: 42px;
+      right: 14px;
+      border: none;
+      background: transparent;
+      color: #1e5f4b;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 0;
+    }
+
+    .show-password:focus {
+      outline: none;
+    }
     
     /* Footer */
     .register-footer {
@@ -409,7 +425,7 @@
       </div>
 
       <!-- Formulario -->
-      <form method="post" action="/register-screen/" class="register-form" id="registerForm">
+      <form method="post" action="/register-screen/" class="register-form" id="registerForm" onsubmit="return validateRegister();">
         {% csrf_token %}
         <input type="hidden" id="id_tipo" name="tipo" value="{{ tipo|default:'usuario' }}">
         
@@ -427,24 +443,30 @@
               <label for="id_nombre" class="form-label">
                 <i class="bi bi-person"></i>Nombre
               </label>
-              <input id="id_nombre" name="nombre" type="text" class="form-control" placeholder="Tu nombre">
+              <input id="id_nombre" name="nombre" type="text" class="form-control" placeholder="Tu nombre" value="{{ form_data.nombre|default:'' }}">
             </div>
             <div class="form-group">
               <label for="id_apellido" class="form-label">
                 <i class="bi bi-person"></i>Apellido
               </label>
-              <input id="id_apellido" name="apellido" type="text" class="form-control" placeholder="Tu apellido">
+              <input id="id_apellido" name="apellido" type="text" class="form-control" placeholder="Tu apellido" value="{{ form_data.apellido|default:'' }}">
             </div>
           </div>
         </div>
 
-        <!-- Campos para CENTRO (nombre) -->
+        <!-- Campos para CENTRO (paso 1) -->
         <div id="centro-fields" class="d-none section-fields">
+          <div class="form-group">
+            <label for="id_responsable" class="form-label">
+              <i class="bi bi-person-vcard"></i>Nombre del responsable
+            </label>
+            <input id="id_responsable" name="responsable" type="text" class="form-control" placeholder="Nombre del responsable" value="{{ form_data.responsable|default:'' }}">
+          </div>
           <div class="form-group">
             <label for="id_centro_nombre" class="form-label">
               <i class="bi bi-building"></i>Nombre del Centro
             </label>
-            <input id="id_centro_nombre" name="nombre_centro" type="text" class="form-control" placeholder="Nombre del centro / recicladora">
+            <input id="id_centro_nombre" name="nombre_centro" type="text" class="form-control" placeholder="Nombre del centro / recicladora" value="{{ form_data.nombre_centro|default:'' }}">
           </div>
         </div>
 
@@ -453,52 +475,86 @@
           <label for="id_email" class="form-label">
             <i class="bi bi-envelope-fill"></i>Correo electrónico
           </label>
-          <input id="id_email" name="email" type="email" class="form-control" placeholder="tucorreo@ejemplo.com" required>
+          <input id="id_email" name="email" type="email" class="form-control" placeholder="tucorreo@ejemplo.com" required value="{{ form_data.email|default:'' }}">
         </div>
 
         <div class="form-row">
-          <div class="form-group">
+          <div class="form-group" style="position: relative;">
             <label for="id_password1" class="form-label">
               <i class="bi bi-lock-fill"></i>Contraseña
             </label>
-            <input id="id_password1" name="password" type="password" class="form-control" placeholder="Mínimo 6 caracteres" required>
+            <div style="position: relative;">
+              <input id="id_password1" name="password" type="password" class="form-control" placeholder="Mínimo 6 caracteres" required>
+              <button type="button" class="show-password" style="position:absolute; right:10px; top:10px;" onclick="togglePassword('id_password1', this)"><i class="bi bi-eye"></i></button>
+            </div>
             <small class="form-text">Mínimo 6 caracteres</small>
           </div>
-          <div class="form-group">
+          <div class="form-group" style="position: relative;">
             <label for="id_password2" class="form-label">
-              <i class="bi bi-lock-fill"></i>Confirmar
+              <i class="bi bi-lock-fill"></i>Confirmar contraseña
             </label>
-            <input id="id_password2" name="password2" type="password" class="form-control" placeholder="Repite la contraseña" required>
+            <div style="position: relative;">
+              <input id="id_password2" name="password2" type="password" class="form-control" placeholder="Repite la contraseña" required>
+              <button type="button" class="show-password" style="position:absolute; right:10px; top:10px;" onclick="togglePassword('id_password2', this)"><i class="bi bi-eye"></i></button>
+            </div>
           </div>
         </div>
 
         <!-- Campos solo para CENTRO -->
         <div id="centro-details" class="d-none section-fields">
+          <div class="mb-2" style="display:flex; align-items:center; gap:.4rem;"><span class="step-badge">PASO 2 DE 3</span><strong>Datos de tu Local</strong></div>
           <div class="form-row">
-            <div class="form-group">
-              <label for="id_telefono" class="form-label">
-                <i class="bi bi-telephone-fill"></i>Teléfono
-              </label>
-              <input id="id_telefono" name="telefono" type="tel" class="form-control" placeholder="Número de contacto">
+            <div class="form-group" style="flex:1;">
+              <label for="id_telefono" class="form-label"><i class="bi bi-telephone-fill"></i>Teléfono</label>
+              <input id="id_telefono" name="telefono" type="tel" class="form-control" placeholder="Número de contacto" value="{{ form_data.telefono|default:'' }}">
             </div>
-            <div class="form-group">
-              <label for="id_municipio" class="form-label">
-                <i class="bi bi-geo-alt-fill"></i>Municipio
-              </label>
-              <input id="id_municipio" name="municipio" type="text" class="form-control" placeholder="Municipio/Ciudad">
+            <div class="form-group" style="flex:1;">
+              <label for="id_municipio" class="form-label"><i class="bi bi-geo-alt-fill"></i>Municipio/Alcaldía</label>
+              <input id="id_municipio" name="municipio" type="text" class="form-control" placeholder="Municipio/Ciudad" value="{{ form_data.municipio|default:'' }}">
             </div>
           </div>
+
           <div class="form-group">
-            <label for="id_direccion" class="form-label">
-              <i class="bi bi-pin-map-fill"></i>Dirección
-            </label>
-            <input id="id_direccion" name="direccion" type="text" class="form-control" placeholder="Dirección del centro">
+            <label for="id_direccion" class="form-label"><i class="bi bi-pin-map-fill"></i>Dirección de tu Centro</label>
+            <div style="display:flex; gap:.25rem;">
+              <input id="id_direccion" name="direccion" type="text" class="form-control" placeholder="Calle, número, colonia" value="{{ form_data.direccion|default:'' }}">
+              <button type="button" class="btn btn-outline-secondary" style="min-width:44px; border-radius:8px;" onclick="buscarDireccion();">📍</button>
+            </div>
           </div>
-          <div class="form-group">
-            <label for="id_horarios" class="form-label">
-              <i class="bi bi-clock-fill"></i>Horarios de atención
-            </label>
-            <input id="id_horarios" name="horarios" type="text" class="form-control" placeholder="Ej: Lunes a Viernes 8am-5pm">
+
+          <div class="form-row">
+            <div class="form-group" style="flex:1;"><label class="form-label">Código Postal</label><input name="codigo_postal" class="form-control" placeholder="Código postal" value="{{ form_data.codigo_postal|default:'' }}"></div>
+            <div class="form-group" style="flex:1;"><label class="form-label">Estado</label><input name="estado" class="form-control" placeholder="Estado" value="{{ form_data.estado|default:'' }}"></div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group" style="flex:1;"><label class="form-label">Localidad / Ciudad</label><input name="localidad" class="form-control" placeholder="Localidad" value="{{ form_data.localidad|default:'' }}"></div>
+            <div class="form-group" style="flex:1;"><label class="form-label">Colonia / Barrio</label><input name="colonia" class="form-control" placeholder="Colonia" value="{{ form_data.colonia|default:'' }}"></div>
+          </div>
+          <div class="form-group"><label class="form-label">Descripción del negocio</label><textarea name="descripcion_publica" class="form-control" rows="2" placeholder="Escribe una breve descripción">{{ form_data.descripcion_publica|default:'' }}</textarea></div>
+          <div class="form-group"><label class="form-label">Correo público (Opcional)</label><input name="correo_publico" class="form-control" placeholder="correo@centro.com" value="{{ form_data.correo_publico|default:'' }}"></div>
+          <div class="form-group"><label class="form-label"><i class="bi bi-clock-fill"></i>Horarios de atención</label><input id="id_horarios" name="horarios" type="text" class="form-control" placeholder="Ej: Lunes a Viernes 8am-5pm" value="{{ form_data.horarios|default:'' }}"></div>
+
+          <div class="mb-3" style="border:1px solid #e2e8f0; border-radius:12px; padding:.7rem; background:#f8fcfb;">
+            <div style="font-weight:700; margin-bottom:.4rem;">Horario diario (opcional)</div>
+            {% for dia in dias_semana %}
+              <div style="display:flex; align-items:center; justify-content:space-between; padding:.3rem .15rem; border-bottom:1px solid #edf2f7;">
+                <div style="display:flex; align-items:center; gap:.4rem;"><label style="display:flex; align-items:center; gap:.25rem;"><input type="checkbox" name="activo_{{ forloop.counter }}" {% if dia.activo %}checked{% endif %} style="accent-color:#16a085;"></label>{{ dia.nombre }}</div>
+                <div style="display:flex; align-items:center; gap:.35rem;"><input type="time" name="apertura_{{ forloop.counter }}" value="{{ dia.apertura }}" class="form-control form-control-sm" style="width:110px;"> - <input type="time" name="cierre_{{ forloop.counter }}" value="{{ dia.cierre }}" class="form-control form-control-sm" style="width:110px;"></div>
+              </div>
+            {% endfor %}
+          </div>
+
+          <div class="mb-3" style="border:1px solid #e2e8f0; border-radius:12px; padding:.7rem; background:#f8fcfb;">
+            <div style="font-weight:700; margin-bottom:.4rem;">¿Qué materiales recibes?</div>
+            <div style="display:flex; flex-wrap:wrap; gap:.35rem;">
+              {% for m in materiales %}
+                <label style="padding:.3rem .55rem; border:1px solid #cbd5e1; border-radius:10px; display:flex; align-items:center; gap:.3rem; background:white; cursor:pointer;">
+                  <input type="checkbox" name="materiales" value="{{ m.id }}" style="accent-color:#16a085;" {% if m.id|stringformat:'s' in form_data.materiales_seleccionados %}checked{% endif %}>
+                  {{ m.nombre_material }}
+                </label>
+              {% endfor %}
+            </div>
           </div>
         </div>
 
@@ -558,9 +614,140 @@
     }
   }
 
+  function togglePassword(fieldId, btn) {
+    const input = document.getElementById(fieldId);
+    if (input.type === 'password') {
+      input.type = 'text';
+      btn.innerText = 'Ocultar';
+    } else {
+      input.type = 'password';
+      btn.innerText = 'Mostrar';
+    }
+  }
+
+function buscarDireccion() {
+      const direccionEntrada = document.getElementById('id_direccion').value.trim();
+      if (!direccionEntrada) {
+        alert('Escribe una dirección primero.');
+        return;
+      }
+      const query = `${direccionEntrada}, Yucatán, Mexico`;
+      fetch(`https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&limit=1&q=${encodeURIComponent(query)}`)
+        .then(r => r.json())
+        .then(data => {
+          if (!data || data.length === 0) {
+            alert('No se encontró la dirección. Ajusta tu texto.');
+            return;
+          }
+          const first = data[0];
+          const details = first.address || {};
+          document.getElementById('id_direccion').value = first.display_name || direccionEntrada;
+
+          const city = details.city || details.town || details.village || details.municipality || details.county || details.state_district || '';
+          const street = details.road || details.pedestrian || details.cycleway || details.residential || details.footway || '';
+          const house = details.house_number || '';
+          const neighbourhood = details.neighbourhood || details.suburb || details.district || details.hamlet || '';
+
+          document.getElementById('id_municipio').value = city;
+          const cpField = document.querySelector('input[name="codigo_postal"]');
+          if (cpField) cpField.value = details.postcode || '';
+          const estadoField = document.querySelector('input[name="estado"]');
+          if (estadoField) estadoField.value = details.state || details.region || 'Yucatán';
+          const localidadField = document.querySelector('input[name="localidad"]');
+          if (localidadField) localidadField.value = city || details.county || details.state_district || '';
+          const coloniaField = document.querySelector('input[name="colonia"]');
+          if (coloniaField) coloniaField.value = neighbourhood || street || house || '';
+
+          const horariosField = document.getElementById('id_horarios');
+          if (horariosField && !horariosField.value.trim()) {
+            horariosField.value = 'Lunes a Viernes 8:00 - 18:00';
+          }
+          const descripcion = document.querySelector('textarea[name="descripcion_publica"]');
+          if (descripcion && !descripcion.value.trim()) {
+            descripcion.value = 'Centro de reciclaje en ' + (city || 'Yucatán');
+          }
+        })
+        .catch(() => {
+          alert('No se pudo autocompletar. Intenta de nuevo.');
+        });
+    }
+
+    function validateRegister() {
+    const tipo = document.getElementById('id_tipo').value;
+    const nombre = document.getElementById('id_nombre')?.value?.trim();
+    const apellido = document.getElementById('id_apellido')?.value?.trim();
+    const responsable = document.getElementById('id_responsable')?.value?.trim();
+    const nombreCentro = document.getElementById('id_centro_nombre')?.value?.trim();
+    const direccion = document.getElementById('id_direccion')?.value?.trim();
+    const municipio = document.getElementById('id_municipio')?.value?.trim();
+    const horarios = document.getElementById('id_horarios')?.value?.trim();
+    const password = document.getElementById('id_password1')?.value || '';
+    const password2 = document.getElementById('id_password2')?.value || '';
+    const email = document.getElementById('id_email')?.value?.trim() || '';
+    const terms = document.getElementById('id_terms')?.checked;
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email) {
+      alert('Por favor ingresa tu correo.');
+      return false;
+    }
+    if (email.length > 320 || !emailRegex.test(email)) {
+      alert('Formato de correo inválido.');
+      return false;
+    }
+    if (!password || password.length < 6) {
+      alert('La contraseña debe tener al menos 6 caracteres.');
+      return false;
+    }
+    if (password.length > 128) {
+      alert('La contraseña es demasiado larga.');
+      return false;
+    }
+    if (password !== password2) {
+      alert('Las contraseñas no coinciden.');
+      return false;
+    }
+    if (!terms) {
+      alert('Debes aceptar los términos y condiciones.');
+      return false;
+    }
+
+    if (tipo === 'usuario') {
+      if (!nombre) {
+        alert('Ingresa tu nombre.');
+        return false;
+      }
+      if (!apellido) {
+        alert('Ingresa tu apellido.');
+        return false;
+      }
+    } else if (tipo === 'centro') {
+      if (!responsable) {
+        alert('Ingresa el nombre del responsable.');
+        return false;
+      }
+      if (!nombreCentro) {
+        alert('Ingresa el nombre del centro.');
+        return false;
+      }
+      if (!direccion) {
+        alert('Ingresa la dirección del centro.');
+        return false;
+      }
+      if (!municipio) {
+        alert('Ingresa el municipio del centro.');
+        return false;
+      }
+      if (!horarios) {
+        alert('Ingresa los horarios del centro.');
+        return false;
+      }
+    }
+    return true;
+  }
+
   document.addEventListener('DOMContentLoaded', function() {
-    const urlParams = new URL(window.location).searchParams;
-    const tipo = urlParams.get('tipo') || 'usuario';
+    const tipo = '{{ tipo|default:"usuario" }}';
     setTipo(tipo);
   });
 </script>

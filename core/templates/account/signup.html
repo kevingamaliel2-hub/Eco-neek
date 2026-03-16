@@ -27,16 +27,28 @@
           </div>
 
           <!-- ✅ CORREGIDO: action apunta a nuestra vista de Supabase -->
-          <form method="post" action="{% url 'completar_registro' %}">
+          <form method="post" action="{% url 'register_screen' %}">
             {% csrf_token %}
+            {% if error %}
+              <div class="alert alert-danger small rounded-3">{{ error }}</div>
+            {% endif %}
             
-            <!-- Tus campos existentes (SE MANTIENEN IGUALES) -->
-            <div class="form-group">
-              <label class="form-label">
-                <i class="bi bi-person-fill me-2"></i>
-                Nombre de usuario
-              </label>
-              <input type="text" name="username" class="form-input" placeholder="juanperez" required>
+            <!-- Campos para cuenta de usuario -->
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">
+                  <i class="bi bi-person-fill me-2"></i>
+                  Nombre
+                </label>
+                <input type="text" name="nombre" class="form-input" placeholder="Juan" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">
+                  <i class="bi bi-person-fill me-2"></i>
+                  Apellido
+                </label>
+                <input type="text" name="apellido" class="form-input" placeholder="Pérez" required>
+              </div>
             </div>
 
             <div class="form-group">
@@ -53,7 +65,7 @@
                 Contraseña
               </label>
               <div class="password-input-wrapper">
-                <input type="password" name="password1" id="password1" class="form-input" placeholder="Mínimo 6 caracteres" required>
+                <input type="password" name="password" id="password1" class="form-input" placeholder="Mínimo 6 caracteres" required>
                 <button type="button" class="password-toggle" onclick="togglePassword('password1', 'toggleIcon1')">
                   <i class="bi bi-eye" id="toggleIcon1"></i>
                 </button>
@@ -118,21 +130,9 @@
               <div class="form-group">
                 <label class="form-label">
                   <i class="bi bi-shop me-2"></i>
-                  Tipo de centro
+                  Nombre del centro
                 </label>
-                <select name="tipo_centro" class="form-input">
-                  <option value="acopio">Centro de acopio</option>
-                  <option value="recicladora">Recicladora</option>
-                  <option value="chatarreria">Chatarrería</option>
-                </select>
-              </div>
-
-              <div class="form-group">
-                <label class="form-label">
-                  <i class="bi bi-shop me-2"></i>
-                  Nombre del negocio
-                </label>
-                <input type="text" name="business_name" class="form-input" placeholder="Ej: Recicladora México">
+                <input type="text" name="nombre_centro" class="form-input" placeholder="Ej: Recicladora México">
               </div>
 
               <div class="form-group">
@@ -140,7 +140,21 @@
                   <i class="bi bi-geo-alt-fill me-2"></i>
                   Dirección
                 </label>
-                <input type="text" name="address" class="form-input" placeholder="Calle, número, colonia">
+                <input type="text" name="direccion" class="form-input" placeholder="Calle, número, colonia">
+              </div>
+              <div class="form-group">
+                <label class="form-label">
+                  <i class="bi bi-geo-alt-fill me-2"></i>
+                  Municipio/Ciudad
+                </label>
+                <input type="text" name="municipio" class="form-input" placeholder="Municipio o Ciudad">
+              </div>
+              <div class="form-group">
+                <label class="form-label">
+                  <i class="bi bi-clock-fill me-2"></i>
+                  Horarios de atención
+                </label>
+                <input type="text" name="horarios" class="form-input" placeholder="Ej: Lunes a Viernes 8am-5pm">
               </div>
 
               <div class="alert alert-info alert-custom">
@@ -165,7 +179,7 @@
           </button>
 
           <div class="auth-footer">
-            <p>¿Ya tienes cuenta? <a href="{% url 'login' %}" class="auth-link">Inicia sesión aquí</a></p>
+            <p>¿Ya tienes cuenta? <a href="/login-screen/" class="auth-link">Inicia sesión aquí</a></p>
           </div>
 
         </div>

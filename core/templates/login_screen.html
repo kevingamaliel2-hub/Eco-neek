@@ -231,6 +231,24 @@
     .btn-eco:active {
       transform: translateY(-1px);
     }
+
+    .show-password {
+      position: absolute;
+      top: 44px;
+      right: 16px;
+      background: transparent;
+      border: none;
+      color: #21c39a;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 0;
+      font-size: 0.9rem;
+    }
+    
+    .show-password:focus {
+      outline: none;
+      color: #1e5f4b;
+    }
     
     /* Divisor */
     .divider {
@@ -382,7 +400,7 @@
       </div>
 
       <!-- Formulario -->
-      <form method="post" action="/login-screen/" class="login-form">
+      <form id="loginForm" method="post" action="/login-screen/" class="login-form" onsubmit="return validateLogin();">
         {% csrf_token %}
         
         {% if error %}
@@ -393,17 +411,18 @@
         {% endif %}
         
         <div class="form-group">
-          <label for="id_login" class="form-label">Correo electrónico</label>
+          <label for="id_login" class="form-label">Correo</label>
           <input id="id_login" name="login" type="email" class="form-control" placeholder="tucorreo@ejemplo.com" required>
         </div>
         
-        <div class="form-group">
+        <div class="form-group" style="position: relative;">
           <label for="id_password" class="form-label">Contraseña</label>
           <input id="id_password" name="password" type="password" class="form-control" placeholder="Contraseña" required>
+          <button type="button" class="show-password" onclick="togglePassword()" aria-label="Mostrar contraseña"><i class="bi bi-eye"></i></button>
         </div>
         
         <div class="forgot-link">
-          <a href="/accounts/password/reset/">¿Olvidaste la contraseña?</a>
+          <a href="/forgot-password/">¿Olvidaste la contraseña?</a>
         </div>
         
         <button type="submit" class="btn-eco">Iniciar sesión</button>
@@ -439,4 +458,47 @@
     </svg>
   </div>
 </div>
+<script>
+  function validateLogin() {
+    const email = document.getElementById('id_login').value.trim();
+    const password = document.getElementById('id_password').value;
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email) {
+      alert('Por favor ingresa tu correo.');
+      return false;
+    }
+    if (email.length > 320 || !emailRegex.test(email)) {
+      alert('Formato de correo inválido.');
+      return false;
+    }
+
+    if (!password) {
+      alert('Ingresa tu contraseña.');
+      return false;
+    }
+    if (password.length < 6) {
+      alert('La contraseña debe tener al menos 6 caracteres.');
+      return false;
+    }
+    if (password.length > 128) {
+      alert('La contraseña es demasiado larga.');
+      return false;
+    }
+
+    return true;
+  }
+
+  function togglePassword() {
+    const input = document.getElementById('id_password');
+    const btn = document.querySelector('.show-password');
+    if (input.type === 'password') {
+      input.type = 'text';
+      btn.innerText = 'Ocultar';
+    } else {
+      input.type = 'password';
+      btn.innerText = 'Mostrar';
+    }
+  }
+</script>
 {% endblock %}
