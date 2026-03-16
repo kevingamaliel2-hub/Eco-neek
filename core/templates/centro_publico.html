@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+{% block title %}Centro - {{ centro.nombre_comercial|default:'Centro de acopio' }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="row">
+    <div class="col-12">
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb bg-light p-2 rounded">
+          <li class="breadcrumb-item"><a href="/">Inicio</a></li>
+          <li class="breadcrumb-item"><a href="/mapa/">Mapa</a></li>
+          <li class="breadcrumb-item active" aria-current="page">{{ centro.nombre_comercial|default:'Centro' }}</li>
+        </ol>
+      </nav>
+    </div>
+  </div>
+
+  <div class="row gx-4 gy-3">
+    <div class="col-lg-8">
+      <div class="card border-0 shadow-sm">
+        {% if centro.url_foto_portada %}
+          <img src="{{ centro.url_foto_portada }}" class="card-img-top" alt="Imagen del centro">
+        {% else %}
+          <div class="bg-secondary text-white text-center p-5" style="border-top-left-radius:.375rem;border-top-right-radius:.375rem;">
+            <h5>Sin imagen del centro</h5>
+          </div>
+        {% endif %}
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-start mb-2">
+            <div>
+              <h2 class="h4 mb-1">{{ centro.nombre_comercial|default:'Centro de acopio' }}</h2>
+              <p class="text-muted mb-1">{{ centro.descripcion|default:'Este centro no tiene descripción pública aún.' }}</p>
+              <span class="badge bg-success">{{ centro.estado_operativo|yesno:"Abierto,Cerrado" }}</span>
+              {% if centro.validado %}<span class="badge bg-primary">Validado</span>{% else %}<span class="badge bg-warning text-dark">Pendiente</span>{% endif %}
+            </div>
+            <div class="text-end">
+              <p class="mb-1"><strong>{{ centro.promedio_calificacion|default:'N/A' }}</strong> / 5.0</p>
+              <p class="mb-0 text-muted">{{ centro.correo_contacto|default:'Sin correo' }}</p>
+            </div>
+          </div>
+
+          <div class="row gy-2 mb-3">
+            <div class="col-md-6"><strong>Dirección</strong><br>{{ centro.direccion_texto|default:'No disponible' }}</div>
+            <div class="col-md-3"><strong>Teléfono</strong><br>{{ centro.telefono_contacto|default:'No disponible' }}</div>
+            <div class="col-md-3"><strong>Correo</strong><br>{{ centro.correo_contacto|default:'No disponible' }}</div>
+          </div>
+
+          <div class="mb-3">
+            <h5 class="h6">Horarios</h5>
+            {% if horarios %}
+              <ul class="list-group list-group-flush">
+                {% for h in horarios %}
+                  <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span>{{ h.dia|default:'Día' }}</span>
+                    <span>{{ h.apertura|default:'--:--' }} - {{ h.cierre|default:'--:--' }}</span>
+                  </li>
+                {% endfor %}
+              </ul>
+            {% elif horarios_texto %}
+              <p>{{ horarios_texto }}</p>
+            {% else %}
+              <p class="text-muted">No tiene horarios registrados.</p>
+            {% endif %}
+          </div>
+
+          <div class="mb-3">
+            <h5 class="h6">Materiales que recibe</h5>
+            {% if centro.materiales_recibe or centro.materiales %}
+              <p>{{ centro.materiales_recibe|default:centro.materiales|default:'No hay datos.' }}</p>
+            {% else %}
+              <p class="text-muted">Información no disponible en este centro.</p>
+            {% endif %}
+          </div>
+
+          <div class="d-flex gap-2 mb-1">
+            <a href="/mapa/" class="btn btn-outline-secondary">Volver al mapa</a>
+            <a href="mailto:{{ centro.correo_contacto }}" class="btn btn-primary">Contactar por correo</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-4">
+      <div class="card border-0 shadow-sm mb-3">
+        <div class="card-body">
+          <h5 class="h6 mb-3">Detalles rápidos</h5>
+          <dl class="row">
+            <dt class="col-5">ID</dt><dd class="col-7">{{ centro.id|default:'N/A' }}</dd>
+            <dt class="col-5">Estado operativo</dt><dd class="col-7">{{ centro.estado_operativo|yesno:"Sí,No" }}</dd>
+            <dt class="col-5">Validado</dt><dd class="col-7">{{ centro.validado|yesno:"Sí,No" }}</dd>
+          </dl>
+        </div>
+      </div>
+
+      <div class="card border-0 shadow-sm">
+        <div class="card-body">
+          <h5 class="h6">Link rápido</h5>
+          <p class="small text-muted">Puedes copiar esta URL para compartir:</p>
+          <div class="input-group">
+            <input class="form-control form-control-sm" value="{{ request.build_absolute_uri }}" readonly>
+            <button class="btn btn-sm btn-outline-primary" onclick="navigator.clipboard.writeText('{{ request.build_absolute_uri }}')">Copiar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

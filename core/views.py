@@ -143,23 +143,27 @@ def login_screen(request):
                                         tipo_usuario = 'usuario'
 
                                     UserModel = get_user_model()
-                                    user_obj, created = UserModel.objects.get_or_create(username=email, defaults={'email': email})
-                                    if created:
+                                    user_obj = UserModel.objects.filter(email__iexact=email).first()
+                                    if not user_obj:
+                                        user_obj = UserModel.objects.create_user(username=email, email=email)
                                         user_obj.set_unusable_password()
-                                        user_obj.save()
-                                    # ensure Django knows which backend we're using when logging in
+
+                                    # Si Supabase considera este usuario admin, marcamos is_staff.
+                                    # Esto permite acceder al panel admin con @staff_member_required.
+                                    if tipo_usuario in ('admin', 'superadmin', 'staff'):
+                                        user_obj.is_staff = True
+                                    user_obj.save()
                                     login(request, user_obj, backend='django.contrib.auth.backends.ModelBackend')
                                     request.session['login_attempts'] = 0
-                                    if user_obj.is_staff:
-                                        return redirect('admin_centros')
                                     # GUARDAR EL TIPO DE USUARIO EN LA SESIÓN DE DJANGO
                                     request.session['user_type'] = tipo_usuario
                                     request.session['user_id_supabase'] = udata.get('id') if udata else None
                                     # REDIRIGIR SEGÚN EL TIPO
+                                    if user_obj.is_staff:
+                                        return redirect('admin_centros')
                                     if tipo_usuario == 'centro':
                                         return redirect('perfil_centro')
-                                    else:
-                                        return redirect('perfil')
+                                    return redirect('perfil')
                                 else:
                                     error = 'El usuario y/o la contraseña son incorrectos.'
                         except Exception as e:
@@ -187,6 +191,35 @@ def login_screen(request):
     return render(request, 'login_screen.html', {'error': error})
 
 
+def forgot_password(request):
+    error = None
+    message = None
+    if request.method == 'POST':
+        email = request.POST.get('email', '').strip().lower()
+        if not email:
+            error = 'Ingresa un correo electrónico.'
+        elif not is_valid_email(email):
+            error = 'Correo electrónico no válido.'
+        else:
+            try:
+                supa = SupabaseClient()
+                recovery_url = f"{supa.url}/auth/v1/recover"
+                headers = {
+                    'apikey': supa.key,
+                    'Authorization': f'Bearer {supa.key}',
+                    'Content-Type': 'application/json',
+                }
+                payload = {'email': email}
+                response = requests.post(recovery_url, json=payload, headers=headers, timeout=20)
+                if response.status_code in (200, 204):
+                    message = 'Te enviamos un correo para restablecer tu contraseña. Revisa tu bandeja y carpeta de spam.'
+                else:
+                    message = 'Si el correo existe en nuestro sistema, recibirás un enlace para restablecer la contraseña.'
+            except Exception:
+                error = 'No se pudo procesar la solicitud. Intenta de nuevo más tarde.'
+    return render(request, 'forgot_password.html', {'error': error, 'message': message})
+
+
 def register_screen(request):
     """Formulario unificado de registro para usuario y centro.
     
@@ -198,7 +231,33 @@ def register_screen(request):
     error = None
     success = False
 
-    tipo = request.GET.get('tipo', 'usuario')  # Default 'usuario' si no especifica
+    tipo = request.POST.get('tipo', request.GET.get('tipo', 'usuario'))  # Default 'usuario' si no especifica
+    
+    # Pre-fill fields en caso de error
+    form_data = {
+        'nombre': '', 'apellido': '', 'responsable': '', 'nombre_centro': '',
+        'telefono': '', 'direccion': '', 'municipio': '', 'horarios': '',
+        'codigo_postal': '', 'estado': '', 'localidad': '', 'colonia': '',
+        'descripcion_publica': '', 'correo_publico': '',
+        'email': '', 'tipo': tipo,
+        'dias': [],
+        'materiales_seleccionados': []
+    }
+
+    supa = SupabaseClient()
+    materiales = []
+    try:
+        materiales = supa.obtener_materiales()
+    except Exception:
+        materiales = []
+    if not materiales:
+        materiales = [
+            {'id': '1', 'nombre': 'Vidrio'},
+            {'id': '2', 'nombre': 'Textiles'},
+            {'id': '3', 'nombre': 'TetraPak'},
+            {'id': '4', 'nombre': 'Plástico'},
+            {'id': '5', 'nombre': 'Papel y cartón'}
+        ]
     
     if request.method == 'POST':
         email = request.POST.get('email', '').strip().lower()
@@ -206,17 +265,96 @@ def register_screen(request):
         password2 = request.POST.get('password2', '')
         terms = request.POST.get('terms')
         
+        materiales_seleccionados = request.POST.getlist('materiales')
+        dias_semana = []
+        for i, nombre_dia in enumerate(['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'], start=1):
+            dias_semana.append({
+                'nombre': nombre_dia,
+                'activo': bool(request.POST.get(f'activo_{i}', 'on')),
+                'apertura': request.POST.get(f'apertura_{i}', '08:00'),
+                'cierre': request.POST.get(f'cierre_{i}', '18:00')
+            })
+
+        form_data.update({
+            'nombre': request.POST.get('nombre', '').strip(),
+            'apellido': request.POST.get('apellido', '').strip(),
+            'responsable': request.POST.get('responsable', '').strip(),
+            'nombre_centro': request.POST.get('nombre_centro', '').strip(),
+            'telefono': request.POST.get('telefono', '').strip(),
+            'direccion': request.POST.get('direccion', '').strip(),
+            'municipio': request.POST.get('municipio', '').strip(),
+            'horarios': request.POST.get('horarios', '').strip(),
+            'codigo_postal': request.POST.get('codigo_postal', '').strip(),
+            'estado': request.POST.get('estado', '').strip(),
+            'localidad': request.POST.get('localidad', '').strip(),
+            'colonia': request.POST.get('colonia', '').strip(),
+            'descripcion_publica': request.POST.get('descripcion_publica', '').strip(),
+            'correo_publico': request.POST.get('correo_publico', '').strip(),
+            'email': email,
+            'tipo': request.POST.get('tipo', tipo),
+            'dias_semana': dias_semana,
+            'materiales_seleccionados': materiales_seleccionados
+        })
+        
+        tipo = form_data.get('tipo', 'usuario')
+        password = request.POST.get('password', '')
+        password2 = request.POST.get('password2', '')
+        terms = request.POST.get('terms')
+        
+        nombre = request.POST.get('nombre', '').strip()
+        apellido = request.POST.get('apellido', '').strip()
+        responsable = request.POST.get('responsable', '').strip()
+        nombre_centro = request.POST.get('nombre_centro', '').strip()
+        telefono = request.POST.get('telefono', '').strip()
+        direccion = request.POST.get('direccion', '').strip()
+        municipio = request.POST.get('municipio', '').strip()
+        horarios = request.POST.get('horarios', '').strip()
+        codigo_postal = request.POST.get('codigo_postal', '').strip()
+        estado = request.POST.get('estado', '').strip()
+        localidad = request.POST.get('localidad', '').strip()
+        colonia = request.POST.get('colonia', '').strip()
+        descripcion_publica = request.POST.get('descripcion_publica', '').strip()
+        correo_publico = request.POST.get('correo_publico', '').strip()
+
         # Validaciones comunes
-        if not email or not password:
-            error = 'Se requieren correo y contraseña.'
+        if not email:
+            error = 'Se requiere correo electrónico.'
         elif not is_valid_email(email):
             error = 'Correo electrónico no válido.'
+        elif not password:
+            error = 'Se requiere contraseña.'
         elif len(password) < 6:
             error = 'La contraseña debe tener al menos 6 caracteres.'
+        elif len(password) > 128:
+            error = 'La contraseña no puede superar los 128 caracteres.'
         elif password != password2:
             error = 'Las contraseñas no coinciden.'
         elif not terms:
             error = 'Debes aceptar los términos y condiciones.'
+        elif tipo == 'usuario' and not nombre:
+            error = 'Ingresa tu nombre.'
+        elif tipo == 'usuario' and not apellido:
+            error = 'Ingresa tu apellido.'
+        elif tipo == 'centro' and not nombre_centro:
+            error = 'Ingresa el nombre del centro.'
+        elif tipo == 'centro' and not telefono:
+            error = 'Ingresa el teléfono del centro.'
+        elif tipo == 'centro' and not direccion:
+            error = 'Ingresa la dirección del centro.'
+        elif tipo == 'centro' and not municipio:
+            error = 'Ingresa el municipio del centro.'
+        elif tipo == 'centro' and not responsable:
+            error = 'Ingresa el nombre del responsable del centro.'
+        elif tipo == 'centro' and not nombre_centro:
+            error = 'Ingresa el nombre del centro.'
+        elif tipo == 'centro' and not telefono:
+            error = 'Ingresa el teléfono del centro.'
+        elif tipo == 'centro' and not direccion:
+            error = 'Ingresa la dirección del centro.'
+        elif tipo == 'centro' and not municipio:
+            error = 'Ingresa el municipio del centro.'
+        elif tipo == 'centro' and not horarios:
+            error = 'Ingresa los horarios del centro.'
         else:
             User = get_user_model()
             if User.objects.filter(email__iexact=email).exists():
@@ -229,29 +367,24 @@ def register_screen(request):
                     success = True
                     
                     if tipo == 'centro':
-                        # Procesar datos del centro
-                        nombre_centro = request.POST.get('nombre_centro', '').strip()
-                        telefono = request.POST.get('telefono', '').strip()
-                        direccion = request.POST.get('direccion', '').strip()
-                        municipio = request.POST.get('municipio', '').strip()
-                        horarios = request.POST.get('horarios', '').strip()
-                        
-                        # Guardar info en la sesión para usarla después
+                        request.session['centro_responsable'] = responsable
                         request.session['centro_nombre'] = nombre_centro
                         request.session['centro_telefono'] = telefono
                         request.session['centro_direccion'] = direccion
                         request.session['centro_municipio'] = municipio
                         request.session['centro_horarios'] = horarios
-                        
+                        request.session['centro_codigo_postal'] = codigo_postal
+                        request.session['centro_estado'] = estado
+                        request.session['centro_localidad'] = localidad
+                        request.session['centro_colonia'] = colonia
+                        request.session['centro_descripcion_publica'] = descripcion_publica
+                        request.session['centro_correo_publico'] = correo_publico
+                        request.session['centro_dias_semana'] = form_data.get('dias_semana', [])
+                        request.session['centro_materiales'] = form_data.get('materiales_seleccionados', [])
                         return redirect('completar_centro')
                     else:
-                        # Procesar datos del usuario
-                        nombre = request.POST.get('nombre', '').strip()
-                        apellido = request.POST.get('apellido', '').strip()
-                        
                         request.session['usuario_nombre'] = nombre
                         request.session['usuario_apellido'] = apellido
-                        
                         return redirect('completar_registro')
                         
                 except Exception as e:
@@ -260,7 +393,18 @@ def register_screen(request):
     return render(request, 'register_screen.html', {
         'error': error,
         'tipo': tipo,
-        'success': success
+        'success': success,
+        'form_data': form_data,
+        'materiales': materiales,
+        'dias_semana': form_data.get('dias_semana', [
+            {'nombre':'Lunes','apertura':'08:00','cierre':'18:00','activo':True},
+            {'nombre':'Martes','apertura':'08:00','cierre':'18:00','activo':True},
+            {'nombre':'Miércoles','apertura':'08:00','cierre':'18:00','activo':True},
+            {'nombre':'Jueves','apertura':'08:00','cierre':'18:00','activo':True},
+            {'nombre':'Viernes','apertura':'08:00','cierre':'18:00','activo':True},
+            {'nombre':'Sábado','apertura':'09:00','cierre':'14:00','activo':True},
+            {'nombre':'Domingo','apertura':'09:00','cierre':'14:00','activo':True}
+        ])
     })
 
 
@@ -1344,7 +1488,7 @@ def editar_perfil_centro(request):
 
 def completar_registro(request):
     if not request.user.is_authenticated:
-        return redirect('/accounts/google/login/')
+        return redirect('/login-screen/')
     
     # Verificar si ya tiene perfil completo
     try:
@@ -1359,7 +1503,7 @@ def completar_registro(request):
 
 def completar_usuario(request):
     if not request.user.is_authenticated:
-        return redirect('/accounts/google/login/')
+        return redirect('/login-screen/')
     
     # Verificar si ya tiene perfil
     try:
@@ -1401,7 +1545,7 @@ def completar_usuario(request):
 
 def completar_centro(request):
     if not request.user.is_authenticated:
-        return redirect('/accounts/google/login/')
+        return redirect('/login-screen/')
     
     # Verificar si ya tiene perfil
     try:
@@ -1412,61 +1556,180 @@ def completar_centro(request):
         pass
     
     # Obtener datos guardados en sesión (desde register_screen)
+    responsable = request.session.pop('centro_responsable', '')
     nombre_centro = request.session.pop('centro_nombre', '')
     telefono = request.session.pop('centro_telefono', '')
     direccion = request.session.pop('centro_direccion', '')
     municipio = request.session.pop('centro_municipio', '')
     horarios = request.session.pop('centro_horarios', '')
     
+    # Campos adicionales nuevos
+    codigo_postal = request.session.pop('centro_codigo_postal', '')
+    estado = request.session.pop('centro_estado', '')
+    localidad = request.session.pop('centro_localidad', '')
+    colonia = request.session.pop('centro_colonia', '')
+    descripcion_publica = request.session.pop('centro_descripcion_publica', '')
+    correo_publico = request.session.pop('centro_correo_publico', '')
+    dias_semana = request.session.pop('centro_dias_semana', [])
+    materiales_seleccionados = request.session.pop('centro_materiales', [])
+
+    if not dias_semana:
+        dias_semana = [
+            {'nombre': 'Lunes', 'apertura': '', 'cierre': '', 'activo': True},
+            {'nombre': 'Martes', 'apertura': '', 'cierre': '', 'activo': True},
+            {'nombre': 'Miércoles', 'apertura': '', 'cierre': '', 'activo': True},
+            {'nombre': 'Jueves', 'apertura': '', 'cierre': '', 'activo': True},
+            {'nombre': 'Viernes', 'apertura': '', 'cierre': '', 'activo': True},
+            {'nombre': 'Sábado', 'apertura': '', 'cierre': '', 'activo': True},
+            {'nombre': 'Domingo', 'apertura': '', 'cierre': '', 'activo': True},
+        ]
+
+    supa = SupabaseClient()
+    materiales = []
+    try:
+        materiales = supa.obtener_materiales()
+    except Exception:
+        materiales = []
+    if not materiales:
+        materiales = [
+            {'id': '1', 'nombre': 'Vidrio'},
+            {'id': '2', 'nombre': 'Textiles'},
+            {'id': '3', 'nombre': 'TetraPak'},
+            {'id': '4', 'nombre': 'Plástico'},
+            {'id': '5', 'nombre': 'Papel y cartón'}
+        ]
+
+    dias_semana = [
+        {'nombre': 'Lunes', 'apertura': '', 'cierre': ''},
+        {'nombre': 'Martes', 'apertura': '', 'cierre': ''},
+        {'nombre': 'Miércoles', 'apertura': '', 'cierre': ''},
+        {'nombre': 'Jueves', 'apertura': '', 'cierre': ''},
+        {'nombre': 'Viernes', 'apertura': '', 'cierre': ''},
+        {'nombre': 'Sábado', 'apertura': '', 'cierre': ''},
+        {'nombre': 'Domingo', 'apertura': '', 'cierre': ''}
+    ]
     if request.method == 'POST':
         # Usar datos de sesión o POST (permitir edición)
+        responsable = request.POST.get('responsable', responsable).strip()
         nombre_centro = request.POST.get('nombre_centro', nombre_centro).strip()
         telefono = request.POST.get('telefono', telefono).strip()
         direccion = request.POST.get('direccion', direccion).strip()
         municipio = request.POST.get('municipio', municipio).strip()
-        horarios = request.POST.get('horarios', horarios).strip()
-        
-        if not nombre_centro:
+        codigo_postal = request.POST.get('codigo_postal', codigo_postal).strip()
+        estado = request.POST.get('estado', estado).strip()
+        localidad = request.POST.get('localidad', localidad).strip()
+        colonia = request.POST.get('colonia', colonia).strip()
+        descripcion_publica = request.POST.get('descripcion_publica', descripcion_publica).strip()
+        correo_publico = request.POST.get('correo_publico', correo_publico).strip()
+        materiales_selectos = request.POST.getlist('materiales')
+
+        # Horarios (solo si se envían)
+        dias = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']
+        horarios_guardar = []
+        for i, dia in enumerate(dias, 1):
+            apertura = request.POST.get(f'apertura_{i}', dias_semana[i - 1].get('apertura', '')).strip()
+            cierre = request.POST.get(f'cierre_{i}', dias_semana[i - 1].get('cierre', '')).strip()
+            activo = bool(request.POST.get(f'activo_{i}', 'on'))
+            dias_semana[i-1]['apertura'] = apertura
+            dias_semana[i-1]['cierre'] = cierre
+            dias_semana[i-1]['activo'] = activo
+            if apertura and cierre and activo:
+                horarios_guardar.append({'dia_semana': i, 'dia_texto': dia, 'apertura': apertura, 'cierre': cierre})
+
+        materiales_seleccionados = materiales_selectos if materiales_selectos else materiales_seleccionados
+
+        if not responsable:
+            messages.error(request, 'El nombre del responsable es obligatorio.')
+        elif not nombre_centro:
             messages.error(request, 'El nombre del centro es obligatorio.')
-            return render(request, 'completar_centro.html', {
-                'nombre_centro': nombre_centro,
-                'telefono': telefono,
-                'direccion': direccion,
-                'municipio': municipio,
-                'horarios': horarios
-            })
-        
-        # Crear perfil de centro en Supabase (vía PerfilFirebase)
-        perfil = PerfilFirebase.objects.create(
-            id=uuid.uuid4(),
-            nombre=nombre_centro,
-            correo=request.user.email,
-            tipo_usuario='centro',
-            eco_puntos_saldo=0,
-            estado_cuenta=True
-        )
-        
-        # Crear centro en Supabase
-        centro = Centro.objects.create(
-            nombre_comercial=nombre_centro,
-            descripcion='',  # Se completa después si es necesario
-            direccion_texto=direccion,
-            telefono_contacto=telefono,
-            correo_contacto=request.user.email,
-            estado_operativo=False,
-            validado=False,  # Fuerza revisión del admin
-            id_usuario=perfil
-        )
-        
-        messages.success(request, 'Solicitud enviada. Un administrador la revisará pronto.')
-        return render(request, 'centro_pendiente.html', {'centro': centro})
-    
+        elif not telefono:
+            messages.error(request, 'El teléfono del centro es obligatorio.')
+        elif not direccion:
+            messages.error(request, 'La dirección del centro es obligatoria.')
+        elif not municipio:
+            messages.error(request, 'El municipio o alcaldía es obligatorio.')
+        elif not horarios_guardar:
+            messages.error(request, 'Agrega al menos un horario de apertura y cierre.')
+        else:
+            # Crear perfil de centro en Supabase (vía PerfilFirebase)
+            perfil = PerfilFirebase.objects.create(
+                id=uuid.uuid4(),
+                nombre=nombre_centro,
+                correo=request.user.email,
+                tipo_usuario='centro',
+                eco_puntos_saldo=0,
+                estado_cuenta=True
+            )
+
+            texto_descripcion = f"Responsable: {responsable}. {descripcion_publica or ''}"
+            centro = Centro.objects.create(
+                nombre_comercial=nombre_centro,
+                descripcion=texto_descripcion,
+                direccion_texto=direccion,
+                telefono_contacto=telefono,
+                correo_contacto=correo_publico or request.user.email,
+                estado_operativo=False,
+                validado=False,
+                id_usuario=perfil
+            )
+
+            # Guardar horarios en Supabase
+            try:
+                for h in horarios_guardar:
+                    horario_data = {
+                        'id_centro': centro.id,
+                        'dia_semana': h['dia_semana'],
+                        'hora_apertura': h['apertura'],
+                        'hora_cierre': h['cierre']
+                    }
+                    saff = supa.client.table('centros_horarios').insert(horario_data).execute()
+            except Exception:
+                pass
+
+            # Guardar materiales (si existe la tabla)
+            try:
+                for mid in materiales_selectos:
+                    # Insertar en centros_materiales para compatibilidad con sistema web
+                    supa.client.table('centros_materiales').insert({'id_centro': centro.id, 'id_material': mid}).execute()
+                    # Insertar también en precios_centro para compatibilidad con app Flutter
+                    supa.client.table('precios_centro').insert({
+                        'id_centro': centro.id,
+                        'id_material': mid,
+                        'precio_compra_actual': 0.0,
+                    }).execute()
+            except Exception:
+                pass
+
+            # Almacenar imagen
+            try:
+                if request.FILES.get('foto'):
+                    bucket = 'centros'
+                    foto_url = supa.upload_image(bucket=bucket, user_id=str(request.user.id), file=request.FILES['foto'], folder='', custom_filename=f'centro_{request.user.id}_{uuid.uuid4().hex}.jpg')
+                    if foto_url:
+                        centro.url_foto_portada = foto_url
+                        centro.save()
+            except Exception:
+                pass
+
+            messages.success(request, 'Solicitud enviada. Un administrador la revisará pronto.')
+            return render(request, 'centro_pendiente.html', {'centro': centro})
+
     return render(request, 'completar_centro.html', {
+        'responsable': responsable,
         'nombre_centro': nombre_centro,
         'telefono': telefono,
         'direccion': direccion,
         'municipio': municipio,
-        'horarios': horarios
+        'horarios': horarios,
+        'codigo_postal': codigo_postal,
+        'estado': estado,
+        'localidad': localidad,
+        'colonia': colonia,
+        'descripcion_publica': descripcion_publica,
+        'correo_publico': correo_publico,
+        'materiales': materiales,
+        'dias_semana': dias_semana,
+        'materiales_seleccionados': materiales_seleccionados if request.method == 'POST' else [],
     })
 
 
@@ -1505,7 +1768,21 @@ def centro_publico(request, centro_id):
                 url_horarios = f"{supa.url}/rest/v1/centros_horarios?id_centro=eq.{quote_plus(str(centro_id))}&order=dia_semana.asc"
                 response_horarios = requests.get(url_horarios, headers=headers)
                 if response_horarios.status_code == 200:
-                    horarios_centro = response_horarios.json()
+                    raw_horarios = response_horarios.json()
+                    horarios_normalizados = []
+                    if isinstance(raw_horarios, list):
+                        for h in raw_horarios:
+                            if not isinstance(h, dict):
+                                continue
+                            dia = h.get('dia_semana') or h.get('dia') or h.get('nombre_dia') or h.get('weekday') or 'Día'
+                            apertura = h.get('apertura') or h.get('hora_inicio') or h.get('hora_apertura') or '--:--'
+                            cierre = h.get('cierre') or h.get('hora_fin') or h.get('hora_cierre') or '--:--'
+                            horarios_normalizados.append({
+                                'dia': dia,
+                                'apertura': apertura,
+                                'cierre': cierre,
+                            })
+                    horarios_centro = horarios_normalizados
     except Exception:
         pass
     
@@ -1517,9 +1794,13 @@ def centro_publico(request, centro_id):
     # ========================================
     # 2. PREPARAR CONTEXTO
     # ========================================
+    horarios_texto = None
+    if isinstance(centro_data, dict):
+        horarios_texto = centro_data.get('horarios') or centro_data.get('horario') or centro_data.get('horario_texto')
     context = {
         'centro': centro_data,
         'horarios': horarios_centro,
+        'horarios_texto': horarios_texto,
     }
     
     return render(request, 'centro_publico.html', context)
