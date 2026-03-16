@@ -367,21 +367,94 @@ def register_screen(request):
                     success = True
                     
                     if tipo == 'centro':
-                        request.session['centro_responsable'] = responsable
-                        request.session['centro_nombre'] = nombre_centro
-                        request.session['centro_telefono'] = telefono
-                        request.session['centro_direccion'] = direccion
-                        request.session['centro_municipio'] = municipio
-                        request.session['centro_horarios'] = horarios
-                        request.session['centro_codigo_postal'] = codigo_postal
-                        request.session['centro_estado'] = estado
-                        request.session['centro_localidad'] = localidad
-                        request.session['centro_colonia'] = colonia
-                        request.session['centro_descripcion_publica'] = descripcion_publica
-                        request.session['centro_correo_publico'] = correo_publico
-                        request.session['centro_dias_semana'] = form_data.get('dias_semana', [])
-                        request.session['centro_materiales'] = form_data.get('materiales_seleccionados', [])
-                        return redirect('completar_centro')
+                        # Crear perfil y centro directamente desde el registro (sin completar_centro separado)
+                        try:
+                            perfil = PerfilFirebase.objects.create(
+                                id=uuid.uuid4(),
+                                nombre=nombre_centro,
+                                apellido=responsable,
+                                telefono=telefono,
+                                correo=email,
+                                tipo_usuario='centro',
+                                eco_puntos_saldo=0,
+                                estado_cuenta=True
+                            )
+                            texto_descripcion = f"Responsable: {responsable}. {descripcion_publica or ''}"
+                            centro = Centro.objects.create(
+                                nombre_comercial=nombre_centro,
+                                descripcion=texto_descripcion,
+                                direccion_texto=direccion,
+                                telefono_contacto=telefono,
+                                correo_contacto=correo_publico or email,
+                                estado_operativo=False,
+                                validado=False,
+                                id_usuario=perfil
+                            )
+
+                            # Horarios detallados
+                            dias = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']
+                            horarios_guardar = []
+                            for i, dia in enumerate(dias, start=1):
+                                apertura = request.POST.get(f'apertura_{i}', '').strip()
+                                cierre = request.POST.get(f'cierre_{i}', '').strip()
+                                activo = bool(request.POST.get(f'activo_{i}', 'on'))
+                                if apertura and cierre and activo:
+                                    horarios_guardar.append({
+                                        'dia_semana': i,
+                                        'hora_apertura': apertura,
+                                        'hora_cierre': cierre,
+                                    })
+
+                            # Guardar horarios en Supabase
+                            try:
+                                for h in horarios_guardar:
+                                    supa.client.table('centros_horarios').insert({
+                                        'id_centro': centro.id,
+                                        'dia_semana': h['dia_semana'],
+                                        'hora_apertura': h['hora_apertura'],
+                                        'hora_cierre': h['hora_cierre'],
+                                    }).execute()
+                            except Exception:
+                                pass
+
+                            # Guardar materiales
+                            try:
+                                materiales_post = request.POST.getlist('materiales')
+                                for mid in materiales_post:
+                                    supa.client.table('centros_materiales').insert({
+                                        'id_centro': centro.id,
+                                        'id_material': mid,
+                                    }).execute()
+                                    supa.client.table('precios_centro').insert({
+                                        'id_centro': centro.id,
+                                        'id_material': mid,
+                                        'precio_compra_actual': 0.0,
+                                    }).execute()
+                            except Exception:
+                                pass
+
+                            # Subir foto de centro si existe
+                            try:
+                                foto_archivo = request.FILES.get('foto')
+                                if foto_archivo:
+                                    foto_url = supa.upload_image(
+                                        bucket='centros',
+                                        user_id=str(request.user.id),
+                                        file=foto_archivo,
+                                        folder='',
+                                        custom_filename=f'centro_{request.user.id}_{uuid.uuid4().hex}.jpg'
+                                    )
+                                    if foto_url:
+                                        centro.url_foto_portada = foto_url
+                                        centro.save()
+                            except Exception:
+                                pass
+
+                            messages.success(request, 'Registro completado! Tu centro se ha creado y está pendiente de validación.')
+                            return render(request, 'centro_pendiente.html', {'centro': centro})
+                        except Exception as e:
+                            error = 'No fue posible completar el registro del centro. Intenta de nuevo.'
+                            # si el perfil/casco partial se creó, se podría limpiar; pero para ahora no
                     else:
                         request.session['usuario_nombre'] = nombre
                         request.session['usuario_apellido'] = apellido

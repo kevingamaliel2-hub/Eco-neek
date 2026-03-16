@@ -425,7 +425,7 @@
       </div>
 
       <!-- Formulario -->
-      <form method="post" action="/register-screen/" class="register-form" id="registerForm" onsubmit="return validateRegister();">
+      <form method="post" action="/register-screen/" class="register-form" id="registerForm" enctype="multipart/form-data" onsubmit="return validateRegister();">
         {% csrf_token %}
         <input type="hidden" id="id_tipo" name="tipo" value="{{ tipo|default:'usuario' }}">
         
@@ -534,6 +534,7 @@
           <div class="form-group"><label class="form-label">Descripción del negocio</label><textarea name="descripcion_publica" class="form-control" rows="2" placeholder="Escribe una breve descripción">{{ form_data.descripcion_publica|default:'' }}</textarea></div>
           <div class="form-group"><label class="form-label">Correo público (Opcional)</label><input name="correo_publico" class="form-control" placeholder="correo@centro.com" value="{{ form_data.correo_publico|default:'' }}"></div>
           <div class="form-group"><label class="form-label"><i class="bi bi-clock-fill"></i>Horarios de atención</label><input id="id_horarios" name="horarios" type="text" class="form-control" placeholder="Ej: Lunes a Viernes 8am-5pm" value="{{ form_data.horarios|default:'' }}"></div>
+          <div class="form-group"><label class="form-label"><i class="bi bi-image"></i>Foto del centro (opcional)</label><input type="file" name="foto" accept="image/*" class="form-control" style="padding:.45rem .75rem;"></div>
 
           <div class="mb-3" style="border:1px solid #e2e8f0; border-radius:12px; padding:.7rem; background:#f8fcfb;">
             <div style="font-weight:700; margin-bottom:.4rem;">Horario diario (opcional)</div>
