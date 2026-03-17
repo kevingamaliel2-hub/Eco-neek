@@ -521,6 +521,14 @@
             <a href="{% url 'login_screen' %}" class="btn-comenzar">Comenzar</a>
           {% endif %}
         </li>
+        {% if user.is_authenticated %}
+        <li class="nav-item">
+          <form action="{% url 'logout' %}" method="post" style="display:inline; margin:0;">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-nav-danger">Cerrar sesión</button>
+          </form>
+        </li>
+        {% endif %}
       </ul>
     </div>
   </div>

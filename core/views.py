@@ -1068,7 +1068,7 @@ def admin_centros_accion(request):
     try:
         if accion == 'aprobar':
             update = {'validado': True, 'estado_operativo': True}
-            supa.client.table('centros_acopio').update(update).eq('id', int(centro_id)).execute()
+            supa.client.table('centros_acopio').update(update).eq('id', centro_id).execute()
             messages.success(request, 'Centro aprobado correctamente.')
         elif accion == 'rechazar':
             try:
@@ -2074,8 +2074,11 @@ def completar_centro(request):
 
 
 def logout_view(request):
-    if request.method == 'POST':
+    # Soporta POST y GET para cerrar sesión desde navbars y botones.
+    try:
         logout(request)
+    except Exception:
+        pass
     return redirect('home')
 def centro_publico(request, centro_id):
     """
