@@ -911,10 +911,79 @@ def api_editar_perfil(request):
 
 @staff_member_required
 def admin_centros(request):
-    """Panel sencillo para administradores: listar centros pendientes desde Supabase."""
+    """Panel sencillo para administradores: listar centros pendientes desde Supabase y gestionar eventos/premios."""
     supa = SupabaseClient()
     pending_centros = []
     approved_centros = []
+    eventos = []
+    premios = []
+
+    # Manejo de formularios POST para crear/eliminar eventos y premios.
+    if request.method == 'POST':
+        panel_action = request.POST.get('panel_action')
+        try:
+            if panel_action == 'crear_evento':
+                titulo = request.POST.get('titulo_evento', '').strip()
+                descripcion_evento = request.POST.get('descripcion_evento', '').strip()
+                fecha_evento = request.POST.get('fecha_evento', '').strip()
+                link_evento = request.POST.get('link_evento', '').strip()
+                imagen_file = request.FILES.get('imagen_evento')
+                imagen_url = None
+                if imagen_file:
+                    imagen_url = supa.upload_image(
+                        bucket='eventos',
+                        user_id=str(request.user.id),
+                        file=imagen_file,
+                        folder='eventos/',
+                        custom_filename=f"evento_{uuid.uuid4().hex}.jpg"
+                    )
+                evento_payload = {
+                    'titulo': titulo,
+                    'descripcion': descripcion_evento,
+                    'fecha_evento': fecha_evento or datetime.now().isoformat(),
+                    'ubicacion': '',
+                    'imagen_url': imagen_url,
+                    'link': link_evento,
+                }
+                supa.client.table('eventos').insert(evento_payload).execute()
+                messages.success(request, 'Evento creado con éxito.')
+            elif panel_action == 'eliminar_evento':
+                evento_id = request.POST.get('evento_id')
+                if evento_id:
+                    supa.client.table('eventos').delete().eq('id', int(evento_id)).execute()
+                    messages.success(request, 'Evento eliminado.')
+            elif panel_action == 'crear_premio':
+                nombre = request.POST.get('nombre_premio', '').strip()
+                descripcion_premio = request.POST.get('descripcion_premio', '').strip()
+                puntos = request.POST.get('puntos_premio', '').strip()
+                disponible = bool(request.POST.get('disponible_premio'))
+                imagen_file = request.FILES.get('imagen_premio')
+                imagen_url = None
+                if imagen_file:
+                    imagen_url = supa.upload_image(
+                        bucket='recompensas',
+                        user_id=str(request.user.id),
+                        file=imagen_file,
+                        folder='recompensas/',
+                        custom_filename=f"premio_{uuid.uuid4().hex}.jpg"
+                    )
+                premio_payload = {
+                    'nombre': nombre,
+                    'descripcion': descripcion_premio,
+                    'puntos_requeridos': int(puntos) if puntos.isdigit() else 0,
+                    'imagen_url': imagen_url,
+                    'disponible': disponible,
+                }
+                supa.client.table('recompensas').insert(premio_payload).execute()
+                messages.success(request, 'Premio creado correctamente.')
+            elif panel_action == 'eliminar_premio':
+                premio_id = request.POST.get('premio_id')
+                if premio_id:
+                    supa.client.table('recompensas').delete().eq('id', int(premio_id)).execute()
+                    messages.success(request, 'Premio eliminado.')
+        except Exception as e:
+            messages.error(request, f'Error en acción de panel: {str(e)}')
+
     try:
         resp_pending = (
             supa.client.table('centros_acopio')
@@ -939,6 +1008,28 @@ def admin_centros(request):
     except Exception:
         approved_centros = []
 
+    try:
+        resp_eventos = (
+            supa.client.table('eventos')
+            .select('*')
+            .order('fecha_evento', desc=False)
+            .execute()
+        )
+        eventos = resp_eventos.data if resp_eventos and getattr(resp_eventos, 'data', None) else []
+    except Exception:
+        eventos = []
+
+    try:
+        resp_premios = (
+            supa.client.table('recompensas')
+            .select('*')
+            .order('created_at', desc=False)
+            .execute()
+        )
+        premios = resp_premios.data if resp_premios and getattr(resp_premios, 'data', None) else []
+    except Exception:
+        premios = []
+
     # Normalizar claves para facilitar el template
     for c in pending_centros + approved_centros:
         if 'name' not in c:
@@ -957,6 +1048,8 @@ def admin_centros(request):
     return render(request, 'admin_centros.html', {
         'pending_centros': pending_centros,
         'approved_centros': approved_centros,
+        'eventos': eventos,
+        'premios': premios,
     })
 
 
@@ -978,9 +1071,20 @@ def admin_centros_accion(request):
             supa.client.table('centros_acopio').update(update).eq('id', int(centro_id)).execute()
             messages.success(request, 'Centro aprobado correctamente.')
         elif accion == 'rechazar':
-            update = {'validado': False, 'estado_operativo': False}
-            supa.client.table('centros_acopio').update(update).eq('id', int(centro_id)).execute()
-            messages.success(request, 'Centro rechazado correctamente.')
+            try:
+                centro_resp = supa.client.table('centros_acopio').select('*').eq('id', centro_id).execute()
+                centro = centro_resp.data[0] if centro_resp and getattr(centro_resp, 'data', None) and len(centro_resp.data) > 0 else None
+                id_usuario = centro.get('id_usuario') if isinstance(centro, dict) else None
+
+                supa.client.table('centros_horarios').delete().eq('id_centro', centro_id).execute()
+                supa.client.table('centros_materiales').delete().eq('id_centro', centro_id).execute()
+                supa.client.table('precios_centro').delete().eq('id_centro', centro_id).execute()
+                supa.client.table('centros_acopio').delete().eq('id', centro_id).execute()
+                if id_usuario:
+                    supa.client.table('perfiles').delete().eq('id', id_usuario).execute()
+                messages.success(request, 'Centro rechazado y datos relacionados borrados.')
+            except Exception as e:
+                messages.error(request, f'Error al rechazar el centro: {str(e)}')
         elif accion == 'eliminar':
             try:
                 centro_resp = supa.client.table('centros_acopio').select('*').eq('id', centro_id).execute()

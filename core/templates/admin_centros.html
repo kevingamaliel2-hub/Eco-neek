@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% block content %}
 <div class="container mt-4">
-  <h2>Gestión de Centros (Supabase)</h2>
+  <h2>Panel de Administración</h2>
   {% if messages %}
   <div class="mt-2">
     {% for message in messages %}
@@ -9,85 +9,175 @@
     {% endfor %}
   </div>
   {% endif %}
-  <h4>Centros pendientes</h4>
-  {% if pending_centros %}
-  <table class="table table-striped mt-3">
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>Nombre</th>
-        <th>Correo</th>
-        <th>Dirección</th>
-        <th>Lat</th>
-        <th>Lng</th>
-        <th>Acciones</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for c in pending_centros %}
-      <tr>
-        <td>{{ c.id }}</td>
-        <td>{{ c.nombre_comercial|default:c.name }}</td>
-        <td>{{ c.correo_contacto|default:c.correo }}</td>
-        <td>{{ c.direccion_texto|default:c.address }}</td>
-        <td>{{ c.latitud|default:c.latitude }}</td>
-        <td>{{ c.longitud|default:c.longitude }}</td>
-        <td>
-          <form action="{% url 'admin_centros_accion' %}" method="post" style="display:inline">{% csrf_token %}
-            <input type="hidden" name="centro_id" value="{{ c.id }}">
-            <input type="hidden" name="accion" value="aprobar">
-            <button class="btn btn-success btn-sm">Aprobar</button>
-          </form>
-          <form action="{% url 'admin_centros_accion' %}" method="post" style="display:inline;margin-left:6px">{% csrf_token %}
-            <input type="hidden" name="centro_id" value="{{ c.id }}">
-            <input type="hidden" name="accion" value="rechazar">
-            <button class="btn btn-danger btn-sm">Rechazar</button>
-          </form>
-        </td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-  {% else %}
-  <p>No hay centros pendientes.</p>
-  {% endif %}
 
-  <h4 class="mt-4">Centros validados (eliminar)</h4>
-  {% if approved_centros %}
-  <table class="table table-striped mt-3">
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>Nombre</th>
-        <th>Correo</th>
-        <th>Dirección</th>
-        <th>Lat</th>
-        <th>Lng</th>
-        <th>Acción</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for c in approved_centros %}
-      <tr>
-        <td>{{ c.id }}</td>
-        <td>{{ c.nombre_comercial|default:c.name }}</td>
-        <td>{{ c.correo_contacto|default:c.correo }}</td>
-        <td>{{ c.direccion_texto|default:c.address }}</td>
-        <td>{{ c.latitud|default:c.latitude }}</td>
-        <td>{{ c.longitud|default:c.longitude }}</td>
-        <td>
-          <form action="{% url 'admin_centros_accion' %}" method="post" style="display:inline">{% csrf_token %}
-            <input type="hidden" name="centro_id" value="{{ c.id }}">
-            <input type="hidden" name="accion" value="eliminar">
-            <button class="btn btn-outline-danger btn-sm" onclick="return confirm('¿Estás seguro de eliminar este centro? Esta acción no se puede deshacer.')">Eliminar</button>
-          </form>
-        </td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-  {% else %}
-  <p>No hay centros validados aún.</p>
-  {% endif %}
+  <ul class="nav nav-tabs mt-3" id="adminPanelTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+      <button class="nav-link active" id="tab-gestion" data-bs-toggle="tab" data-bs-target="#gestion" type="button" role="tab">Gestión</button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="tab-eventos" data-bs-toggle="tab" data-bs-target="#eventos" type="button" role="tab">Eventos</button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="tab-premios" data-bs-toggle="tab" data-bs-target="#premios" type="button" role="tab">Premios</button>
+    </li>
+  </ul>
+
+  <div class="tab-content mt-3">
+    <div class="tab-pane fade show active" id="gestion" role="tabpanel">
+      <h4>Centros pendientes</h4>
+      {% if pending_centros %}
+      <div class="table-responsive">
+      <table class="table table-striped mt-2">
+        <thead><tr><th>ID</th><th>Nombre</th><th>Correo</th><th>Dirección</th><th>Lat</th><th>Lng</th><th>Acciones</th></tr></thead>
+        <tbody>
+        {% for c in pending_centros %}
+          <tr>
+            <td>{{ c.id }}</td>
+            <td>{{ c.nombre_comercial|default:c.name }}</td>
+            <td>{{ c.correo_contacto|default:c.correo }}</td>
+            <td>{{ c.direccion_texto|default:c.address }}</td>
+            <td>{{ c.latitud|default:c.latitude }}</td>
+            <td>{{ c.longitud|default:c.longitude }}</td>
+            <td>
+              <form action="{% url 'admin_centros_accion' %}" method="post" style="display:inline">{% csrf_token %}
+                <input type="hidden" name="centro_id" value="{{ c.id }}">
+                <input type="hidden" name="accion" value="aprobar">
+                <button class="btn btn-success btn-sm">Aprobar</button>
+              </form>
+              <form action="{% url 'admin_centros_accion' %}" method="post" style="display:inline;margin-left:6px">{% csrf_token %}
+                <input type="hidden" name="centro_id" value="{{ c.id }}">
+                <input type="hidden" name="accion" value="rechazar">
+                <button class="btn btn-danger btn-sm">Rechazar y borrar</button>
+              </form>
+            </td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+      </div>
+      {% else %}
+      <p>No hay centros pendientes.</p>
+      {% endif %}
+
+      <h4 class="mt-4">Centros validados</h4>
+      {% if approved_centros %}
+      <div class="table-responsive">
+      <table class="table table-striped mt-2">
+        <thead><tr><th>ID</th><th>Nombre</th><th>Correo</th><th>Dirección</th><th>Lat</th><th>Lng</th><th>Acción</th></tr></thead>
+        <tbody>
+        {% for c in approved_centros %}
+          <tr>
+            <td>{{ c.id }}</td>
+            <td>{{ c.nombre_comercial|default:c.name }}</td>
+            <td>{{ c.correo_contacto|default:c.correo }}</td>
+            <td>{{ c.direccion_texto|default:c.address }}</td>
+            <td>{{ c.latitud|default:c.latitude }}</td>
+            <td>{{ c.longitud|default:c.longitude }}</td>
+            <td>
+              <form action="{% url 'admin_centros_accion' %}" method="post" style="display:inline">{% csrf_token %}
+                <input type="hidden" name="centro_id" value="{{ c.id }}">
+                <input type="hidden" name="accion" value="eliminar">
+                <button class="btn btn-outline-danger btn-sm" onclick="return confirm('¿Eliminar este centro definitivamente?')">Eliminar</button>
+              </form>
+            </td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+      </div>
+      {% else %}
+      <p>No hay centros validados aún.</p>
+      {% endif %}
+    </div>
+
+    <div class="tab-pane fade" id="eventos" role="tabpanel">
+      <h4>Eventos</h4>
+      <div class="card mb-3"><div class="card-body">
+        <form method="post" enctype="multipart/form-data">
+          {% csrf_token %}
+          <input type="hidden" name="panel_action" value="crear_evento">
+          <div class="row g-2">
+            <div class="col-md-6"><input class="form-control" name="titulo_evento" placeholder="Título" required></div>
+            <div class="col-md-6"><input class="form-control" name="fecha_evento" type="datetime-local" required></div>
+            <div class="col-md-6"><input class="form-control" name="link_evento" placeholder="Link para ver detalles"></div>
+            <div class="col-md-6"><input class="form-control" name="imagen_evento" type="file"></div>
+            <div class="col-12"><textarea class="form-control" name="descripcion_evento" rows="2" placeholder="Resumen del evento"></textarea></div>
+            <div class="col-12"><button class="btn btn-primary">Crear evento</button></div>
+          </div>
+        </form>
+      </div></div>
+
+      {% if eventos %}
+      <div class="table-responsive">
+      <table class="table table-bordered">
+        <thead><tr><th>ID</th><th>Título</th><th>Fecha</th><th>Link</th><th>Acción</th></tr></thead>
+        <tbody>{% for e in eventos %}
+          <tr>
+            <td>{{ e.id }}</td>
+            <td>{{ e.titulo }}</td>
+            <td>{{ e.fecha_evento }}</td>
+            <td>{% if e.link %}<a href="{{ e.link }}" target="_blank">Ver detalles</a>{% else %}-{% endif %}</td>
+            <td>
+              <form method="post" style="display:inline;">
+                {% csrf_token %}
+                <input type="hidden" name="panel_action" value="eliminar_evento">
+                <input type="hidden" name="evento_id" value="{{ e.id }}">
+                <button class="btn btn-danger btn-sm" onclick="return confirm('Eliminar evento?')">Eliminar</button>
+              </form>
+            </td>
+          </tr>
+        {% endfor %}</tbody>
+      </table>
+      </div>
+      {% else %}
+      <p>No hay eventos registrados.</p>
+      {% endif %}
+    </div>
+
+    <div class="tab-pane fade" id="premios" role="tabpanel">
+      <h4>Premios</h4>
+      <div class="card mb-3"><div class="card-body">
+        <form method="post" enctype="multipart/form-data">
+          {% csrf_token %}
+          <input type="hidden" name="panel_action" value="crear_premio">
+          <div class="row g-2">
+            <div class="col-md-4"><input class="form-control" name="nombre_premio" placeholder="Nombre" required></div>
+            <div class="col-md-4"><input class="form-control" name="puntos_premio" type="number" placeholder="Puntos requeridos" required></div>
+            <div class="col-md-4"><div class="form-check"><input class="form-check-input" type="checkbox" id="disponible_premio" name="disponible_premio" checked><label class="form-check-label" for="disponible_premio">Disponible</label></div></div>
+            <div class="col-md-6"><input class="form-control" name="imagen_premio" type="file"></div>
+            <div class="col-md-6"><input class="form-control" name="descripcion_premio" placeholder="Descripción"></div>
+            <div class="col-12"><button class="btn btn-primary">Crear premio</button></div>
+          </div>
+        </form>
+      </div></div>
+
+      {% if premios %}
+      <div class="table-responsive">
+      <table class="table table-bordered">
+        <thead><tr><th>ID</th><th>Nombre</th><th>Puntos</th><th>Disponible</th><th>Acción</th></tr></thead>
+        <tbody>{% for p in premios %}
+          <tr>
+            <td>{{ p.id }}</td>
+            <td>{{ p.nombre }}</td>
+            <td>{{ p.puntos_requeridos }}</td>
+            <td>{{ p.disponible }}</td>
+            <td>
+              <form method="post" style="display:inline;">
+                {% csrf_token %}
+                <input type="hidden" name="panel_action" value="eliminar_premio">
+                <input type="hidden" name="premio_id" value="{{ p.id }}">
+                <button class="btn btn-danger btn-sm" onclick="return confirm('Eliminar premio?')">Eliminar</button>
+              </form>
+            </td>
+          </tr>
+        {% endfor %}</tbody>
+      </table>
+      </div>
+      {% else %}
+      <p>No hay premios.</p>
+      {% endif %}
+    </div>
+  </div>
 </div>
+
 {% endblock %}

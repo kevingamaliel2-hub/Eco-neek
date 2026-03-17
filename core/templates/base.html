@@ -512,9 +512,13 @@
         <li class="nav-item"><a class="nav-link text-white{% if request.path == '/eventos/' %} active{% endif %}" href="/eventos/">Eventos</a></li>
         <li class="nav-item">
           {% if user.is_authenticated %}
-            <a href="/perfil/" class="btn-comenzar">Mi Perfil</a>
+            {% if user.is_staff %}
+              <a href="{% url 'admin_centros' %}" class="btn-comenzar">Panel Admin</a>
+            {% else %}
+              <a href="{% url 'perfil' %}" class="btn-comenzar">Mi Perfil</a>
+            {% endif %}
           {% else %}
-            <a href="/login-screen/" class="btn-comenzar">Comenzar</a>
+            <a href="{% url 'login_screen' %}" class="btn-comenzar">Comenzar</a>
           {% endif %}
         </li>
       </ul>
