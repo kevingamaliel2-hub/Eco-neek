@@ -171,6 +171,7 @@ ACCOUNT_EMAIL_VERIFICATION = 'none'
 # Supabase configuration
 SUPABASE_URL = os.getenv('SUPABASE_URL', 'https://nzywjcjferkjmuxhuznm.supabase.co')
 SUPABASE_ANON_KEY = os.getenv('SUPABASE_ANON_KEY', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...')
+SUPABASE_SERVICE_ROLE_KEY = os.getenv('SUPABASE_SERVICE_ROLE_KEY', '')
 
 # REST Framework
 REST_FRAMEWORK = {

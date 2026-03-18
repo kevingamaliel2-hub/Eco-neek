@@ -430,6 +430,25 @@ def register_screen(request):
                         login(request, created_django_user, backend='django.contrib.auth.backends.ModelBackend')
                         success = True
 
+                        if tipo == 'usuario':
+                            # Crear perfil de usuario en Supabase para que el panel de perfil lo pueda leer
+                            try:
+                                usuario_id = str(uuid.uuid4())
+                                perfil_payload = {
+                                    'id': usuario_id,
+                                    'nombre': nombre or created_django_user.first_name or '',
+                                    'apellido': apellido or created_django_user.last_name or '',
+                                    'telefono': telefono or '',
+                                    'correo': email,
+                                    'tipo_usuario': 'comun',
+                                    'eco_puntos_saldo': 0,
+                                    'estado_cuenta': True,
+                                    'qr_codigo': f"QR_{usuario_id[:8]}_{datetime.datetime.utcnow().strftime('%Y%m%d%H%M%S')}"
+                                }
+                                supa.client.table('perfiles').insert(perfil_payload).execute()
+                            except Exception:
+                                pass
+
                         if tipo == 'centro':
                             if not supa_user_id:
                                 raise Exception('No se pudo obtener el ID de usuario de Supabase para crear el centro.')
@@ -569,7 +588,7 @@ def register_screen(request):
                                     bucket='centros',
                                     user_id=supa_user_id,
                                     file=foto_archivo,
-                                    folder='',
+                                    folder='centros',
                                     custom_filename=f'centro_{centro_id}_{uuid.uuid4().hex}.jpg'
                                 )
                                 if foto_url:
@@ -597,7 +616,7 @@ def register_screen(request):
                         else:
                             request.session['usuario_nombre'] = nombre
                             request.session['usuario_apellido'] = apellido
-                            return redirect('completar_registro')
+                            return redirect('/')
                 # if not error
 
 
@@ -671,8 +690,6 @@ def eventos(request):
 def perfil(request):
     # Obtener el tipo de usuario de la sesión (guardado en login)
     tipo_usuario = request.session.get('user_type', 'usuario')
-    if tipo_usuario == 'centro':
-        return redirect('perfil_centro')
 
     usuario = request.user
     supa = SupabaseClient()
@@ -681,6 +698,8 @@ def perfil(request):
     avatar_url = None
     qr_url = None
     puntos = 0
+    tipo_usuario = 'usuario'
+
     try:
         url = f"{supa.url}/rest/v1/perfiles?correo=eq.{quote_plus(usuario.email)}"
         headers = {
@@ -692,37 +711,55 @@ def perfil(request):
             data = response.json()
             if isinstance(data, list) and len(data) > 0:
                 perfil_data = data[0] if isinstance(data[0], dict) else {}
-                avatar_url = perfil_data.get('imagen_url')
-                qr_value = perfil_data.get('qr_codigo')
-                puntos = perfil_data.get('eco_puntos_saldo', 0) or 0
-                if not qr_value:
-                    # Generar un QR local similar a la app y guardar en Supabase.
-                    prefix = str(perfil_data.get('id', usuario.id)).replace('-', '')[:8]
-                    ts = datetime.datetime.utcnow().strftime('%Y%m%d%H%M%S')
-                    qr_value = f"QR_{prefix}_{ts}"
-                    try:
-                        update_resp = requests.patch(
-                            f"{supa.url}/rest/v1/perfiles?id=eq.{quote_plus(str(perfil_data.get('id', '')))}",
-                            headers={
-                                'apikey': supa.key,
-                                'Authorization': f'Bearer {supa.key}',
-                                'Content-Type': 'application/json',
-                                'Prefer': 'return=minimal',
-                            },
-                            json={'qr_codigo': qr_value},
-                            timeout=10,
-                        )
-                        pass
-                    except Exception:
-                        pass
+            elif isinstance(data, dict):
+                perfil_data = data
+        if perfil_data and isinstance(perfil_data, dict):
+            tipo_usuario = perfil_data.get('tipo_usuario', 'usuario') or 'usuario'
+    except Exception:
+        pass
 
-                # Generar URL de imagen de QR usando un servicio activo
-                qr_url = f"https://api.qrserver.com/v1/create-qr-code/?size=280x280&data={quote_plus(str(qr_value))}"
-                qr_alt_text = f"QR {qr_value}"
-            else:
-                pass
-        else:
-            pass
+    if tipo_usuario == 'centro':
+        return redirect('perfil_centro')
+
+    try:
+        # 2nd fetch to set avatar/qr if needed
+        if not perfil_data:
+            url = f"{supa.url}/rest/v1/perfiles?correo=eq.{quote_plus(usuario.email)}"
+            headers = {
+                'apikey': supa.key,
+                'Authorization': f'Bearer {supa.key}'
+            }
+            response = requests.get(url, headers=headers)
+            if response.status_code == 200:
+                data = response.json()
+                if isinstance(data, list) and len(data) > 0:
+                    perfil_data = data[0] if isinstance(data[0], dict) else {}
+                elif isinstance(data, dict):
+                    perfil_data = data
+        if perfil_data and isinstance(perfil_data, dict):
+            avatar_url = perfil_data.get('imagen_url')
+            qr_value = perfil_data.get('qr_codigo')
+            puntos = perfil_data.get('eco_puntos_saldo', 0) or 0
+            if not qr_value:
+                prefix = str(perfil_data.get('id', usuario.id)).replace('-', '')[:8]
+                ts = datetime.datetime.utcnow().strftime('%Y%m%d%H%M%S')
+                qr_value = f"QR_{prefix}_{ts}"
+                try:
+                    requests.patch(
+                        f"{supa.url}/rest/v1/perfiles?id=eq.{quote_plus(str(perfil_data.get('id', '')))}",
+                        headers={
+                            'apikey': supa.key,
+                            'Authorization': f'Bearer {supa.key}',
+                            'Content-Type': 'application/json',
+                            'Prefer': 'return=minimal',
+                        },
+                        json={'qr_codigo': qr_value},
+                        timeout=10,
+                    )
+                except Exception:
+                    pass
+
+            qr_url = f"https://api.qrserver.com/v1/create-qr-code/?size=280x280&data={quote_plus(str(qr_value))}"
     except Exception:
         pass
 
@@ -850,6 +887,7 @@ def perfil(request):
             'avatar_url': avatar_url,
             'qr_codigo': qr_url,
             'points': puntos,
+            'role': 'Centro' if tipo_usuario.lower() == 'centro' else 'Usuario',
         },
         'total_canjes': total_canjes,
         'ultimos_canjes': ultimos_canjes,
@@ -909,7 +947,7 @@ def api_editar_perfil(request):
         return JsonResponse({'error': str(e)}, status=500)
 
 
-@staff_member_required
+@staff_member_required(login_url='/login-screen/')
 def admin_centros(request):
     """Panel sencillo para administradores: listar centros pendientes desde Supabase y gestionar eventos/premios."""
     supa = SupabaseClient()
@@ -927,6 +965,7 @@ def admin_centros(request):
                 descripcion_evento = request.POST.get('descripcion_evento', '').strip()
                 fecha_evento = request.POST.get('fecha_evento', '').strip()
                 link_evento = request.POST.get('link_evento', '').strip()
+                ubicacion_evento = request.POST.get('ubicacion_evento', '').strip()
                 imagen_file = request.FILES.get('imagen_evento')
                 imagen_url = None
                 if imagen_file:
@@ -934,23 +973,26 @@ def admin_centros(request):
                         bucket='eventos',
                         user_id=str(request.user.id),
                         file=imagen_file,
-                        folder='eventos/',
+                        folder='eventos',
                         custom_filename=f"evento_{uuid.uuid4().hex}.jpg"
                     )
                 evento_payload = {
                     'titulo': titulo,
                     'descripcion': descripcion_evento,
-                    'fecha_evento': fecha_evento or datetime.now().isoformat(),
-                    'ubicacion': '',
+                    'fecha_evento': fecha_evento or datetime.datetime.utcnow().isoformat(),
+                    'ubicacion': ubicacion_evento,
                     'imagen_url': imagen_url,
-                    'link': link_evento,
+                    'url_evento': link_evento,
                 }
                 supa.client.table('eventos').insert(evento_payload).execute()
-                messages.success(request, 'Evento creado con éxito.')
+                if imagen_url:
+                    messages.success(request, 'Evento creado con éxito.')
+                else:
+                    messages.warning(request, 'Evento creado, pero no se pudo subir la imagen. Verifica el bucket.')
             elif panel_action == 'eliminar_evento':
                 evento_id = request.POST.get('evento_id')
                 if evento_id:
-                    supa.client.table('eventos').delete().eq('id', int(evento_id)).execute()
+                    supa.client.table('eventos').delete().eq('id', evento_id).execute()
                     messages.success(request, 'Evento eliminado.')
             elif panel_action == 'crear_premio':
                 nombre = request.POST.get('nombre_premio', '').strip()
@@ -964,7 +1006,7 @@ def admin_centros(request):
                         bucket='recompensas',
                         user_id=str(request.user.id),
                         file=imagen_file,
-                        folder='recompensas/',
+                        folder='recompensas',
                         custom_filename=f"premio_{uuid.uuid4().hex}.jpg"
                     )
                 premio_payload = {
@@ -975,38 +1017,50 @@ def admin_centros(request):
                     'disponible': disponible,
                 }
                 supa.client.table('recompensas').insert(premio_payload).execute()
-                messages.success(request, 'Premio creado correctamente.')
+                if imagen_url:
+                    messages.success(request, 'Premio creado correctamente.')
+                else:
+                    messages.warning(request, 'Premio creado, pero no se pudo subir la imagen. Verifica el bucket.')
             elif panel_action == 'eliminar_premio':
                 premio_id = request.POST.get('premio_id')
                 if premio_id:
-                    supa.client.table('recompensas').delete().eq('id', int(premio_id)).execute()
+                    supa.client.table('recompensas').delete().eq('id', premio_id).execute()
                     messages.success(request, 'Premio eliminado.')
         except Exception as e:
             messages.error(request, f'Error en acción de panel: {str(e)}')
 
-    try:
-        resp_pending = (
-            supa.client.table('centros_acopio')
-            .select('*')
-            .eq('validado', False)
-            .order('created_at', desc=False)
-            .execute()
-        )
-        pending_centros = resp_pending.data if resp_pending and getattr(resp_pending, 'data', None) else []
-    except Exception:
-        pending_centros = []
+    # Consulta robusta de centros: intenta centros_acopio, luego centros.
+    def _query_centros(filter_expr=None):
+        for table_name in ['centros_acopio', 'centros']:
+            try:
+                q = supa.client.table(table_name).select('*')
+                if isinstance(filter_expr, tuple) and len(filter_expr) == 3:
+                    col, op, val = filter_expr
+                    if op == 'eq':
+                        q = q.eq(col, val)
+                    elif op == 'neq':
+                        q = q.neq(col, val)
+                    # más operadores si se necesita
+                q = q.order('created_at', desc=False)
+                r = q.execute()
+                if getattr(r, 'error', None):
+                    continue
+                data = r.data if getattr(r, 'data', None) else []
+                if isinstance(data, list):
+                    return data
+            except Exception:
+                continue
+        return []
 
-    try:
-        resp_approved = (
-            supa.client.table('centros_acopio')
-            .select('*')
-            .eq('validado', True)
-            .order('created_at', desc=False)
-            .execute()
-        )
-        approved_centros = resp_approved.data if resp_approved and getattr(resp_approved, 'data', None) else []
-    except Exception:
-        approved_centros = []
+    pending_centros = _query_centros(('validado', 'eq', False))
+    approved_centros = _query_centros(('validado', 'eq', True))
+    if not pending_centros and not approved_centros:
+        # Fallback sin filtro si los campos validado no existen en el esquema.
+        all_centros = _query_centros(None)
+        # Separar por validado / no validado cuando exista
+        pending_centros = [c for c in all_centros if not c.get('validado')]
+        approved_centros = [c for c in all_centros if c.get('validado')]
+
 
     try:
         resp_eventos = (
@@ -1050,10 +1104,14 @@ def admin_centros(request):
         'approved_centros': approved_centros,
         'eventos': eventos,
         'premios': premios,
+        'pending_count': len(pending_centros),
+        'approved_count': len(approved_centros),
+        'eventos_count': len(eventos),
+        'premios_count': len(premios),
     })
 
 
-@staff_member_required
+@staff_member_required(login_url='/login-screen/')
 def admin_centros_accion(request):
     """Recibe POST con 'centro_id' y 'accion' ('aprobar'|'rechazar') y actualiza Supabase."""
     if request.method != 'POST':
@@ -1065,41 +1123,61 @@ def admin_centros_accion(request):
         return redirect('admin_centros')
 
     supa = SupabaseClient()
+    centro_tablas = ['centros_acopio', 'centros']
     try:
         if accion == 'aprobar':
             update = {'validado': True, 'estado_operativo': True}
-            supa.client.table('centros_acopio').update(update).eq('id', centro_id).execute()
-            messages.success(request, 'Centro aprobado correctamente.')
-        elif accion == 'rechazar':
+            updated = False
+            for table in centro_tablas:
+                try:
+                    r = supa.client.table(table).update(update).eq('id', centro_id).execute()
+                    if getattr(r, 'data', None):
+                        updated = True
+                except Exception:
+                    continue
+            if updated:
+                messages.success(request, 'Centro aprobado correctamente.')
+            else:
+                messages.error(request, 'No se pudo aprobar el centro; ID no encontrado.')
+        elif accion in ('rechazar', 'eliminar'):
+            found = None
+            id_usuario = None
+            for table in centro_tablas:
+                try:
+                    centro_resp = supa.client.table(table).select('*').eq('id', centro_id).execute()
+                    if centro_resp and getattr(centro_resp, 'data', None) and len(centro_resp.data) > 0:
+                        found = centro_resp.data[0]
+                        break
+                except Exception:
+                    continue
+            if isinstance(found, dict):
+                id_usuario = found.get('id_usuario')
             try:
-                centro_resp = supa.client.table('centros_acopio').select('*').eq('id', centro_id).execute()
-                centro = centro_resp.data[0] if centro_resp and getattr(centro_resp, 'data', None) and len(centro_resp.data) > 0 else None
-                id_usuario = centro.get('id_usuario') if isinstance(centro, dict) else None
-
                 supa.client.table('centros_horarios').delete().eq('id_centro', centro_id).execute()
                 supa.client.table('centros_materiales').delete().eq('id_centro', centro_id).execute()
                 supa.client.table('precios_centro').delete().eq('id_centro', centro_id).execute()
-                supa.client.table('centros_acopio').delete().eq('id', centro_id).execute()
-                if id_usuario:
+            except Exception:
+                pass
+            deleted_any = False
+            for table in centro_tablas:
+                try:
+                    r = supa.client.table(table).delete().eq('id', centro_id).execute()
+                    if getattr(r, 'data', None):
+                        deleted_any = True
+                except Exception:
+                    continue
+            if id_usuario:
+                try:
                     supa.client.table('perfiles').delete().eq('id', id_usuario).execute()
-                messages.success(request, 'Centro rechazado y datos relacionados borrados.')
-            except Exception as e:
-                messages.error(request, f'Error al rechazar el centro: {str(e)}')
-        elif accion == 'eliminar':
-            try:
-                centro_resp = supa.client.table('centros_acopio').select('*').eq('id', centro_id).execute()
-                centro = centro_resp.data[0] if centro_resp and getattr(centro_resp, 'data', None) and len(centro_resp.data) > 0 else None
-                id_usuario = centro.get('id_usuario') if isinstance(centro, dict) else None
-
-                supa.client.table('centros_horarios').delete().eq('id_centro', centro_id).execute()
-                supa.client.table('centros_materiales').delete().eq('id_centro', centro_id).execute()
-                supa.client.table('precios_centro').delete().eq('id_centro', centro_id).execute()
-                supa.client.table('centros_acopio').delete().eq('id', centro_id).execute()
-                if id_usuario:
-                    supa.client.table('perfiles').delete().eq('id', id_usuario).execute()
-                messages.success(request, 'Centro eliminado y datos relacionados borrados.')
-            except Exception as e:
-                messages.error(request, f'Error al eliminar el centro: {str(e)}')
+                except Exception:
+                    pass
+            if deleted_any:
+                if accion == 'rechazar':
+                    messages.success(request, 'Centro rechazado y datos relacionados borrados.')
+                else:
+                    messages.success(request, 'Centro eliminado y datos relacionados borrados.')
+            else:
+                messages.error(request, 'No se encontró el centro para eliminar/rechazar.')
     except Exception as e:
         messages.error(request, f'Error en acción de centro: {str(e)}')
 
@@ -1232,45 +1310,48 @@ def api_recompensas(request):
 def editar_perfil(request):
     usuario = request.user
     supa = SupabaseClient()
-    
-    # ========================================
-    # 1. OBTENER PERFIL DE SUPABASE
-    # ========================================
+
+    # Obtener perfil existente de Supabase para render y ediciones.
+    perfil_data = None
     perfil_id = None
     try:
-        # Consulta directa a Supabase
-        url = f"{supa.url}/rest/v1/perfiles?correo=eq.{quote_plus(usuario.email)}&select=id"
-        headers = {
-            'apikey': supa.key,
-            'Authorization': f'Bearer {supa.key}'
-        }
-        response = requests.get(url, headers=headers)
-        
-        if response.status_code == 200:
-            data = response.json()
-            if data and len(data) > 0:
-                perfil_id = data[0].get('id')
-        else:
-            pass
+        perfil_resp = supa.client.table('perfiles').select('*').eq('correo', usuario.email).limit(1).execute()
+        if getattr(perfil_resp, 'data', None):
+            if isinstance(perfil_resp.data, list) and len(perfil_resp.data) > 0:
+                perfil_data = perfil_resp.data[0] if isinstance(perfil_resp.data[0], dict) else None
+            elif isinstance(perfil_resp.data, dict):
+                perfil_data = perfil_resp.data
+
+        # Fallback por id (si no se encontró correo)
+        if not perfil_data:
+            fallback_id = request.session.get('user_id_supabase')
+            if fallback_id:
+                fallback_resp = supa.client.table('perfiles').select('*').eq('id', fallback_id).limit(1).execute()
+                if getattr(fallback_resp, 'data', None):
+                    if isinstance(fallback_resp.data, list) and len(fallback_resp.data) > 0:
+                        perfil_data = fallback_resp.data[0] if isinstance(fallback_resp.data[0], dict) else None
+                        if perfil_data and isinstance(perfil_data, dict):
+                            perfil_id = perfil_data.get('id')
+                    elif isinstance(fallback_resp.data, dict):
+                        perfil_data = fallback_resp.data
+                        perfil_id = perfil_data.get('id')
+
+        if perfil_data and isinstance(perfil_data, dict):
+            perfil_id = perfil_id or perfil_data.get('id')
     except Exception:
-        pass
-    
+        perfil_data = None
+
     if request.method == 'POST':
-        # ========================================
-        # 2. PROCESAR FORMULARIO
-        # ========================================
         nombre = request.POST.get('nombre', '').strip()
         apellido = request.POST.get('apellido', '').strip()
         telefono = request.POST.get('phone', '').strip()
-        
-        # Actualizar Django
+
         if nombre:
             usuario.first_name = nombre
         if apellido:
             usuario.last_name = apellido
         usuario.save()
-        
-        # Preparar datos
+
         datos_actualizar = {}
         if nombre:
             datos_actualizar['nombre'] = nombre
@@ -1278,69 +1359,111 @@ def editar_perfil(request):
             datos_actualizar['apellido'] = apellido
         if telefono:
             datos_actualizar['telefono'] = telefono
-        
-        # ========================================
-        # 3. PROCESAR IMAGEN
-        # ========================================
-        if 'avatar' in request.FILES:
-            imagen_file = request.FILES['avatar']
-            
-            # Subir a Storage
+
+        avatar_file = request.FILES.get('avatar')
+        if avatar_file:
+            # Borrar avatar antiguo si existe (consultamos nuevamente para evitar stale)
+            old_img_url = None
+            try:
+                current = supa.client.table('perfiles').select('imagen_url').eq('correo', usuario.email).limit(1).execute()
+                if getattr(current, 'data', None):
+                    row = current.data[0] if isinstance(current.data, list) else current.data
+                    if isinstance(row, dict):
+                        old_img_url = row.get('imagen_url')
+            except Exception:
+                old_img_url = None
+
+            if old_img_url:
+                deleted = supa.delete_image_by_public_url(old_img_url)
+                if not deleted:
+                    logger.warning('No se pudo borrar avatar antiguo: %s', old_img_url)
+
+            # Subir la imagen al bucket avatars
+            file_ext = avatar_file.name.split('.')[-1].lower()
+            custom_filename = f"usuario_{usuario.id}_{uuid.uuid4().hex}.{file_ext}"
             imagen_url = supa.upload_image(
                 bucket='avatars',
                 user_id=str(usuario.id),
-                file=imagen_file,
-                folder='usuarios'
+                file=avatar_file,
+                folder='usuarios',
+                custom_filename=custom_filename,
+                max_size_bytes=2 * 1024 * 1024,
             )
-            
             if imagen_url:
                 datos_actualizar['imagen_url'] = imagen_url
                 messages.success(request, '✅ Foto subida correctamente')
+            else:
+                messages.error(request, '❌ No se pudo subir la foto. Verifica el tamaño o formato (jpg/png/webp).')
 
-        # ========================================
-        # 4. ACTUALIZAR EN SUPABASE (MÉTODO DIRECTO)
-        # ========================================
-        if datos_actualizar and perfil_id:
+        # Si no existe perfil en Supabase, intentar crear uno con correo y nombre simple.
+        if not perfil_id:
             try:
-                # URL directa para actualizar
-                update_url = f"{supa.url}/rest/v1/perfiles?id=eq.{quote_plus(str(perfil_id))}"
-                
-                headers_update = {
-                    'apikey': supa.key,
-                    'Authorization': f'Bearer {supa.key}',
-                    'Content-Type': 'application/json',
-                    'Prefer': 'return=minimal'  # No esperar respuesta
+                # Si tenemos user_id_supabase en sesión, úsalo como id en la tabla perfiles.
+                supa_user_id = request.session.get('user_id_supabase')
+                profile_payload = {
+                    'correo': usuario.email,
+                    'nombre': nombre or usuario.first_name or '',
+                    'apellido': apellido or usuario.last_name or '',
+                    'telefono': telefono or '',
+                    'tipo_usuario': 'comun',
+                    'eco_puntos_saldo': 0,
+                    'estado_cuenta': True,
                 }
-                
-                response = requests.patch(update_url, headers=headers_update, json=datos_actualizar)
-                
-                if response.status_code in (200, 204):
-                    messages.success(request, '✅ Perfil actualizado en Supabase')
+                if supa_user_id:
+                    profile_payload['id'] = supa_user_id
+                if 'imagen_url' in datos_actualizar:
+                    profile_payload['imagen_url'] = datos_actualizar['imagen_url']
+
+                created = supa.client.table('perfiles').insert(profile_payload).execute()
+                if getattr(created, 'error', None):
+                    err = created.error
+                    messages.error(request, f'❌ No se encontró perfil y no se pudo crear: {err}')
                 else:
-                    messages.error(request, f'❌ Error {response.status_code} en Supabase')
+                    perfil_id = profile_payload.get('id') or (created.data[0].get('id') if isinstance(created.data, list) and created.data else None)
+                    if datos_actualizar:
+                        # Si ya había imagen/teléfono, actualizar usando ID
+                        try:
+                            supa.client.table('perfiles').update(datos_actualizar).eq('id', perfil_id).execute()
+                        except Exception:
+                            pass
+                    messages.success(request, '✅ Perfil creado en Supabase y actualizado.')
             except Exception as e:
-                messages.error(request, f'❌ Error: {str(e)}')
+                messages.error(request, f'❌ Error creando perfil: {e}')
         else:
-            if not perfil_id:
-                messages.error(request, '❌ No se encontró tu perfil')
-            if not datos_actualizar:
-                messages.info(request, 'ℹ️ No hay cambios')
-        
+            if datos_actualizar:
+                try:
+                    update_resp = supa.client.table('perfiles').update(datos_actualizar).eq('id', perfil_id).execute()
+                    if getattr(update_resp, 'error', None):
+                        messages.error(request, f'❌ No se pudo actualizar tu perfil en Supabase: {update_resp.error}')
+                    else:
+                        messages.success(request, '✅ Perfil actualizado en Supabase.')
+                except Exception as e:
+                    messages.error(request, f'❌ Error actualizando en Supabase: {e}')
+            else:
+                messages.info(request, 'ℹ️ No hay cambios detectados.')
+
         return redirect('perfil')
-    
-    # ========================================
-    # 5. PREPARAR CONTEXTO PARA EL TEMPLATE
-    # ========================================
+
+    # Preparar contexto para el template con datos del perfil actual.
+    avatar_url = ''
+    phone_value = ''
+    if perfil_data:
+        avatar_url = perfil_data.get('imagen_url') or ''
+        phone_value = perfil_data.get('telefono') or ''
+    if not phone_value and hasattr(usuario, 'phone'):
+        phone_value = usuario.phone or ''
+
+    rellenar_nombre = perfil_data.get('nombre') if perfil_data and perfil_data.get('nombre') else usuario.first_name
+    rellenar_apellido = perfil_data.get('apellido') if perfil_data and perfil_data.get('apellido') else usuario.last_name
     context = {
         'usuario': {
-            'first_name': usuario.first_name,
-            'last_name': usuario.last_name,
+            'first_name': rellenar_nombre,
+            'last_name': rellenar_apellido,
             'email': usuario.email,
-            'phone': usuario.phone if hasattr(usuario, 'phone') else '',
-            'avatar': '',  # No cargamos avatar aquí por simplicidad
+            'phone': phone_value,
+            'avatar': avatar_url,
         }
     }
-    
     return render(request, 'editar_perfil.html', context)
 
 
@@ -1774,12 +1897,28 @@ def editar_perfil_centro(request):
             foto_file = request.FILES['foto']
             if foto_file.content_type in ['image/jpeg', 'image/png']:
                 BUCKET_NAME = 'centros'
+
+                # Borrar foto antigua de Supabase si existe
+                try:
+                    centro_resp = supa.client.table('centros_acopio').select('url_foto_portada').eq('id', centro_id).limit(1).execute()
+                    old_url = None
+                    if getattr(centro_resp, 'data', None):
+                        row = centro_resp.data[0] if isinstance(centro_resp.data, list) else centro_resp.data
+                        if isinstance(row, dict):
+                            old_url = row.get('url_foto_portada')
+                    if old_url:
+                        deleted = supa.delete_image_by_public_url(old_url)
+                        if not deleted:
+                            logger.warning('No se pudo borrar foto antigua centro: %s', old_url)
+                except Exception:
+                    pass
+
                 foto_url = supa.upload_image(
                     bucket=BUCKET_NAME,
                     user_id=str(usuario.id),
                     file=foto_file,
-                    folder='',
-                    custom_filename=f"centro_{usuario.id}.jpg"
+                    folder='centros',
+                    custom_filename=f"centro_{centro_id}_{uuid.uuid4().hex}.{foto_file.name.split('.')[-1].lower()}"
                 )
                 if foto_url:
                     foto_update = {'url_foto_portada': foto_url}
@@ -2044,7 +2183,7 @@ def completar_centro(request):
             try:
                 if request.FILES.get('foto'):
                     bucket = 'centros'
-                    foto_url = supa.upload_image(bucket=bucket, user_id=str(request.user.id), file=request.FILES['foto'], folder='', custom_filename=f'centro_{request.user.id}_{uuid.uuid4().hex}.jpg')
+                    foto_url = supa.upload_image(bucket=bucket, user_id=str(request.user.id), file=request.FILES['foto'], folder='centros', custom_filename=f'centro_{request.user.id}_{uuid.uuid4().hex}.jpg')
                     if foto_url:
                         centro.url_foto_portada = foto_url
                         centro.save()

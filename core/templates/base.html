@@ -481,6 +481,92 @@
     .navbar-toggler-icon {
         background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3E%3Cpath stroke='rgba%28255,255,255,0.9%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
     }
+
+    /* Global responsive helpers */
+    .container, .container-fluid {
+        width: min(1200px, 100% - 1rem);
+        margin-inline: auto;
+    }
+
+    .page-content {
+        padding: 0 0.8rem 1rem;
+    }
+
+    img {
+        max-width: 100%;
+        height: auto;
+    }
+
+    .eco-card, .card, .profile-card, .evento-card {
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .btn, a.btn, .btn-eco, .btn-comenzar {
+        white-space: normal;
+    }
+
+    @media (max-width: 1200px) {
+        body { padding-top: 72px; }
+        .eco-navbar { height: auto; border-radius: 0; }
+        .eco-navbar-inner { gap: 0.4rem; }
+    }
+
+    @media (max-width: 991px) {
+        .eco-navbar { border-radius: 0; padding: .8rem 12px !important; }
+        .eco-navbar .eco-brand-text { font-size: 1.15rem; }
+        .eco-navbar .nav-link { font-size: 0.95rem; padding: .35rem .6rem !important; }
+        .eco-navbar .btn-nav-primary, .eco-navbar .btn-nav-register, .eco-navbar .btn-google, .eco-navbar .btn-nav-danger { padding: .35rem .9rem; width: 100% !important; text-align: center; }
+        .eco-footer { padding: 2rem 0 1.2rem; }
+        .footer-brand { font-size: 1.2rem; }
+    }
+
+    @media (max-width: 768px) {
+        :root { --navbar-h: 120px; }
+        body { padding-top: var(--navbar-h); }
+        .eco-navbar { position: sticky; top: 0; height: auto; padding: .75rem 0.7rem !important; border-radius: 0; }
+        .eco-navbar .eco-brand-text { font-size: 1.05rem; }
+        .eco-navbar .navbar-collapse { background: rgba(42,157,143,0.9); border-radius: 10px; padding: .4rem; margin-top: .5rem; }
+        .eco-navbar .nav-link { display: block; width: 100%; padding: .35rem .6rem !important; border-radius: 8px; }
+        .eco-navbar .navbar-nav { justify-content: flex-start; width: 100%; gap: .4rem; }
+        .eco-navbar .nav-item { width: 100%; }
+
+        main.page-content { min-height: calc(100vh - var(--navbar-h) - 100px); padding: 0 .3rem 1rem; }
+        .eco-card, .profile-card, .evento-card, .action-card-full, .support-card, .motivation-banner { border-radius: 16px; }
+        .action-card-full, .profile-header-card, .support-card { width: 100% !important; }
+        .eventos-hero h1 { font-size: 2rem; }
+        .eventos-hero p { font-size: 1rem; }
+
+        .eventos-inner { flex-direction: column; gap: 18px; }
+        .evento-image-wrapper { width: 100%; height: 220px; }
+        .evento-image { width: 100%; height: 100%; }
+
+        .profile-avatar-wrapper { width: 80px; height: 80px; }
+        .profile-name { font-size: 1.55rem; }
+        .profile-points { margin-top: .8rem; }
+
+        .footer-wave { display: none; }
+    }
+
+    @media (max-width: 576px) {
+        .eco-navbar { padding: .5rem .4rem !important; }
+        .eco-navbar .brand-icon { width: 32px; height: 32px; }
+        .eco-brand-text { font-size: 1rem; }
+        .eco-navbar .navbar-toggler { padding: .2rem .35rem; }
+        .eco-navbar .nav-link { font-size: 0.9rem; padding: .35rem .45rem !important; }
+
+        .eco-card, .profile-card, .evento-card { margin-inline: 0; border-radius: 14px; }
+        .profile-header-card { flex-direction: column; align-items: center; text-align: center; gap: .7rem; }
+        .profile-actions { justify-content: center; flex-wrap: wrap; }
+        .profile-points { margin-top: .5rem; }
+        .btn-eco, .btn-comenzar { width: 100%; }
+
+        .eventos-filters { flex-direction: column; align-items: stretch; }
+        .search-wrapper-evento input { width: 100%; }
+
+        .eco-footer .row { display: flex; flex-direction: column; gap: .8rem; }
+        .footer-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+    }
     </style>
 
     <!-- CSS propio adicional -->

@@ -16,9 +16,17 @@ class SupabaseClient:
     def __init__(self):
         self.url = settings.SUPABASE_URL.rstrip('/')
         self.key = settings.SUPABASE_ANON_KEY
+        self.service_role_key = getattr(settings, 'SUPABASE_SERVICE_ROLE_KEY', None) or self.key
+        if not getattr(settings, 'SUPABASE_SERVICE_ROLE_KEY', None):
+            logger.warning('No SUPABASE_SERVICE_ROLE_KEY configurado. Storage puede fallar en bucket y escritura.')
         self.headers = {
             'apikey': self.key,
             'Authorization': f'Bearer {self.key}',
+            'Content-Type': 'application/json',
+        }
+        self.storage_headers = {
+            'apikey': self.service_role_key,
+            'Authorization': f'Bearer {self.service_role_key}',
             'Content-Type': 'application/json',
         }
         # Provide compatibility for old code that used `supa.client.table(...)`
@@ -324,75 +332,104 @@ class SupabaseClient:
     # NUEVOS MÉTODOS PARA SUBIR ARCHIVOS
     # ============================================
     
-    def upload_image(self, bucket: str, user_id: str, file, folder: str = "avatars", custom_filename=None):
+    def _normalize_path(self, folder: str, filename: str):
+        folder = (folder or '').strip('/')
+        filename = filename.strip('/')
+        if folder:
+            return f"{folder}/{filename}"
+        return filename
+
+    def _extract_bucket_object(self, public_url: str):
+        # Esperamos url tipo: .../storage/v1/object/public/{bucket}/{object}
+        try:
+            if not public_url:
+                return None, None
+            parts = public_url.split('/storage/v1/object/public/')
+            if len(parts) != 2:
+                return None, None
+            rest = parts[1]
+            bucket, object_path = rest.split('/', 1)
+            # Eliminar query string o fragmentos si los tiene
+            object_path = object_path.split('?', 1)[0].split('#', 1)[0]
+            return bucket, object_path
+        except Exception:
+            return None, None
+
+    def create_bucket(self, bucket: str, public: bool = True):
+        """Crea un bucket de Supabase Storage si no existe."""
+        try:
+            url = f"{self.url}/storage/v1/bucket"
+            headers = {
+                'apikey': self.service_role_key,
+                'Authorization': f'Bearer {self.service_role_key}',
+                'Content-Type': 'application/json',
+            }
+            payload = {'name': bucket, 'public': public}
+            import requests
+            response = requests.post(url, headers=headers, json=payload)
+            if response.status_code in [200, 201]:
+                return True
+            logger.warning("No se pudo crear bucket %s: %s %s", bucket, response.status_code, response.text)
+            return False
+        except Exception as e:
+            logger.warning("Exception en create_bucket: %s", e)
+            return False
+
+    def upload_image(self, bucket: str, user_id: str, file, folder: str = "avatars", custom_filename=None, max_size_bytes: int = 2 * 1024 * 1024):
         """
-        Sube una imagen a Supabase Storage
-        
-        Args:
-            bucket: Nombre del bucket ('avatars' o 'centros')
-            user_id: ID del usuario para organizar carpetas
-            file: El archivo de imagen (request.FILES['campo'])
-            folder: Subcarpeta (avatars, centros, etc)
-            custom_filename: Nombre personalizado (opcional)
-        
-        Returns:
-            str: URL pública de la imagen o None si hay error
+        Sube una imagen a Supabase Storage. Crea el bucket si no existe.
         """
         try:
-            # Leer el archivo
             file_content = file.read()
+            if max_size_bytes and len(file_content) > max_size_bytes:
+                logger.warning("Archivo demasiado grande para upload_image: %s bytes (límite %s)", len(file_content), max_size_bytes)
+                return None
             file_ext = file.name.split('.')[-1].lower()
-            
-            # Validar extensiones permitidas
-            if file_ext not in ['jpg', 'jpeg', 'png', 'gif', 'webp']:
+            if file_ext not in ['jpg', 'jpeg', 'png', 'gif', 'webp', 'webm']:
                 logger.warning("Extensión no permitida: %s", file_ext)
                 return None
-            
-            # Generar nombre único o usar el personalizado
+
             import uuid
             if custom_filename:
-                file_name = f"{folder}/{custom_filename}"
+                filename = custom_filename
             else:
-                unique_id = uuid.uuid4()
-                file_name = f"{folder}/{user_id}_{unique_id}.{file_ext}"
-            
-            # Asegurar nombre de bucket correcto
-                
-            # URL de Supabase Storage
+                filename = f"{user_id}_{uuid.uuid4().hex}.{file_ext}"
+
+            file_name = self._normalize_path(folder, filename)
             url = f"{self.url}/storage/v1/object/{bucket}/{file_name}"
-            
-            # Headers
+
             headers = {
-                'apikey': self.key,
-                'Authorization': f'Bearer {self.key}',
+                'apikey': self.service_role_key,
+                'Authorization': f'Bearer {self.service_role_key}',
                 'Content-Type': file.content_type or f'image/{file_ext}',
             }
-            
-            # Subir archivo
             import requests
             response = requests.post(url, headers=headers, data=file_content)
-            
+
             if response.status_code in [200, 201]:
-                # Obtener URL pública
-                public_url = f"{self.url}/storage/v1/object/public/{bucket}/{file_name}"
-                return public_url
-            else:
-                logger.warning("Error subiendo imagen: %s", response.text)
-                return None
-                
+                return f"{self.url}/storage/v1/object/public/{bucket}/{file_name}"
+
+            # Si el bucket no existe, intentar crearlo y reintentar una vez
+            if response.status_code in [403, 404] or 'bucket' in (response.text or '').lower():
+                logger.warning("Bucket ausente o acceso denegado al subir %s: %s", bucket, response.text)
+                if self.create_bucket(bucket):
+                    response2 = requests.post(url, headers=headers, data=file_content)
+                    if response2.status_code in [200, 201]:
+                        return f"{self.url}/storage/v1/object/public/{bucket}/{file_name}"
+                    logger.warning("Reintento de upload falló (%s): %s", response2.status_code, response2.text)
+            logger.warning("Error subiendo imagen (%s): %s", response.status_code, response.text)
+            return None
         except Exception as e:
             logger.warning("Exception en upload_image: %s", e)
             return None
-    
+
     def delete_image(self, bucket: str, file_path: str):
-        """
-        Elimina una imagen de Storage
-        """
         try:
+            file_path = file_path.strip('/')
             url = f"{self.url}/storage/v1/object/{bucket}/{file_path}"
             headers = {
-                'apikey': self.key,
-                'Authorization': f'Bearer {self.key}',
+                'apikey': self.service_role_key,
+                'Authorization': f'Bearer {self.service_role_key}',
             }
             import requests
             response = requests.delete(url, headers=headers)
@@ -400,3 +437,9 @@ class SupabaseClient:
         except Exception as e:
             logger.warning("Error eliminando imagen: %s", e)
             return False
+
+    def delete_image_by_public_url(self, public_url: str):
+        bucket, object_path = self._extract_bucket_object(public_url)
+        if bucket and object_path:
+            return self.delete_image(bucket, object_path)
+        return False

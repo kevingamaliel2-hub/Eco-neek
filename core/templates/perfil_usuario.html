@@ -103,10 +103,20 @@
       font-size: 1.5rem;
     }
     
-    .profile-member-since {
-      color: rgba(255,255,255,0.9);
-      font-size: 1rem;
-      margin: 0;
+    .profile-role-badge {
+      display: inline-block;
+      margin-top: 4px;
+      background: rgba(255,255,255,0.22);
+      color: white;
+      border-radius: 999px;
+      padding: 4px 12px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.2px;
+      text-transform: uppercase;
+      border: 1px solid rgba(255,255,255,0.35);
+    }
+
       display: flex;
       align-items: center;
     }
@@ -714,13 +724,20 @@
       </div>
       <div class="profile-info">
         <h2 class="profile-name">
-          {{ usuario.first_name|default:usuario.username }}
+          {% if usuario.first_name or usuario.last_name %}
+            {{ usuario.first_name }}{% if usuario.last_name %} {{ usuario.last_name }}{% endif %}
+          {% else %}
+            {{ usuario.username|default:usuario.email }}
+          {% endif %}
           <i class="bi bi-patch-check-fill text-success ms-2"></i>
         </h2>
-        <p class="profile-member-since">
-          <i class="bi bi-calendar-check me-2"></i>
-          Miembro desde {{ usuario.date_joined|date:"d/m/Y" }}
-        </p>
+        <div class="profile-role-badge">{{ usuario.role|default:'Usuario' }}</div>
+        {% if usuario.date_joined %}
+          <p class="profile-member-since mt-2">
+            <i class="bi bi-calendar-check me-2"></i>
+            Miembro desde {{ usuario.date_joined|date:"d/m/Y" }}
+          </p>
+        {% endif %}
       </div>
       <div class="profile-points d-flex align-items-center ms-4">
         <div class="points-icon me-2">
