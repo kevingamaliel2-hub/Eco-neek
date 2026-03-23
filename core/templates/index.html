@@ -165,19 +165,12 @@ document.addEventListener('DOMContentLoaded', function() {
     <div class="row align-items-center g-5">
       <div class="col-lg-6 order-lg-2" data-aos="fade-left">
         <div class="app-phone-display">
-          <!-- Radio buttons ocultos para controlar las tabs -->
-          <input type="radio" name="app-screen" id="screen-participa" checked hidden>
-          <input type="radio" name="app-screen" id="screen-aprende" hidden>
-          <input type="radio" name="app-screen" id="screen-ubica" hidden>
-          <input type="radio" name="app-screen" id="screen-conoce" hidden>
-
-          <!-- Contenedor de imágenes -->
-          <div class="app-screens-container">
-            <img src="{% static 'assets/img/inicio.png' %}" alt="Pantalla Participa" class="app-screen-img" data-screen="participa">
-            <img src="{% static 'assets/img/appaprende.png' %}" alt="Pantalla Aprende" class="app-screen-img" data-screen="aprende">
-            <img src="{% static 'assets/img/appubica.png' %}" alt="Pantalla Ubica" class="app-screen-img" data-screen="ubica">
-            <img src="{% static 'assets/img/appgana.png' %}" alt="Pantalla Conoce" class="app-screen-img" data-screen="conoce">
-          </div>
+          <!-- Mostrar video de demostración (no animación de tabs) -->
+          <video class="app-video" autoplay loop muted playsinline preload="auto" width="100%" height="auto" poster="{% static 'assets/img/sonriendo.png' %}">
+            <source src="{% static 'assets/img/Ecobb.mp4' %}" type="video/mp4">
+            <source src="{% static 'assets/img/Ecoviv.mov' %}" type="video/quicktime">
+            Tu navegador no soporta este formato de video. Envía Ecobb.mp4 a la carpeta <code>static/assets/img</code> si no hay reproducción.
+          </video>
         </div>
       </div>
       <div class="col-lg-6 order-lg-1" data-aos="fade-right">
@@ -194,7 +187,7 @@ document.addEventListener('DOMContentLoaded', function() {
             <div class="tab-number">02</div>
             <div class="tab-content-wrapper">
               <span class="tab-title">Aprende</span>
-              <p class="tab-description">Descubre cómo separar residuos con guías interactivas</p>
+              <p class="tab-description">Descubre manera divertida de cómo separar residuos </p>
             </div>
           </label>
           <label for="screen-ubica" class="app-tab">
@@ -419,7 +412,7 @@ document.addEventListener('DOMContentLoaded', function() {
       <div class="col-lg-6 text-center" data-aos="fade-left">
         <!-- Aquí va la foto profesional de la app -->
         <div class="app-showcase">
-          <img src="{% static 'assets/img/appeventos2.png' %}" alt="App EcoNeek" class="img-fluid app-mockup">
+          <img src="{% static 'assets/img/image2.png' %}" alt="App EcoNeek" class="img-fluid app-mockup">
         </div>
       </div>
     </div>

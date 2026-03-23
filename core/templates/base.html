@@ -497,7 +497,46 @@
         height: auto;
     }
 
-    .eco-card, .card, .profile-card, .evento-card {
+    /* ═══════════════════════════════════════
+       IMAGEN MOCKUPS Y SHOWCASE
+    ═══════════════════════════════════════ */
+    .phone-mockup img,
+    .app-mockup {
+        border-radius: 16px;
+        box-shadow: 0 10px 40px rgba(42,157,143,0.25);
+        object-fit: cover;
+    }
+
+    .app-screen-img {
+        border-radius: 16px;
+    }
+
+    .carousel-image {
+        border-radius: 12px;
+        box-shadow: 0 6px 20px rgba(42,157,143,0.15);
+    }
+
+    .phone-mockup,
+    .app-showcase {
+        display: inline-block;
+        background: transparent;
+        padding: 0;
+        box-shadow: none;
+    }
+
+    .app-mockup {
+        border-radius: 16px;
+        box-shadow: none;
+        border: none;
+        background: transparent;
+        max-width: 100%;
+    }
+
+    .app-screens-container img {
+        border-radius: 16px;
+    }
+
+    .eco-card, .card, .profile-card, .evento-card :
         width: 100%;
         box-sizing: border-box;
     }
@@ -583,7 +622,7 @@
   <div class="container-fluid eco-navbar-inner" style="display:flex;align-items:center;justify-content:space-between;width:100%;gap:.5rem;">
     <a class="eco-logo d-flex align-items-center text-decoration-none" href="/" style="gap:12px;">
       <div class="logo-circle" style="width:48px;height:48px;display:flex;align-items:center;justify-content:center;background:#fff;border-radius:50%;box-shadow:0 2px 8px rgba(42,157,143,0.10);">
-        <img src="{% static 'assets/img/ecoimagen.png' %}" alt="Logo Eco-Neek" style="width:100%;height:100%;object-fit:contain;" onerror="this.style.display='none';">
+        <img src="{% static 'assets/img/logoN.jpeg' %}" alt="Logo Eco-Neek" style="width:100%;height:100%;object-fit:contain;">
       </div>
       <span class="eco-brand-text" style="font-family:'Poppins', 'Nunito', sans-serif;font-weight:600;font-size:22px;color:#fff;letter-spacing:-.5px;">Eco-Neek</span>
     </a>
@@ -660,7 +699,7 @@
       <!-- Columna 1: Logo y descripción -->
       <div class="col-lg-4 col-md-6">
         <div class="footer-brand-wrapper">
-          <img src="{% static 'assets/img/logo.png' %}" alt="EcoNeek" class="footer-logo">
+          <img src="{% static 'assets/img/logoN.jpeg' %}" alt="EcoNeek" class="footer-logo">
           <span class="footer-brand">EcoNeek</span>
         </div>
         <p class="footer-text mt-3">

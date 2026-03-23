@@ -138,7 +138,12 @@ def login_screen(request):
                         try:
                             supa = SupabaseClient()
                             resp = supa.sign_in(login_val, password)
-                            if resp and getattr(resp, 'data', None) and not getattr(resp, 'error', None):
+                            if getattr(resp, 'error', None):
+                                err_text = str(resp.error or '').lower()
+                                if 'invalid login credentials' in err_text or 'user not found' in err_text or 'no such user' in err_text or 'not found' in err_text:
+                                    return redirect(f"/register-screen/?email={quote_plus(login_val)}&tipo=usuario")
+                                error = 'Usuario y/o contraseña incorrectos.'
+                            elif resp and getattr(resp, 'data', None):
                                 # Resp.data typically contains access_token and user
                                 udata = resp.data.get('user') if isinstance(resp.data, dict) else None
                                 email = None
