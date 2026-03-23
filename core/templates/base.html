@@ -463,15 +463,41 @@
         }
 
         .hero-title {
-            text-align: center;
+            text-align: left;
             line-height: 1.2;
             font-size: clamp(1.7rem, 4vw, 3.1rem);
             margin-bottom: 1rem;
         }
 
         .hero-content {
-            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            text-align: left;
             justify-content: center;
+            gap: .75rem;
+            max-width: 640px;
+            margin: 0;
+        }
+
+        .hero-description {
+            font-size: clamp(1rem, 2.2vw, 1.2rem);
+            color: rgba(255,255,255,.9);
+            max-width: 760px;
+            margin: 0 0 1.5rem;
+            text-align: left;
+        }
+
+        @media (max-width: 992px) {
+            .hero-title,
+            .hero-content,
+            .hero-description {
+                text-align: center;
+                align-items: center;
+            }
+            .hero-content {
+                margin: 0 auto;
+            }
         }
 
         input[type="tel"], .form-control[type="tel"], .form-input[type="tel"] {
@@ -640,7 +666,7 @@
 <nav class="eco-navbar navbar navbar-expand-lg" style="padding:14px 20px;box-shadow:0 4px 20px rgba(42,157,143,.15);border-radius:0 0 16px 16px;">
   <div class="container-fluid eco-navbar-inner" style="display:flex;align-items:center;justify-content:space-between;width:100%;gap:.5rem;">
     <a class="eco-logo d-flex align-items-center text-decoration-none" href="/" style="gap:12px;">
-      <!-- Logo en el cuerpo eliminado según preferencia del usuario -->
+      <img src="{% static 'assets/img/LogoM.png' %}" alt="Eco-Neek" style="width:34px; height:34px; border-radius:8px; object-fit:contain; background: rgba(255,255,255,0.2);" />
       <span class="eco-brand-text" style="font-family:'Poppins', 'Nunito', sans-serif;font-weight:600;font-size:22px;color:#fff;letter-spacing:-.5px;">Eco-Neek</span>
     </a>
     <button class="navbar-toggler btn btn-outline-light border-2" type="button" data-bs-toggle="collapse" data-bs-target="#ecoNavbarCollapse" aria-controls="ecoNavbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
