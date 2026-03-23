@@ -381,10 +381,50 @@ class SupabaseClient:
         """
         try:
             file_content = file.read()
-            if max_size_bytes and len(file_content) > max_size_bytes:
-                logger.warning("Archivo demasiado grande para upload_image: %s bytes (límite %s)", len(file_content), max_size_bytes)
-                return None
+            original_size = len(file_content)
             file_ext = file.name.split('.')[-1].lower()
+
+            if max_size_bytes and original_size > max_size_bytes:
+                logger.warning("Archivo demasiado grande para upload_image: %s bytes (límite %s). Intentando compresión.", original_size, max_size_bytes)
+                try:
+                    from PIL import Image
+                    from io import BytesIO
+
+                    img = Image.open(BytesIO(file_content))
+                    if img.mode in ('RGBA', 'LA'):
+                        fondo = Image.new('RGB', img.size, (255, 255, 255))
+                        fondo.paste(img, mask=img.split()[-1])
+                        img = fondo
+                    elif img.mode != 'RGB':
+                        img = img.convert('RGB')
+
+                    comprimido = None
+                    for quality in [85, 75, 65, 55, 45, 35, 25]:
+                        buffer = BytesIO()
+                        img.save(buffer, format='JPEG', quality=quality, optimize=True)
+                        candidate = buffer.getvalue()
+                        if len(candidate) <= max_size_bytes:
+                            comprimido = candidate
+                            file_ext = 'jpg'
+                            break
+
+                    if comprimido is not None:
+                        file_content = comprimido
+                        logger.info('Imagen comprimida a %s bytes con calidad %s para cumplir el límite.', len(file_content), quality)
+                    else:
+                        logger.warning('No se pudo comprimir la imagen por debajo de %s bytes.', max_size_bytes)
+                        return None
+                except ImportError:
+                    logger.warning('Pillow (PIL) no está instalado, no se puede comprimir la imagen. Ajuste max_size_bytes o instale Pillow.')
+                    return None
+                except Exception as e:
+                    logger.warning('Error al intentar comprimir imagen: %s', e)
+                    return None
+
+            if max_size_bytes and len(file_content) > max_size_bytes:
+                logger.warning("Archivo sigue siendo demasiado grande después de compresión: %s bytes (límite %s)", len(file_content), max_size_bytes)
+                return None
+
             if file_ext not in ['jpg', 'jpeg', 'png', 'gif', 'webp', 'webm']:
                 logger.warning("Extensión no permitida: %s", file_ext)
                 return None

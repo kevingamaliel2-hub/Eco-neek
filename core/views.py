@@ -589,20 +589,27 @@ def register_screen(request):
                         if request.FILES.get('foto'):
                             try:
                                 foto_archivo = request.FILES.get('foto')
-                                foto_url = supa.upload_image(
-                                    bucket='centros',
-                                    user_id=supa_user_id,
-                                    file=foto_archivo,
-                                    folder='centros',
-                                    custom_filename=f'centro_{centro_id}_{uuid.uuid4().hex}.jpg'
-                                )
-                                if foto_url:
-                                    supa.client.table('centros_acopio').update({'url_foto_portada': foto_url}).eq('id', centro_id).execute()
-                                    supa.client.table('perfiles').update({'imagen_url': foto_url}).eq('id', supa_user_id).execute()
-                                    if centro_data is not None:
-                                        centro_data['url_foto_portada'] = foto_url
-                            except Exception:
-                                pass
+                                if foto_archivo.size > 2 * 1024 * 1024:
+                                    messages.error(request, 'La imagen es demasiado grande. El límite es 2 MB. Selecciona otra imagen más pequeña.')
+                                else:
+                                    foto_url = supa.upload_image(
+                                        bucket='centros',
+                                        user_id=supa_user_id,
+                                        file=foto_archivo,
+                                        folder='centros',
+                                        custom_filename=f'centro_{centro_id}_{uuid.uuid4().hex}.jpg',
+                                        max_size_bytes=2 * 1024 * 1024
+                                    )
+                                    if foto_url:
+                                        supa.client.table('centros_acopio').update({'url_foto_portada': foto_url}).eq('id', centro_id).execute()
+                                        supa.client.table('perfiles').update({'imagen_url': foto_url}).eq('id', supa_user_id).execute()
+                                        if centro_data is not None:
+                                            centro_data['url_foto_portada'] = foto_url
+                                    else:
+                                        messages.error(request, 'No se pudo subir la imagen del centro. Verifica el tamaño/formato (JPEG/PNG/WebP hasta 2MB).')
+                            except Exception as e:
+                                logger.warning('Error al subir foto del centro: %s', e)
+                                messages.error(request, 'Error interno subiendo la imagen del centro.')
 
                         # Para la plantilla de centro_pendiente, usar el dict del supa
                         if tipo == 'centro':
@@ -1383,22 +1390,26 @@ def editar_perfil(request):
                 if not deleted:
                     logger.warning('No se pudo borrar avatar antiguo: %s', old_img_url)
 
-            # Subir la imagen al bucket avatars
-            file_ext = avatar_file.name.split('.')[-1].lower()
-            custom_filename = f"usuario_{usuario.id}_{uuid.uuid4().hex}.{file_ext}"
-            imagen_url = supa.upload_image(
-                bucket='avatars',
-                user_id=str(usuario.id),
-                file=avatar_file,
-                folder='usuarios',
-                custom_filename=custom_filename,
-                max_size_bytes=2 * 1024 * 1024,
-            )
-            if imagen_url:
-                datos_actualizar['imagen_url'] = imagen_url
-                messages.success(request, '✅ Foto subida correctamente')
+            # Validar tamaño antes de subir
+            if avatar_file.size > 2 * 1024 * 1024:
+                messages.error(request, 'La imagen es demasiado grande. El límite es 2 MB. Selecciona otra imagen más pequeña.')
             else:
-                messages.error(request, '❌ No se pudo subir la foto. Verifica el tamaño o formato (jpg/png/webp).')
+                # Subir la imagen al bucket avatars
+                file_ext = avatar_file.name.split('.')[-1].lower()
+                custom_filename = f"usuario_{usuario.id}_{uuid.uuid4().hex}.{file_ext}"
+                imagen_url = supa.upload_image(
+                    bucket='avatars',
+                    user_id=str(usuario.id),
+                    file=avatar_file,
+                    folder='usuarios',
+                    custom_filename=custom_filename,
+                    max_size_bytes=2 * 1024 * 1024,
+                )
+                if imagen_url:
+                    datos_actualizar['imagen_url'] = imagen_url
+                    messages.success(request, '✅ Foto subida correctamente')
+                else:
+                    messages.error(request, '❌ No se pudo subir la foto. Verifica el tamaño o formato (jpg/png/webp).')
 
         # Si no existe perfil en Supabase, intentar crear uno con correo y nombre simple.
         if not perfil_id:

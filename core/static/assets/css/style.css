@@ -1220,6 +1220,30 @@ body {
   transition: var(--transition);
 }
 
+.hero-visuals {
+  gap: 1rem;
+}
+
+.hero-logo-box {
+  max-width: 220px;
+}
+
+.hero-logo-image {
+  width: 100%;
+  border-radius: 20px;
+  border: 5px solid rgba(255,255,255,0.55);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+}
+
+@media (max-width: 991px) {
+  .hero-visuals {
+    flex-direction: column;
+  }
+  .hero-logo-box {
+    max-width: 260px;
+  }
+}
+
 .phone-mockup:hover {
   transform: perspective(1000px) rotateY(0deg) rotateX(0deg);
 }
@@ -2441,8 +2465,16 @@ body {
     margin: 0 5px;
   }
   
+  .hero-section .hero-content,
+  .hero-section .hero-image {
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
   .hero-title {
     font-size: 2.2rem;
+    text-align: center;
   }
   
   .hero-description {

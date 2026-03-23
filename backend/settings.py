@@ -131,6 +131,10 @@ if _flutter_images.exists():
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
+# Limitar tamaño de subida a nivel de Django (previene que un upload de 50MB caiga el servidor)
+DATA_UPLOAD_MAX_MEMORY_SIZE = 2 * 1024 * 1024   # 2 MB total por request
+FILE_UPLOAD_MAX_MEMORY_SIZE = 2 * 1024 * 1024   # 2 MB por archivo
+
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Authentication

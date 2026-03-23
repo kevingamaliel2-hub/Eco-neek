@@ -115,7 +115,8 @@
                   <div style="font-weight:700;">Añade una foto del centro</div>
                   <div style="font-size:.85rem; color:#6c757d;">Ayuda a los usuarios a ubicarte</div>
                 </div>
-                <input type="file" name="foto" accept="image/*" class="form-control" style="width:auto; max-width:35%; margin-left:auto;" onchange="previewImage(event)">
+                <input type="file" name="foto" accept="image/*" class="form-control" style="width:auto; max-width:35%; margin-left:auto;" onchange="if (validateImageSize(this)) previewImage(event);">
+              <small class="text-muted">Máximo 2 MB. Si necesita mejorar, reduzca resolución antes de subir.</small>
               </div>
               <img id="preview" src="" style="margin-top:.5rem; max-width: 120px; display:none; border-radius:8px;" alt="Vista previa">
             </div>
@@ -221,6 +222,18 @@ async function buscarDireccion() {
     console.error(err);
     alert('Error al autocompletar. Intenta de nuevo.');
   }
+}
+
+function validateImageSize(input) {
+  const file = input.files[0];
+  if (!file) return true;
+  const maxBytes = 2 * 1024 * 1024;
+  if (file.size > maxBytes) {
+    input.value = '';
+    alert('La imagen es demasiado grande. Máximo 2 MB. Selecciona un archivo más pequeño.');
+    return false;
+  }
+  return true;
 }
 
 function previewImage(event) {

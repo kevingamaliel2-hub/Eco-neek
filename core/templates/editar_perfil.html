@@ -481,13 +481,13 @@
                         <div class="upload-area-premium" onclick="document.getElementById('avatarInput').click()">
                             <i class="bi bi-cloud-arrow-up"></i>
                             <p>Seleccionar nueva imagen</p>
-                            <small>JPG, PNG hasta 2MB</small>
+                            <small>JPG, PNG/WebP hasta 2MB</small>
                             <input type="file" 
                                    id="avatarInput" 
                                    name="avatar" 
                                    accept="image/*" 
                                    style="display: none;"
-                                   onchange="previewAvatar(event)">
+                                   onchange="if (validateImageSize(this)) previewAvatar(event)">
                         </div>
                     </div>
 
@@ -511,6 +511,18 @@
 </div>
 
 <script>
+function validateImageSize(input) {
+    const file = input.files[0];
+    if (!file) return true;
+    const maxBytes = 2 * 1024 * 1024;
+    if (file.size > maxBytes) {
+        input.value = '';
+        alert('La imagen es demasiado grande. Máximo 2 MB. Selecciona un archivo más pequeño.');
+        return false;
+    }
+    return true;
+}
+
 function previewAvatar(event) {
     const file = event.target.files[0];
     if (file) {
