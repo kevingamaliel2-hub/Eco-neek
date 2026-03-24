@@ -1327,6 +1327,11 @@ body {
   background: var(--light-bg);
 }
 
+/* Evita overflow horizontal en móviles y tablets */
+html, body {
+  overflow-x: hidden;
+}
+
 .app-phone-display {
   text-align: center;
   padding: 20px;
@@ -1335,7 +1340,12 @@ body {
 .app-interactive-section .row.align-items-center.g-5 {
   gap: 40px;
   align-items: flex-start;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
+}
+
+.app-interactive-section .row.align-items-center.g-5 > .col-lg-6 {
+  flex: 0 0 100%;
+  max-width: 100%;
 }
 
 .app-interactive-section .row.align-items-center.g-5 > .col-lg-6 {
@@ -2541,6 +2551,20 @@ body {
     align-items: center;
     border-bottom: 1px solid rgba(255,255,255,0.2);
     padding-bottom: 10px;
+  }
+
+  .app-interactive-section .row.align-items-center.g-5 {
+    gap: 25px;
+  }
+
+  .app-video {
+    min-height: 320px;
+    height: auto;
+  }
+
+  .app-interactive-section .col-lg-6 {
+    width: 100%;
+    max-width: 100%;
   }
   
   .stat-number {
