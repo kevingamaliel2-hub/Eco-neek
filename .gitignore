@@ -20,5 +20,3 @@ Thumbs.db
 
 # Archivos estáticos compilados
 staticfiles/http://127.0.0.1:8000/admin/centros/
-selfsigned.key
-selfsigned.crt
