@@ -45,6 +45,9 @@ INSTALLED_APPS = [
     'django.contrib.sites',
     
     # Third party
+    'django_otp',  # Base para OTP
+    'django_otp.plugins.otp_totp',  # TOTP (Google Authenticator)
+    'two_factor',  # Librería principal 2FA (debe ir antes de allauth)
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
@@ -52,6 +55,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     'corsheaders',
+    'django_extensions',  # Para runserver_plus con HTTPS local
     
     # Local
     'core.apps.CoreConfig',
@@ -67,6 +71,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'allauth.account.middleware.AccountMiddleware',
+    # 'core.middleware.TwoFactorMiddleware',  # Fuerza 2FA en staff (temporalmente deshabilitado)
 ]
 
 ROOT_URLCONF = 'backend.urls'
@@ -168,9 +173,28 @@ ACCOUNT_LOGOUT_ON_GET = True
 SOCIALACCOUNT_LOGIN_ON_GET = True
 
 # Email settings
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # En prod use un backend real (SMTP, SendGrid, etc.)
 ACCOUNT_SIGNUP_FIELDS = ['email*', 'username*', 'password1*', 'password2*']
-ACCOUNT_EMAIL_VERIFICATION = 'none'
+ACCOUNT_EMAIL_VERIFICATION = 'mandatory'  # Mejora de seguridad: verificar correo antes de acceder.
+ACCOUNT_LOGIN_METHODS = {'username', 'email'}
+# ACCOUNT_AUTHENTICATION_METHOD = 'username_email'  # Deprecated en Django-allauth 5.2
+# ACCOUNT_USER_MODEL_USERNAME_FIELD = 'username'  # asume el UserModel actual
+# ACCOUNT_USERNAME_REQUIRED = True  # Deprecated, usa ACCOUNT_SIGNUP_FIELDS
+# ACCOUNT_EMAIL_REQUIRED = True  # Deprecated, usa ACCOUNT_SIGNUP_FIELDS
+ACCOUNT_PASSWORD_MIN_LENGTH = 12
+
+# OTP/MFA: configuración para django-two-factor-auth
+# LOGIN_URL = 'two_factor:login'  # Redirige login a 2FA si está configurado
+# ACCOUNT_ADAPTER = 'two_factor.adapters.TwoFactorAdapter'  # Integra con allauth
+LOGIN_REDIRECT_URL = '/'  # Redirige después del login exitoso
+TWO_FACTOR_PATCH_ADMIN = True  # Protege admin con 2FA si está configurado
+TWO_FACTOR_QR_FACTORY = 'qrcode.image.pil.PilImage'  # Para generar QR
+TWO_FACTOR_LOGIN_TIMEOUT = 600  # 10 min timeout para login 2FA
+
+# OTP/MFA: instalar django-two-factor-auth y django-otp para activar completamente
+# (no está en requirements por defecto). En producción, añadir:
+# INSTALLED_APPS += ['django_otp', 'django_otp.plugins.otp_totp', 'two_factor']
+# y usar two_factor.urls para rutas /account/login/ etc.
 
 # Supabase configuration
 SUPABASE_URL = os.getenv('SUPABASE_URL', 'https://nzywjcjferkjmuxhuznm.supabase.co')
@@ -185,7 +209,15 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticatedOrReadOnly',
-    ]
+    ],
+    'DEFAULT_THROTTLE_CLASSES': (
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle',
+    ),
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '200/day',
+        'user': '1000/day',
+    },
 }
 
 # CORS
@@ -217,6 +249,42 @@ SECURE_HSTS_PRELOAD = not DEBUG
 SECURE_BROWSER_XSS_FILTER = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
 X_FRAME_OPTIONS = 'DENY'
+
+# Duración y seguridad de sesiones
+SESSION_COOKIE_AGE = 60 * 60 * 24 * 7  # 7 días
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False
+SESSION_COOKIE_HTTPONLY = True
+CSRF_COOKIE_HTTPONLY = False  # usual en Django; con secure+sameSite definido
+CSRF_COOKIE_SAMESITE = 'Lax'
+SESSION_COOKIE_SAMESITE = 'Lax'
+
+# Logging básico local/producción
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s'
+        },
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
+        },
+        'file': {
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': BASE_DIR / 'django.log',
+            'maxBytes': 1024 * 1024 * 10,
+            'backupCount': 5,
+            'formatter': 'verbose',
+        },
+    },
+    'root': {
+        'handlers': ['console', 'file'],
+        'level': 'INFO',
+    },
+}
 
 # Al final del archivo, después de todas las configuraciones
 AUTH_USER_MODEL = 'core.UsuarioDjango'

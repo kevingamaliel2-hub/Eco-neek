@@ -182,6 +182,43 @@
       transform: translateY(-3px);
     }
     
+    .btn-profile-2fa {
+      padding: 12px 25px;
+      border-radius: 40px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      border: 2px solid;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+    
+    .btn-2fa-disabled {
+      background: rgba(255,255,255,0.15);
+      color: white;
+      border-color: rgba(255,255,255,0.3);
+    }
+    
+    .btn-2fa-disabled:hover {
+      background: #28a745;
+      color: white;
+      border-color: #28a745;
+      transform: translateY(-3px);
+    }
+    
+    .btn-2fa-enabled {
+      background: rgba(255,255,255,0.15);
+      color: white;
+      border-color: rgba(255,255,255,0.3);
+    }
+    
+    .btn-2fa-enabled:hover {
+      background: #dc3545;
+      color: white;
+      border-color: #dc3545;
+      transform: translateY(-3px);
+    }
+    
     /* Contenido principal */
     .profile-content-container {
       margin-top: -60px;
@@ -760,6 +797,20 @@
             <i class="bi bi-box-arrow-right me-2"></i>
             Cerrar sesión
           </button>
+        </form>
+        <form action="{% url 'toggle_two_factor' %}" method="post" style="display:inline;">
+          {% csrf_token %}
+          {% if two_factor_available %}
+            <button type="submit" class="btn btn-profile-2fa {% if two_factor_enabled %}btn-2fa-enabled{% else %}btn-2fa-disabled{% endif %}">
+              <i class="bi {% if two_factor_enabled %}bi-shield-check{% else %}bi-shield{% endif %} me-2"></i>
+              {% if two_factor_enabled %}Desactivar 2FA{% else %}Activar 2FA (demo){% endif %}
+            </button>
+          {% else %}
+            <button type="button" class="btn btn-profile-2fa btn-2fa-disabled" disabled>
+              <i class="bi bi-shield-exclamation me-2"></i>
+              2FA no disponible (demo)
+            </button>
+          {% endif %}
         </form>
       </div>
     </div>

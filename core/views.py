@@ -98,12 +98,21 @@ def login_screen(request):
     panel de centros.
     """
     from django.contrib.auth import authenticate, login, get_user_model
+    from django.core.cache import cache
 
     error = None
     # límite de intentos: almacenamos contador en sesión
     attempts = request.session.get('login_attempts', 0)
-    
-    if request.method == 'POST':
+
+    # Limitar por IP temporal (15 min) para mitigar fuerza bruta global
+    client_ip = request.META.get('HTTP_X_FORWARDED_FOR', request.META.get('REMOTE_ADDR', ''))
+    if ',' in client_ip:
+        client_ip = client_ip.split(',')[0].strip()
+    ip_block_key = f'login_ip_block_{client_ip}'
+    if cache.get(ip_block_key):
+        error = 'Has superado el número máximo de intentos desde esta IP. Espera unos minutos.'
+
+    if request.method == 'POST' and not error:
         if attempts >= 5:
             error = 'Has superado el número máximo de intentos. Espera unos minutos.'
         else:
@@ -214,10 +223,15 @@ def login_screen(request):
                 except Exception:
                     error = 'Usuario y/o contraseña incorrectos.'
 
-            # incrementar contador cuando falla la autenticación local/Supabase
-            if not error:
+            # En resultados con error, incrementar contador y bloquear temporalmente la IP si corresponde
+            if error:
                 attempts += 1
                 request.session['login_attempts'] = attempts
+
+                if attempts >= 5:
+                    cache.set(ip_block_key, True, 60 * 15)  # 15 min de bloqueo por IP
+            else:
+                request.session['login_attempts'] = 0
 
     return render(request, 'login_screen.html', {'error': error})
 
@@ -354,12 +368,18 @@ def register_screen(request):
             error = 'Correo electrónico no válido.'
         elif not password:
             error = 'Se requiere contraseña.'
-        elif len(password) < 6:
-            error = 'La contraseña debe tener al menos 6 caracteres.'
+        elif len(password) < 12:
+            error = 'La contraseña debe tener al menos 12 caracteres.'
         elif len(password) > 128:
             error = 'La contraseña no puede superar los 128 caracteres.'
         elif password != password2:
             error = 'Las contraseñas no coinciden.'
+        elif password.lower() == password or password.upper() == password:
+            error = 'La contraseña debe contener letras mayúsculas y minúsculas.'
+        elif not any(c.isdigit() for c in password):
+            error = 'La contraseña debe contener al menos un número.'
+        elif not any(c in '!@#$%^&*()-_=+[]{}|;:,.<>?/~`' for c in password):
+            error = 'La contraseña debe contener al menos un carácter especial.'
         elif not terms:
             error = 'Debes aceptar los términos y condiciones.'
         elif tipo == 'usuario' and not nombre:
@@ -905,6 +925,16 @@ def perfil(request):
         'ultimos_canjes': ultimos_canjes,
         'qr_url': qr_url,
     }
+
+    # Agregar estado de 2FA (defensivo: si no existen tablas de django_otp no romper)
+    try:
+        from django_otp import user_has_device
+        context['two_factor_enabled'] = user_has_device(request.user)
+        context['two_factor_available'] = True
+    except Exception:
+        context['two_factor_enabled'] = False
+        context['two_factor_available'] = False
+
     return render(request, 'perfil_usuario.html', context)
 
 
@@ -2302,6 +2332,40 @@ def centro_publico(request, centro_id):
     }
     
     return render(request, 'centro_publico.html', context)
+
+
+# ========================================
+# FUNCIONES PARA 2FA (AUTENTICACIÓN MULTIFACTOR)
+# ========================================
+
+@login_required
+def toggle_two_factor(request):
+    """Activa o desactiva 2FA para el usuario actual."""
+    from django.contrib import messages
+    from django_otp.plugins.otp_totp.models import TOTPDevice
+
+    if request.method == 'POST':
+        try:
+            from django_otp import user_has_device
+            has_2fa = user_has_device(request.user)
+        except Exception as e:
+            messages.error(request, '2FA no está disponible porque no se aplicaron las migraciones de seguridad. Ejecute migrate.')
+            return redirect('perfil')
+
+        if has_2fa:
+            # Desactivar 2FA: eliminar dispositivos
+            devices = TOTPDevice.objects.filter(user=request.user)
+            devices.delete()
+            messages.success(request, '2FA desactivado exitosamente.')
+            # Log de seguridad
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.info(f"Usuario {request.user.email} desactivó 2FA")
+        else:
+            # Temporalmente no activamos 2FA automáticamente
+            messages.warning(request, '2FA no está disponible en esta versión demo. Pronto estará activo.')
+
+    return redirect('perfil')
 
 
 

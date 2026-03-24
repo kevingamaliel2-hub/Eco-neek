@@ -15,6 +15,8 @@ urlpatterns = [
     path('eventos/', views.eventos, name='eventos'),
     path('perfil/', views.perfil, name='perfil'),
     path('perfil/editar/', views.editar_perfil, name='editar_perfil'),
+    # Ruta para activar/desactivar 2FA
+    path('perfil/toggle-2fa/', views.toggle_two_factor, name='toggle_two_factor'),
     # Supabase-backed API endpoints (no escrituras locales)
     path('api/perfil/', views.api_perfil, name='api_perfil'),
     path('api/perfil/editar/', views.api_editar_perfil, name='api_editar_perfil'),
